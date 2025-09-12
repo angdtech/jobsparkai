@@ -162,8 +162,77 @@ GRANT ALL ON public.user_sessions TO anon, authenticated;
 GRANT ALL ON public.auth_cv_sessions TO anon, authenticated;
 GRANT ALL ON public.cv_ats_analysis TO anon, authenticated;
 
+-- Create CV content sections table
+CREATE TABLE public.cv_content (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    auth_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    
+    -- Personal Information
+    full_name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    location VARCHAR(255),
+    linkedin_url VARCHAR(500),
+    website_url VARCHAR(500),
+    
+    -- Professional Summary
+    professional_summary TEXT,
+    
+    -- Work Experience (JSON array)
+    work_experience JSONB DEFAULT '[]',
+    
+    -- Education (JSON array)
+    education JSONB DEFAULT '[]',
+    
+    -- Skills (JSON array)
+    skills JSONB DEFAULT '[]',
+    
+    -- Additional sections
+    certifications JSONB DEFAULT '[]',
+    languages JSONB DEFAULT '[]',
+    projects JSONB DEFAULT '[]',
+    achievements JSONB DEFAULT '[]',
+    
+    -- Metadata
+    extracted_from_file VARCHAR(500),
+    extraction_method VARCHAR(100) DEFAULT 'openai',
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Enable RLS for cv_content
+ALTER TABLE public.cv_content ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view their own CV content
+CREATE POLICY "Users can view own CV content" ON public.cv_content
+    FOR SELECT USING (auth.uid() = auth_user_id);
+
+-- Policy: Users can create their own CV content
+CREATE POLICY "Users can create own CV content" ON public.cv_content
+    FOR INSERT WITH CHECK (auth.uid() = auth_user_id);
+
+-- Policy: Users can update their own CV content
+CREATE POLICY "Users can update own CV content" ON public.cv_content
+    FOR UPDATE USING (auth.uid() = auth_user_id);
+
+-- Policy: Users can delete their own CV content
+CREATE POLICY "Users can delete own CV content" ON public.cv_content
+    FOR DELETE USING (auth.uid() = auth_user_id);
+
+-- Trigger to automatically update updated_at for CV content
+CREATE TRIGGER update_cv_content_updated_at
+    BEFORE UPDATE ON public.cv_content
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Grant permissions
+GRANT ALL ON public.cv_content TO anon, authenticated;
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_auth_cv_sessions_user_id ON public.auth_cv_sessions(auth_user_id);
 CREATE INDEX IF NOT EXISTS idx_auth_cv_sessions_session_id ON public.auth_cv_sessions(session_id);
 CREATE INDEX IF NOT EXISTS idx_cv_ats_analysis_session_id ON public.cv_ats_analysis(session_id);
 CREATE INDEX IF NOT EXISTS idx_cv_ats_analysis_user_id ON public.cv_ats_analysis(auth_user_id);
+CREATE INDEX IF NOT EXISTS idx_cv_content_session_id ON public.cv_content(session_id);
+CREATE INDEX IF NOT EXISTS idx_cv_content_user_id ON public.cv_content(auth_user_id);

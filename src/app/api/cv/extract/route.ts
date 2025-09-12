@@ -14,26 +14,57 @@ export async function POST(request: NextRequest) {
 
     let filePath = file_path
     
-    // If no file_path provided, look it up from the session
-    if (!filePath) {
-      const { CVSessionManager } = await import('@/lib/database')
-      const session = await CVSessionManager.getSession(session_id)
-      
-      if (!session || !session.file_name) {
-        return NextResponse.json({ error: 'Session not found or no file uploaded' }, { status: 404 })
-      }
-      
-      // Use stored file_path from session, or construct it if not available
-      if (session.file_path) {
-        filePath = session.file_path
-      } else {
-        // Fallback: construct file path from session data
-        const timestamp = session.created_at ? new Date(session.created_at).getTime() : Date.now()
-        const fileExtension = path.extname(session.file_name)
-        const fileName = `${session_id}-${timestamp}${fileExtension}`
-        filePath = path.join(process.cwd(), 'public', 'uploads', 'cvs', fileName)
-      }
+    // Always look up the session and find the actual file
+    const { CVSessionManager } = await import('@/lib/database')
+    const session = await CVSessionManager.getSession(session_id)
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
+    
+    console.log('Session data:', session)
+    
+    // Always search for the file in uploads directory using session ID
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'cvs')
+    console.log('Looking for files in:', uploadsDir)
+    console.log('Session ID:', session_id)
+    
+    if (!existsSync(uploadsDir)) {
+      return NextResponse.json({ error: 'Uploads directory not found' }, { status: 500 })
+    }
+    
+    const { readdirSync } = await import('fs')
+    const files = readdirSync(uploadsDir)
+    console.log('All files in uploads:', files)
+    
+    // Try exact session match first, then partial match
+    let sessionFiles = files.filter(f => f.startsWith(session_id))
+    
+    // If no exact match, try to find files that contain the session ID
+    if (sessionFiles.length === 0) {
+      console.log('No exact session match, trying partial match...')
+      sessionFiles = files.filter(f => f.includes(session_id))
+    }
+    
+    console.log('Files matching session ID:', sessionFiles)
+    
+    if (sessionFiles.length === 0) {
+      return NextResponse.json({ 
+        error: 'No file found for this session',
+        session_id,
+        searched_in: uploadsDir,
+        available_files: files,
+        debug: {
+          exact_match_attempted: files.filter(f => f.startsWith(session_id)),
+          partial_match_attempted: files.filter(f => f.includes(session_id))
+        }
+      }, { status: 404 })
+    }
+    
+    // Use the most recent file (highest timestamp)
+    const latestFile = sessionFiles.sort().pop()
+    filePath = path.join(uploadsDir, latestFile)
+    console.log(`Using file: ${latestFile} (full path: ${filePath})`)
 
     // Check if file exists
     if (!existsSync(filePath)) {

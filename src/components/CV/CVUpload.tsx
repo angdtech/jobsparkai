@@ -28,7 +28,7 @@ export default function CVUpload({ onFileUploaded, sessionId }: CVUploadProps) {
       formData.append('cv_file', file)
       formData.append('session_id', sessionId)
 
-      // Upload file to our API
+      // Upload file to our API (now includes extraction)
       const uploadResponse = await fetch('/api/cv/upload', {
         method: 'POST',
         body: formData,
@@ -41,27 +41,16 @@ export default function CVUpload({ onFileUploaded, sessionId }: CVUploadProps) {
       }
 
       const uploadResult = await uploadResponse.json()
+      console.log('Upload and extraction result:', uploadResult)
 
-      // Extract text content from the uploaded CV
-      const extractResponse = await fetch('/api/cv/extract', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          file_path: uploadResult.file_path,
-          session_id: sessionId,
-        }),
-      })
-
-      if (!extractResponse.ok) {
-        throw new Error('Failed to extract CV content')
+      if (uploadResult.extracted_content) {
+        setSuccess(`Successfully uploaded and analyzed ${file.name}`)
+      } else {
+        setSuccess(`Successfully uploaded ${file.name} (extraction pending)`)
       }
-
-      const extractedData = await extractResponse.json()
-
-      setSuccess(`Successfully uploaded ${file.name}`)
-      onFileUploaded(file, extractedData)
+      
+      // Pass the extraction result to the parent
+      onFileUploaded(file, uploadResult.extraction_result || {})
 
     } catch (err) {
       console.error('Upload error:', err)

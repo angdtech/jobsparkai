@@ -59,13 +59,28 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
 
       const uploadResult = await uploadResponse.json()
 
-      // Step 2: Extract content
+      // Step 2: Extract content using real Python extraction
       setUploadStep(2)
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const extractResponse = await fetch('/api/cv/extract-real', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+        }),
+      })
+
+      if (!extractResponse.ok) {
+        throw new Error('Failed to extract CV content')
+      }
+
+      const extractResult = await extractResponse.json()
+      console.log('Extraction completed:', extractResult.success)
       
-      // Step 3: Analyze
+      // Step 3: Analyze 
       setUploadStep(3)
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       // Redirect to analysis results
       router.push(`/cv/${sessionId}`)

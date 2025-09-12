@@ -5,16 +5,47 @@ import { useEffect, useState } from 'react'
 import { redirect, useRouter } from 'next/navigation'
 import { CVSessionManager, CVSession } from '@/lib/database'
 import { useDropzone } from 'react-dropzone'
-import { Upload, X, FileText, Zap, Eye, Trash2, Calendar, FileCheck } from 'lucide-react'
+import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+
+// Engaging facts and tips for upload progress
+const UPLOAD_FACTS = [
+  {
+    title: "Currently analyzing...",
+    text: "Extracting text from your CV and checking for ATS compatibility issues that could block interviews."
+  },
+  {
+    title: "Did you know?",
+    text: "75% of resumes are rejected by ATS systems before a human ever sees them. We're making sure yours gets through."
+  },
+  {
+    title: "Pro tip:",
+    text: "Recruiters spend only 7.4 seconds scanning a resume. Every word needs to count."
+  },
+  {
+    title: "We're checking...",
+    text: "Keywords, formatting, section headers, and content structure that ATS systems require."
+  },
+  {
+    title: "Industry insight:",
+    text: "Resumes with quantified achievements get 40% more interview callbacks than generic descriptions."
+  },
+  {
+    title: "Almost done!",
+    text: "Our AI is identifying specific issues and preparing personalized recommendations for your CV."
+  }
+]
 
 export default function Dashboard() {
   const { user, loading, signOut } = useAuth()
   const router = useRouter()
   const [cvSessions, setCvSessions] = useState<CVSession[]>([])
+  const [cvAnalysisData, setCvAnalysisData] = useState<{[key: string]: any}>({})
   const [loadingSessions, setLoadingSessions] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStep, setUploadStep] = useState(0)
+  const [currentFactIndex, setCurrentFactIndex] = useState(0)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -28,12 +59,48 @@ export default function Dashboard() {
     }
   }, [user])
 
+  // Cycle through upload facts while uploading
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isUploading) {
+      interval = setInterval(() => {
+        setCurrentFactIndex((prevIndex) => (prevIndex + 1) % UPLOAD_FACTS.length)
+      }, 4000) // Change fact every 4 seconds
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isUploading])
+
   const fetchUserSessions = async () => {
     if (!user) return
 
     try {
       const sessions = await CVSessionManager.getUserSessions(user.id)
       setCvSessions(sessions)
+      
+      // Fetch analysis data for each session using ATSAnalysisManager
+      const analysisData: {[key: string]: any} = {}
+      for (const session of sessions) {
+        try {
+          // Import ATSAnalysisManager dynamically to avoid circular imports
+          const { ATSAnalysisManager } = await import('@/lib/database')
+          const data = await ATSAnalysisManager.getAnalysis(session.session_id)
+          
+          if (data) {
+            analysisData[session.session_id] = data
+            console.log(`Found analysis for session ${session.session_id}:`, {
+              issues: data.issues?.length,
+              rating: data.rating
+            })
+          } else {
+            console.log(`No analysis data for session ${session.session_id}`)
+          }
+        } catch (error) {
+          console.error(`Error fetching analysis for session ${session.session_id}:`, error)
+        }
+      }
+      setCvAnalysisData(analysisData)
     } catch (error) {
       console.error('Error fetching sessions:', error)
     } finally {
@@ -49,8 +116,7 @@ export default function Dashboard() {
     setUploadStep(1)
 
     try {
-      // First create a session
-      setUploadStep(1)
+      // Create a session and process the file
       const session = await CVSessionManager.createSession(user.id)
       if (!session) {
         throw new Error('Failed to create session')
@@ -61,10 +127,7 @@ export default function Dashboard() {
       formData.append('cv_file', file)
       formData.append('session_id', session.session_id)
       
-      // Step 2: Upload file
-      setUploadStep(2)
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Visual delay
-      
+      // Upload and analyze
       const uploadResponse = await fetch('/api/cv/upload', {
         method: 'POST',
         body: formData
@@ -78,18 +141,20 @@ export default function Dashboard() {
       const uploadResult = await uploadResponse.json()
       const sessionId = session.session_id
 
-      // Step 3: Analyze
-      setUploadStep(3)
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Give a moment for the analysis to feel complete
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Close modal and refresh sessions
+      // Close modal (if it was open) and refresh sessions  
       setShowUploadModal(false)
       setIsUploading(false)
       setUploadStep(0)
       await fetchUserSessions()
 
-      // Redirect to analysis results
-      router.push(`/cv/${sessionId}`)
+      // Set flag for fresh upload to trigger onboarding
+      sessionStorage.setItem('fresh_upload', 'true')
+      
+      // Redirect directly to resume page
+      router.push(`/resume?session=${sessionId}`)
       
     } catch (error) {
       console.error('Upload failed:', error)
@@ -154,12 +219,14 @@ export default function Dashboard() {
               <p className="text-gray-600">Welcome back, {user.email}</p>
             </div>
             <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                + Add CV
-              </button>
+              {cvSessions.length > 0 && (
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  + Analyze New CV
+                </button>
+              )}
               <button
                 onClick={signOut}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
@@ -172,7 +239,7 @@ export default function Dashboard() {
 
         <main>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your CV Sessions</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your CV Analysis Results</h2>
             
             {loadingSessions ? (
               <div className="text-center py-8">
@@ -180,83 +247,251 @@ export default function Dashboard() {
                 <p className="text-gray-600">Loading sessions...</p>
               </div>
             ) : cvSessions.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No CV sessions yet</h3>
-                <p className="text-gray-600 mb-4">Create your first CV session to get started with résumé analysis.</p>
-                <button
-                  onClick={() => setShowUploadModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Add Your First CV
-                </button>
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {cvSessions.map((session) => (
-                  <div key={session.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200 hover:border-blue-200">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <FileText className="h-5 w-5 text-blue-600" />
+              <div className="text-center py-8">
+                {isUploading ? (
+                  // Engaging Upload Progress
+                  <div className="text-center">
+                    <div className="mb-8">
+                      {/* Animated Icon Container */}
+                      <div className="relative w-20 h-20 mx-auto mb-6">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                          <Zap className="h-8 w-8 text-blue-600 animate-bounce" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 mb-1 truncate">
-                            {session.file_name || 'Untitled CV'}
-                          </h3>
-                          <div className="flex items-center space-x-2 text-sm text-gray-500">
-                            <Calendar className="h-3 w-3" />
-                            <span>{new Date(session.created_at).toLocaleDateString()}</span>
-                          </div>
-                        </div>
+                        {/* Rotating ring */}
+                        <div className="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-spin"></div>
                       </div>
                       
-                      {/* Status Badge */}
-                      <div className="flex items-center space-x-1">
-                        {session.is_paid ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <FileCheck className="h-3 w-3 mr-1" />
-                            Analyzed
-                          </span>
+                      <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                        Extracting & Analyzing Your CV
+                      </h2>
+                      
+                      <div className="space-y-3 max-w-md mx-auto">
+                        <p className="text-lg text-gray-700 font-medium">
+                          Reading your CV and finding critical issues
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Our AI is extracting your data and checking for problems that cost interviews
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Animated Progress Indicators */}
+                    <div className="flex justify-center space-x-2 mb-6">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    </div>
+                    
+                    {/* Rotating Facts */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 max-w-md mx-auto transition-all duration-500">
+                      <p className="text-sm text-blue-800 font-medium mb-2">
+                        {UPLOAD_FACTS[currentFactIndex].title}
+                      </p>
+                      <p className="text-xs text-blue-700 leading-relaxed">
+                        {UPLOAD_FACTS[currentFactIndex].text}
+                      </p>
+                    </div>
+                    
+                    {/* Fact indicators */}
+                    <div className="flex justify-center space-x-1 mt-3">
+                      {UPLOAD_FACTS.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                            index === currentFactIndex ? 'bg-blue-500' : 'bg-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Analyze Your CV</h3>
+                      <p className="text-gray-600">Upload your CV to discover issues that might be costing you interviews</p>
+                    </div>
+
+                    <div 
+                      {...getRootProps()}
+                      className={`border-2 border-dashed border-gray-300 rounded-xl p-12 transition-all duration-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 ${
+                        isDragActive ? 'border-blue-400 bg-blue-50' : ''
+                      }`}
+                    >
+                      <input {...getInputProps()} />
+                      
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Upload className="h-8 w-8 text-white" />
+                        </div>
+                        
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                          {isDragActive ? 'Drop your CV here!' : 'Drop Your CV Here'}
+                        </h3>
+                        
+                        <p className="text-gray-600 mb-6">
+                          PDF or Word document • Free analysis in 2 minutes
+                        </p>
+                        
+                        <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                          Choose File
+                        </button>
+                        
+                        <p className="text-gray-500 text-sm mt-4">
+                          ✓ Secure upload ✓ Instant analysis ✓ Professional recommendations
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {cvSessions.map((session) => {
+                  const analysis = cvAnalysisData[session.session_id]
+                  const issueCount = analysis?.issues?.length || analysis?.detailed_analysis?.critical_issues_found || 0
+                  const hasAnalysis = !!analysis
+                  
+                  // Debug logging
+                  console.log(`Session ${session.session_id}:`, {
+                    hasAnalysis,
+                    issueCount,
+                    analysisKeys: analysis ? Object.keys(analysis) : 'no analysis'
+                  })
+                  
+                  return (
+                    <div key={session.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+                      {/* Header */}
+                      <div className="p-6 pb-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start space-x-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <FileText className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                                {session.file_name?.replace(/\.(pdf|docx|doc)$/i, '') || 'Untitled CV'}
+                              </h3>
+                              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                <Calendar className="h-3 w-3" />
+                                <span>{new Date(session.created_at).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <button
+                            onClick={() => deleteCV(session.session_id)}
+                            className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        
+                        {/* Analysis Results */}
+                        {hasAnalysis ? (
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-2">
+                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                                <span className="text-2xl font-bold text-red-600">{issueCount}</span>
+                                <span className="text-sm text-gray-600">critical issues found</span>
+                              </div>
+                              {analysis.rating && (
+                                <div className="flex items-center space-x-1">
+                                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                  <span className="text-sm font-medium text-gray-700">{analysis.rating}</span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="text-xs text-gray-600 mb-3">
+                              Issues that might be preventing interviews
+                            </div>
+                            
+                            {/* Issue Preview */}
+                            {analysis.issues && analysis.issues.length > 0 && (
+                              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                                  <div className="text-sm font-medium text-red-800">
+                                    Critical {analysis.issues[0].type || 'Issue'}
+                                  </div>
+                                </div>
+                                <div className="text-xs text-red-700">
+                                  {(analysis.issues[0].description || analysis.issues[0].message || '').substring(0, 80)}...
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Preview
-                          </span>
+                          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="text-sm text-yellow-800">Analysis in progress...</div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="px-6 pb-6 space-y-2">
+                        {hasAnalysis && issueCount > 0 ? (
+                          <>
+                            <div className="space-y-2">
+                              <button
+                                onClick={() => router.push(`/resume?session=${session.session_id}`)}
+                                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+                              >
+                                <Target className="h-4 w-4" />
+                                <span>Build Resume</span>
+                                <ArrowRight className="h-4 w-4" />
+                              </button>
+                              
+                              <button
+                                onClick={() => router.push(`/templates?session=${session.session_id}`)}
+                                className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                              >
+                                <Palette className="h-4 w-4" />
+                                <span>Choose Template</span>
+                              </button>
+                            </div>
+                          </>
+                        ) : hasAnalysis ? (
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => router.push(`/resume?session=${session.session_id}`)}
+                              className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+                            >
+                              <FileCheck className="h-4 w-4" />
+                              <span>Build Resume</span>
+                            </button>
+                            
+                            <button
+                              onClick={() => router.push(`/templates?session=${session.session_id}`)}
+                              className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            >
+                              <Palette className="h-4 w-4" />
+                              <span>Choose Template</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => router.push(`/resume?session=${session.session_id}`)}
+                              className="w-full text-center text-blue-600 hover:text-blue-700 text-sm font-medium py-2 transition-colors"
+                            >
+                              Build Resume
+                            </button>
+                            
+                            <button
+                              onClick={() => router.push(`/templates?session=${session.session_id}`)}
+                              className="w-full text-center text-gray-600 hover:text-gray-700 text-xs py-1 transition-colors"
+                            >
+                              Choose Template
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
-                    
-                    {/* File Info */}
-                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="text-xs text-gray-600 mb-1">Session ID</div>
-                      <div className="text-xs font-mono text-gray-800 truncate">{session.session_id}</div>
-                    </div>
-                    
-                    {/* Actions */}
-                    <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => router.push(`/cv/${session.session_id}`)}
-                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        <Eye className="h-4 w-4" />
-                        <span>View Analysis</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => deleteCV(session.session_id)}
-                        className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg text-sm transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -277,39 +512,60 @@ export default function Dashboard() {
             )}
 
             {isUploading ? (
-              // Upload Progress
+              // Engaging Upload Progress (Modal)
               <div className="p-12 text-center">
                 <div className="mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    {uploadStep === 1 && <Upload className="h-8 w-8 text-white animate-bounce" />}
-                    {uploadStep === 2 && <FileText className="h-8 w-8 text-white animate-pulse" />}
-                    {uploadStep === 3 && <Zap className="h-8 w-8 text-white animate-spin" />}
+                  {/* Enhanced Animated Icon */}
+                  <div className="relative w-20 h-20 mx-auto mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                      <Zap className="h-8 w-8 text-blue-600 animate-bounce" />
+                    </div>
+                    <div className="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-spin"></div>
                   </div>
                   
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    {uploadStep === 1 && "Uploading Your CV..."}
-                    {uploadStep === 2 && "Reading Your CV..."}
-                    {uploadStep === 3 && "Analyzing for Issues..."}
+                    Our AI is hard at work
                   </h2>
                   
-                  <p className="text-gray-600 mb-8">
-                    {uploadStep === 1 && "Securely uploading your file"}
-                    {uploadStep === 2 && "Extracting text and formatting details"}
-                    {uploadStep === 3 && "AI is finding critical issues that cost you interviews"}
+                  <div className="space-y-3 max-w-md mx-auto mb-8">
+                    <p className="text-lg text-gray-700 font-medium">
+                      Scanning for interview-killing issues
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      We're checking for ATS compatibility, formatting problems, and content gaps that recruiters flag
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Animated Progress Dots */}
+                <div className="flex justify-center space-x-2 mb-6">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+                
+                {/* Rotating Facts */}
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 max-w-md mx-auto transition-all duration-500 mb-4">
+                  <p className="text-sm text-blue-800 font-medium mb-2">
+                    {UPLOAD_FACTS[currentFactIndex].title}
+                  </p>
+                  <p className="text-xs text-blue-700 leading-relaxed">
+                    {UPLOAD_FACTS[currentFactIndex].text}
                   </p>
                 </div>
                 
-                {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-1000"
-                    style={{ width: `${(uploadStep / 3) * 100}%` }}
-                  ></div>
+                {/* Fact indicators */}
+                <div className="flex justify-center space-x-1">
+                  {UPLOAD_FACTS.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                        index === currentFactIndex ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
                 </div>
-                
-                <p className="text-gray-500 text-sm">
-                  Step {uploadStep} of 3 • Please don't close this window
-                </p>
               </div>
             ) : (
               // Upload Interface

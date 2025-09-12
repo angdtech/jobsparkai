@@ -36,8 +36,7 @@ export interface CVFileStorage {
 export interface CVATSAnalysis {
   id: string
   session_id: string
-  user_id: number | null // Original integer user_id
-  auth_user_id?: string // New UUID field
+  user_id: number | null // Integer field matching actual database schema
   overall_score: number
   file_extension: string | null
   file_format_score: number
@@ -73,7 +72,9 @@ export class CVSessionManager {
 
       console.log('Creating session with data:', insertData)
 
-      const { data, error } = await supabase
+      // Use admin client to bypass RLS for session creation
+      const client = supabaseAdmin || supabase
+      const { data, error } = await client
         .from('auth_cv_sessions') // Use new table for new auth system
         .insert(insertData)
         .select()
@@ -96,8 +97,9 @@ export class CVSessionManager {
 
   static async getUserSessions(userId: string): Promise<CVSession[]> {
     try {
-      // Query new auth_cv_sessions table (safe from real data)
-      const { data, error } = await supabase
+      // Query new auth_cv_sessions table using admin client
+      const client = supabaseAdmin || supabase
+      const { data, error } = await client
         .from('auth_cv_sessions')
         .select('*')
         .eq('auth_user_id', userId)
@@ -195,46 +197,74 @@ export class CVSessionManager {
 export class ATSAnalysisManager {
   static async createAnalysis(sessionId: string, userId: string | null, analysisData: Partial<CVATSAnalysis>): Promise<CVATSAnalysis | null> {
     try {
-      // Use admin client to bypass RLS for anonymous sessions
+      console.log('📝 ATSAnalysisManager.createAnalysis called with:', { sessionId, userId })
+      
+      // Use admin client to bypass RLS policies temporarily while we debug
       const client = supabaseAdmin || supabase
+      console.log('📝 Using admin client to bypass RLS policies for analysis insert')
+      
+      const insertData = {
+        session_id: sessionId,
+        user_id: null, // cv_ats_analysis uses user_id (integer), not auth_user_id
+        overall_score: analysisData.overall_score || 0,
+        file_extension: analysisData.file_extension || null,
+        file_format_score: analysisData.file_format_score || 0,
+        layout_score: analysisData.layout_score || 0,
+        font_score: analysisData.font_score || 0,
+        content_structure_score: analysisData.content_structure_score || 0,
+        rating: analysisData.rating || '',
+        rating_color: analysisData.rating_color || '',
+        issues: analysisData.issues || [],
+        recommendations: analysisData.recommendations || [],
+        strengths: analysisData.strengths || [],
+        detailed_analysis: analysisData.detailed_analysis || {},
+        text_length: analysisData.text_length || 0
+        // Note: analyzed_at, created_at, updated_at will be auto-set by database defaults
+      }
+      
+      console.log('📝 Inserting data:', insertData)
+      
       const { data, error } = await client
         .from('cv_ats_analysis')
-        .insert({
-          session_id: sessionId,
-          auth_user_id: userId,
-          overall_score: analysisData.overall_score || 0,
-          file_extension: analysisData.file_extension || null,
-          file_format_score: analysisData.file_format_score || 0,
-          layout_score: analysisData.layout_score || 0,
-          font_score: analysisData.font_score || 0,
-          content_structure_score: analysisData.content_structure_score || 0,
-          rating: analysisData.rating || '',
-          rating_color: analysisData.rating_color || '',
-          issues: analysisData.issues || [],
-          recommendations: analysisData.recommendations || [],
-          strengths: analysisData.strengths || [],
-          detailed_analysis: analysisData.detailed_analysis || {},
-          text_length: analysisData.text_length || 0
-        })
+        .insert(insertData)
         .select()
         .single()
 
       if (error) {
-        console.error('Error creating ATS analysis:', error)
+        console.error('❌ Database insert error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         return null
       }
 
+      console.log('✅ Analysis saved successfully:', data)
       return data as CVATSAnalysis
     } catch (error) {
-      console.error('Error:', error)
+      console.error('❌ Exception in createAnalysis:', error)
       return null
     }
   }
 
   static async getAnalysis(sessionId: string): Promise<CVATSAnalysis | null> {
     try {
-      // Use admin client to bypass RLS for anonymous sessions
+      console.log('📝 ATSAnalysisManager.getAnalysis called for session:', sessionId)
+      
+      // Use admin client to bypass RLS for analysis fetching, fallback to regular client
       const client = supabaseAdmin || supabase
+      console.log('📝 Supabase clients status:', {
+        admin: !!supabaseAdmin,
+        regular: !!supabase,
+        using: supabaseAdmin ? 'admin' : 'regular'
+      })
+      
+      if (!client) {
+        console.error('❌ No Supabase client available')
+        return null
+      }
+      
       const { data, error } = await client
         .from('cv_ats_analysis')
         .select('*')
@@ -242,13 +272,7 @@ export class ATSAnalysisManager {
         .maybeSingle() // Use maybeSingle() instead of single() to handle no results gracefully
 
       if (error) {
-        console.error('Error fetching ATS analysis:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          sessionId: sessionId
-        })
+        console.error('Error fetching ATS analysis:', error, 'for session:', sessionId)
         return null
       }
 

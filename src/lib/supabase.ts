@@ -6,7 +6,9 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 console.log('Supabase Config:', {
   url: supabaseUrl,
-  key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'missing'
+  anonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'missing',
+  serviceKey: supabaseServiceKey ? `${supabaseServiceKey.substring(0, 20)}...` : 'missing',
+  adminClient: !!supabaseServiceKey
 })
 
 // Create client with fallback for missing environment variables
