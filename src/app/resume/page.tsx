@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -68,7 +68,7 @@ interface AnalysisData {
 
 // Single corporate template for CV review
 
-export default function ResumePage() {
+function ResumePageContent() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -620,5 +620,20 @@ export default function ResumePage() {
         />
       )}
     </div>
+  )
+}
+
+export default function ResumePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading resume...</p>
+        </div>
+      </div>
+    }>
+      <ResumePageContent />
+    </Suspense>
   )
 }
