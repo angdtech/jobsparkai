@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ATSAnalysisManager } from '@/lib/database'
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client only when needed to avoid build-time errors
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.')
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +29,7 @@ export async function POST(request: NextRequest) {
       
       const { supabase } = await import('@/lib/supabase')
       const { data: dbCvContent, error: cvError } = await supabase
-        .from('cv_content')
+        .from('cv_content_nw')
         .select('*')
         .eq('session_id', session_id)
         .maybeSingle()
@@ -158,6 +164,7 @@ Return this JSON with structured feedback:
 Be specific and helpful. Focus on what actually costs interviews.
 `
 
+      const openai = getOpenAIClient()
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [

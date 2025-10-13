@@ -4,12 +4,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-console.log('Supabase Config:', {
-  url: supabaseUrl,
-  anonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'missing',
-  serviceKey: supabaseServiceKey ? `${supabaseServiceKey.substring(0, 20)}...` : 'missing',
-  adminClient: !!supabaseServiceKey
-})
+// Only log during runtime, not during build
+if (typeof window !== 'undefined' || process.env.NODE_ENV !== 'production') {
+  console.log('Supabase Config:', {
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'missing',
+    serviceKey: supabaseServiceKey ? `${supabaseServiceKey.substring(0, 20)}...` : 'missing',
+    adminClient: !!supabaseServiceKey
+  })
+}
 
 // Create client with fallback for missing environment variables
 export const supabase = supabaseUrl && supabaseAnonKey
