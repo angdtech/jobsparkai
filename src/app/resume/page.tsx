@@ -16,6 +16,9 @@ interface ResumeData {
     phone: string
     address: string
     summary: string
+    tagline?: string
+    website?: string
+    linkedin?: string
   }
   experience: Array<{
     id: string
@@ -23,6 +26,7 @@ interface ResumeData {
     company: string
     duration: string
     description: string
+    description_items?: string[] | null
   }>
   education: Array<{
     id: string
@@ -60,11 +64,6 @@ interface CommentItem {
   targetText: string // Specific text to highlight
 }
 
-interface AnalysisData {
-  overall_score: number
-  rating: string
-  comments: CommentItem[] // Flattened list of all comments
-}
 
 // Single corporate template for CV review
 
@@ -75,7 +74,6 @@ function ResumePageContent() {
   const sessionId = searchParams.get('session')
   
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
-  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [history, setHistory] = useState<ResumeData[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
@@ -95,14 +93,19 @@ function ResumePageContent() {
       email: 'john.smith@example.com',
       phone: '+1 (555) 123-4567',
       address: 'New York, NY',
-      summary: 'Professional summary describing my experience in sales and team management. I have worked in various industries and improved sales performance.'
+      summary: 'I am a dedicated sales professional with experience in managing teams and improving performance. I have been responsible for various tasks and have worked hard to achieve results across different projects.'
     },
     experience: [{
       id: 'exp-1',
       position: 'Sales Representative',
       company: 'ABC Company',
       duration: '2022 - Present',
-      description: 'I did various tasks including managing client relationships and improved sales for the team. Responsible for meeting quotas and working with customers.'
+      description: 'I did various tasks including managing client relationships and improved sales for the team. Responsible for meeting quotas and working with customers.',
+      description_items: [
+        'Managed client relationships while consistently exceeding sales targets.',
+        'Collaborated with internal teams to resolve customer issues quickly.',
+        'Used CRM insights to identify upsell opportunities and grow revenue.'
+      ]
     }],
     education: [{
       id: 'edu-1',
@@ -138,13 +141,19 @@ function ResumePageContent() {
     try {
       // First try to get data from cv_content table
       const { data: cvContent, error: contentError } = await supabase
-        .from('cv_content')
+        .from('cv_content_nw')
         .select('*')
         .eq('session_id', sessionId)
-        .eq('auth_user_id', user.id)
-        .single()
+        .maybeSingle()
 
       if (!contentError && cvContent) {
+        console.log('📊 Loading existing CV content for session:', sessionId, {
+          hasContent: !!cvContent,
+          hasName: !!cvContent.full_name,
+          hasTagline: !!cvContent.tagline,
+          taglineValue: cvContent.tagline
+        })
+        
         // Format data from cv_content table
         const formattedData: ResumeData = {
           personalInfo: {
@@ -153,32 +162,99 @@ function ResumePageContent() {
             email: cvContent.email || 'your.email@example.com',
             phone: cvContent.phone || '+1 (555) 123-4567',
             address: cvContent.location || 'Your City, Country',
-            summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.'
+            summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.',
+            website: cvContent.website_url || undefined,
+            linkedin: cvContent.linkedin_url || undefined,
+            tagline: cvContent.tagline || undefined
           },
           experience: Array.isArray(cvContent.work_experience) 
-            ? cvContent.work_experience.map((exp: any, index: number) => ({
-                id: `exp-${index}`,
-                position: exp.position || exp.title || '',
-                company: exp.company || '',
-                duration: exp.duration || exp.dates || '',
-                description: exp.description || exp.responsibilities || ''
-              }))
+            ? cvContent.work_experience.map((exp: any, index: number) => {
+                const normalizeBullet = (val: any) => {
+                  if (!val) return ''
+                  const raw = typeof val === 'string'
+                    ? val
+                    : (
+                        val.text ??
+                        val.description ??
+                        val.content ??
+                        val.value ??
+                        ''
+                      )
+                  return raw
+                    .toString()
+                    .replace(/\r/g, '')
+                    .replace(/^[•*\-\d\.\)\s]+/, '')
+                    .trim()
+                }
+
+                const rawDescription = (
+                  exp.description ||
+                  exp.responsibilities ||
+                  ''
+                ).toString()
+
+                let normalizedItems: string[] | null = null
+
+                if (Array.isArray(exp.description_items)) {
+                  const mapped = exp.description_items
+                    .map(normalizeBullet)
+                    .filter(Boolean)
+                  normalizedItems = mapped.length > 0 ? mapped : null
+                } else if (typeof exp.description_items === 'string') {
+                  const mapped = exp.description_items
+                    .split(/\n+/)
+                    .map(normalizeBullet)
+                    .filter(Boolean)
+                  normalizedItems = mapped.length > 0 ? mapped : null
+                }
+
+                if (!normalizedItems || normalizedItems.length === 0) {
+                  const derived = rawDescription
+                    .split(/\n+/)
+                    .map(normalizeBullet)
+                    .filter(Boolean)
+                  normalizedItems = derived.length > 0 ? derived : null
+                }
+
+                const descriptionText = normalizedItems && normalizedItems.length > 0
+                  ? normalizedItems.join('\n')
+                  : rawDescription.trim()
+
+                return {
+                  id: `exp-${index}`,
+                  position: exp.position || exp.title || '',
+                  company: exp.company || '',
+                  duration: exp.duration || exp.dates || (exp.start_date && exp.end_date ? `${exp.start_date} - ${exp.end_date}` : exp.start_date || ''),
+                  description: descriptionText,
+                  description_items: normalizedItems
+                }
+              })
             : [],
           education: Array.isArray(cvContent.education)
             ? cvContent.education.map((edu: any, index: number) => ({
                 id: `edu-${index}`,
                 degree: edu.degree || edu.qualification || '',
                 school: edu.school || edu.institution || '',
-                duration: edu.duration || edu.dates || '',
+                duration: edu.duration || edu.dates || (edu.start_date && edu.end_date ? `${edu.start_date} - ${edu.end_date}` : edu.start_date || ''),
                 description: edu.description || ''
               }))
             : [],
-          skills: Array.isArray(cvContent.skills)
-            ? cvContent.skills.map((skill: any, index: number) => ({
-                id: `skill-${index}`,
-                name: typeof skill === 'string' ? skill : skill.name || '',
-                level: skill.level || 80
-              }))
+          skills: cvContent.skills 
+            ? (typeof cvContent.skills === 'object' && !Array.isArray(cvContent.skills)
+                ? // Complex categorized format - convert to flat array for template
+                  Object.values(cvContent.skills).flat().map((skill: any, index: number) => ({
+                    id: `skill-${index}`,
+                    name: typeof skill === 'string' ? skill : skill.name || '',
+                    level: skill.level || 80
+                  }))
+                : Array.isArray(cvContent.skills) 
+                  ? cvContent.skills.map((skill: any, index: number) => ({ // Old array format
+                      id: `skill-${index}`,
+                      name: typeof skill === 'string' ? skill : skill.name || '',
+                      level: skill.level || 80
+                    }))
+                  : []
+              )
             : [],
           awards: Array.isArray(cvContent.achievements)
             ? cvContent.achievements.map((award: any, index: number) => ({
@@ -209,11 +285,11 @@ function ResumePageContent() {
 
       // If no content found, check if session exists in auth_cv_sessions
       const { data: sessionData, error: sessionError } = await supabase
-        .from('auth_cv_sessions')
+        .from('auth_cv_sessions_nw')
         .select('*')
         .eq('session_id', sessionId)
         .eq('auth_user_id', user.id)
-        .single()
+        .maybeSingle()
 
       if (sessionError) {
         console.error('Session not found:', sessionError)
@@ -226,7 +302,9 @@ function ResumePageContent() {
         return
       }
 
-      // Session exists but no content yet, create default data
+      // Session exists but no CV content found - this means the CV wasn't properly extracted
+      console.log('Session exists but no CV content found - CV extraction may have failed')
+      // Instead of default data, try to reload or show an error
       const defaultData = createDefaultResumeData()
       setResumeData(defaultData)
       setHistory([defaultData])
@@ -245,31 +323,6 @@ function ResumePageContent() {
   }, [sessionId, user])
 
   // Load analysis feedback data
-  const loadAnalysisData = useCallback(async () => {
-    if (!sessionId || !user) return
-
-    try {
-      const { data: analysisData, error } = await supabase
-        .from('cv_ats_analysis')
-        .select('*')
-        .eq('session_id', sessionId)
-        .eq('auth_user_id', user.id)
-        .single()
-
-      if (!error && analysisData) {
-        // Parse the JSONB fields
-        const formattedAnalysis: AnalysisData = {
-          overall_score: analysisData.overall_score || 0,
-          rating: analysisData.rating || '',
-          comments: Array.isArray(analysisData.comments) ? analysisData.comments : []
-        }
-
-        setAnalysisData(formattedAnalysis)
-      }
-    } catch (error) {
-      console.error('Error loading analysis data:', error)
-    }
-  }, [sessionId, user])
 
   // Save resume data to database
   const saveResumeData = useCallback(async (data: ResumeData) => {
@@ -277,68 +330,151 @@ function ResumePageContent() {
 
     setIsSaving(true)
     try {
-      // Prepare data for cv_content table
+      // Prepare data for cv_content table with proper field mapping
       const contentData = {
         session_id: sessionId,
         auth_user_id: user.id,
-        full_name: data.personalInfo.name,
-        email: data.personalInfo.email,
-        phone: data.personalInfo.phone,
-        location: data.personalInfo.address,
-        professional_summary: data.personalInfo.summary,
-        work_experience: data.experience.map(exp => ({
-          position: exp.position,
-          company: exp.company,
-          duration: exp.duration,
-          description: exp.description
-        })),
-        education: data.education.map(edu => ({
-          degree: edu.degree,
-          school: edu.school,
-          duration: edu.duration,
-          description: edu.description
-        })),
-        skills: data.skills.map(skill => ({
-          name: skill.name,
-          level: skill.level
-        })),
-        achievements: data.awards.map(award => ({
-          title: award.title,
-          year: award.year,
-          description: award.description
-        })),
-        languages: data.languages.map(lang => ({
-          name: lang.name,
-          level: lang.level
-        })),
-        hobbies: data.hobbies || [],
+        full_name: data.personalInfo.name || '',
+        email: data.personalInfo.email || '',
+        phone: data.personalInfo.phone || '',
+        location: data.personalInfo.address || '',
+        linkedin_url: data.personalInfo.linkedin || null,
+        website_url: data.personalInfo.website || null,
+        professional_summary: data.personalInfo.summary || '',
+        tagline: data.personalInfo.tagline || null,
+        work_experience: data.experience?.map(exp => {
+          const normalizedItems = Array.isArray(exp.description_items)
+            ? exp.description_items
+                .map((item) => {
+                  if (!item) return ''
+                  const text = typeof item === 'string' ? item : item.toString()
+                  return text.replace(/\r/g, '').trim()
+                })
+                .filter(Boolean)
+            : []
+
+          return {
+            position: exp.position || '',
+            company: exp.company || '',
+            duration: exp.duration || '',
+            description: (exp.description || '').toString(),
+            description_items: normalizedItems.length > 0 ? normalizedItems : null
+          }
+        }) || [],
+        education: data.education?.map(edu => ({
+          degree: edu.degree || '',
+          school: edu.school || '',
+          duration: edu.duration || '',
+          description: edu.description || ''
+        })) || [],
+        skills: Array.isArray(data.skills) 
+          ? data.skills.map(skill => ({
+              name: skill.name || '',
+              level: skill.level || 0
+            }))
+          : data.skills || [], // Keep categorized format as-is
+        achievements: data.awards?.map(award => ({
+          title: award.title || '',
+          year: award.year || '',
+          description: award.description || ''
+        })) || [],
+        languages: data.languages?.map(lang => ({
+          name: lang.name || '',
+          level: lang.level || ''
+        })) || [],
         updated_at: new Date().toISOString()
       }
 
-      // Try to update existing record first
-      const { error: updateError } = await supabase
-        .from('cv_content')
-        .update(contentData)
+      console.log('📝 Attempting to save resume data:', { 
+        sessionId, 
+        userId: user.id, 
+        dataKeys: Object.keys(contentData) 
+      })
+
+      // Check if record exists first
+      const { data: existingRecord, error: selectError } = await supabase
+        .from('cv_content_nw')
+        .select('id')
         .eq('session_id', sessionId)
         .eq('auth_user_id', user.id)
+        .maybeSingle()
 
-      // If update fails (no existing record), try to insert
-      if (updateError?.code === 'PGRST116') {
-        const { error: insertError } = await supabase
-          .from('cv_content')
+      if (selectError) {
+        console.error('❌ Error checking existing record:', selectError)
+        throw selectError
+      }
+
+      let result = null
+      let operationError = null
+      
+      if (existingRecord) {
+        // Record exists, update it
+        console.log('🔄 Updating existing record:', existingRecord.id)
+        const { data: updateResult, error } = await supabase
+          .from('cv_content_nw')
+          .update(contentData)
+          .eq('id', existingRecord.id)
+          .select()
+        
+        result = updateResult
+        operationError = error
+        
+        if (error) {
+          console.error('❌ Update failed:', {
+            error,
+            code: error?.code,
+            message: error?.message,
+            details: error?.details,
+            hint: error?.hint
+          })
+        } else {
+          console.log('✅ Update successful:', updateResult?.length, 'records updated')
+        }
+      } else {
+        // No record exists, insert new one
+        console.log('➕ Creating new record')
+        const { data: insertResult, error: insertError } = await supabase
+          .from('cv_content_nw')
           .insert({
             ...contentData,
             created_at: new Date().toISOString()
           })
-
+          .select()
+        
+        result = insertResult
+        operationError = insertError
+        
         if (insertError) {
-          console.error('Error inserting resume data:', insertError)
+          console.error('❌ Insert failed:', {
+            error: insertError,
+            code: insertError?.code,
+            message: insertError?.message,
+            details: insertError?.details,
+            hint: insertError?.hint
+          })
+        } else {
+          console.log('✅ Insert successful:', insertResult?.length, 'records created')
         }
-      } else if (updateError) {
-        console.error('Error updating resume data:', updateError)
       }
-    } catch (error) {
-      console.error('Error saving resume data:', error)
+
+      // Handle any operation errors
+      if (operationError) {
+        throw operationError
+      }
+
+    } catch (error: any) {
+      console.error('❌ Error saving resume data:', {
+        error,
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        sessionId,
+        userId: user.id
+      })
+      
+      // Show user-friendly error message
+      alert('Failed to save changes. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -391,8 +527,7 @@ function ResumePageContent() {
     }
 
     loadResumeData()
-    loadAnalysisData()
-  }, [user, loading, sessionId, router, loadResumeData, loadAnalysisData])
+  }, [user, loading, sessionId, router, loadResumeData])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -411,14 +546,10 @@ function ResumePageContent() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo])
 
-  // Get comments for specific text
+  // Get comments for specific text - simplified (no analysis)
   const getCommentsForText = useCallback((text: string) => {
-    if (!analysisData) return []
-    
-    return analysisData.comments.filter(comment => 
-      text.includes(comment.targetText)
-    )
-  }, [analysisData])
+    return [] // No analysis comments
+  }, [])
 
   // Handle showing comments
   const handleShowComments = useCallback((comments: CommentItem[], text: string, position: { x: number; y: number }) => {
@@ -465,11 +596,6 @@ function ResumePageContent() {
               ← Back to Dashboard
             </button>
             <h1 className="text-2xl font-bold text-gray-900">CV Review</h1>
-            {analysisData && (
-              <span className="text-sm text-gray-600">
-                Analysis loaded: {analysisData.comments.length} suggestions
-              </span>
-            )}
           </div>
           
           <div className="flex items-center space-x-4">
@@ -501,53 +627,6 @@ function ResumePageContent() {
               </button>
             </div>
             
-            {/* Test Comments Button */}
-            <button
-              onClick={() => setAnalysisData({
-                overall_score: 68,
-                rating: 'Needs Improvement',
-                comments: [
-                  {
-                    type: 'issue',
-                    category: 'Spelling',
-                    title: 'Spelling Error',
-                    message: 'There is a spelling mistake in your professional title.',
-                    suggestion: 'Sales Manager',
-                    severity: 'high',
-                    targetText: 'Sales Manger'
-                  },
-                  {
-                    type: 'issue',
-                    category: 'Action Verbs', 
-                    title: 'Weak Action Verb',
-                    message: 'Replace weak language with stronger action verbs to show impact.',
-                    suggestion: 'I managed various tasks including client relationships and increased sales for the team.',
-                    severity: 'medium',
-                    targetText: 'I did various tasks including managing client relationships and improved sales for the team.'
-                  },
-                  {
-                    type: 'recommendation',
-                    category: 'Tone',
-                    title: 'Professional Tone',
-                    message: 'Use more professional language and avoid first person.',
-                    suggestion: 'Building exceptional products for businesses to thrive, while delivering results across multiple projects.',
-                    targetText: 'Building amazing products for businesses to thrive, whilst seeing my work put into motion, enables my success across multiple projects.'
-                  },
-                  {
-                    type: 'issue',
-                    category: 'Grammar',
-                    title: 'Word Choice',
-                    message: 'Use more precise business language.',
-                    suggestion: 'Created and delivered the digital self-service strategy and roadmap.',
-                    severity: 'low',
-                    targetText: 'Creation and delivery of the digital self-service strategy and roadmap.'
-                  }
-                ]
-              })}
-              className="text-xs bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded font-medium"
-            >
-              Test Comments
-            </button>
 
             {/* Save Status */}
             {isSaving && (
