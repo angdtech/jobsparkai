@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil'
-})
+// Initialize Stripe client only when needed to avoid build-time errors
+function getStripeClient() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-08-27.basil'
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,6 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Stripe Checkout session
+    const stripe = getStripeClient()
     const checkoutSession = await stripe.checkout.sessions.create({
       ...selectedPrice,
       metadata: {
