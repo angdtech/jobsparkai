@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabaseAdmin
-      .from('auth_cv_sessions')
+      .from('auth_cv_sessions_nw')
       .insert(insertData)
       .select()
       .single()

@@ -143,7 +143,7 @@ ${extractedText}
 
     // Save extracted data to database
     const { data: cvContent, error: insertError } = await supabaseAdmin
-      .from('cv_content')
+      .from('cv_content_nw')
       .insert({
         session_id: sessionId,
         auth_user_id: null, // Will be updated if user is authenticated

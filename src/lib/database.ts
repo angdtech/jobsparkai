@@ -75,7 +75,7 @@ export class CVSessionManager {
       // Use admin client to bypass RLS for session creation
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions') // Use new table for new auth system
+        .from('auth_cv_sessions_nw') // Use new table for new auth system
         .insert(insertData)
         .select()
         .single()
@@ -100,7 +100,7 @@ export class CVSessionManager {
       // Query new auth_cv_sessions table using admin client
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions')
+        .from('auth_cv_sessions_nw')
         .select('*')
         .eq('auth_user_id', userId)
         .order('created_at', { ascending: false })
@@ -122,7 +122,7 @@ export class CVSessionManager {
       // Use admin client to access sessions (including anonymous ones)
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions')
+        .from('auth_cv_sessions_nw')
         .select('*')
         .eq('session_id', sessionId)
         .single()
@@ -144,7 +144,7 @@ export class CVSessionManager {
       // Use admin client to update sessions (including anonymous ones)
       const client = supabaseAdmin || supabase
       const { error } = await client
-        .from('auth_cv_sessions')
+        .from('auth_cv_sessions_nw')
         .update({
           ...updates,
           updated_at: new Date().toISOString()
@@ -168,23 +168,47 @@ export class CVSessionManager {
       // Use admin client to delete sessions (including anonymous ones)
       const client = supabaseAdmin || supabase
       
-      // Delete the analysis first (foreign key constraint)
-      await client
-        .from('cv_ats_analysis')
+      console.log(`🗑️ Attempting to delete session: ${sessionId}`)
+      
+      // Delete all related data first (to avoid foreign key constraints)
+      // Delete from cv_ats_analysis_nw
+      const { error: analysisError } = await client
+        .from('cv_ats_analysis_nw')
+        .delete()
+        .eq('session_id', sessionId)
+        
+      if (analysisError) {
+        console.error('Error deleting analysis data:', analysisError)
+        // Continue anyway, as this table might not have data for this session
+      } else {
+        console.log('✅ Successfully deleted analysis data')
+      }
+      
+      // Delete from cv_content_nw  
+      const { error: contentError } = await client
+        .from('cv_content_nw')
+        .delete()
+        .eq('session_id', sessionId)
+        
+      if (contentError) {
+        console.error('Error deleting content data:', contentError)
+        // Continue anyway, as this table might not have data for this session
+      } else {
+        console.log('✅ Successfully deleted content data')
+      }
+      
+      // Delete the main session
+      const { error: sessionError } = await client
+        .from('auth_cv_sessions_nw')
         .delete()
         .eq('session_id', sessionId)
 
-      // Delete the session
-      const { error } = await client
-        .from('auth_cv_sessions')
-        .delete()
-        .eq('session_id', sessionId)
-
-      if (error) {
-        console.error('Error deleting session:', error)
+      if (sessionError) {
+        console.error('Error deleting session:', sessionError)
         return false
       }
-
+      
+      console.log('✅ Successfully deleted session')
       return true
     } catch (error) {
       console.error('Error:', error)
@@ -225,7 +249,7 @@ export class ATSAnalysisManager {
       console.log('📝 Inserting data:', insertData)
       
       const { data, error } = await client
-        .from('cv_ats_analysis')
+        .from('cv_ats_analysis_nw')
         .insert(insertData)
         .select()
         .single()
@@ -266,7 +290,7 @@ export class ATSAnalysisManager {
       }
       
       const { data, error } = await client
-        .from('cv_ats_analysis')
+        .from('cv_ats_analysis_nw')
         .select('*')
         .eq('session_id', sessionId)
         .maybeSingle() // Use maybeSingle() instead of single() to handle no results gracefully

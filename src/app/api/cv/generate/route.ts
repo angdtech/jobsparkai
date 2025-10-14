@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Get the extracted CV content from database
     const { data: cvContent, error: contentError } = await supabaseAdmin
-      .from('cv_content')
+      .from('cv_content_nw')
       .select('*')
       .eq('session_id', sessionId)
       .single()

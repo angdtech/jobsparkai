@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Get the session to find the uploaded file
     const { data: session, error: sessionError } = await supabaseAdmin
-      .from('auth_cv_sessions')
+      .from('auth_cv_sessions_nw')
       .select('*')
       .eq('session_id', session_id)
       .single()

@@ -60,7 +60,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   // Record the payment
   const { error: paymentError } = await supabase
-    .from('payments')
+    .from('payments_nw')
     .insert({
       user_id: userId,
       stripe_session_id: session.id,
@@ -82,7 +82,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Unlock CV session
   if (priceType === 'one-time') {
     const { error: unlockError } = await supabase
-      .from('auth_cv_sessions')
+      .from('auth_cv_sessions_nw')
       .update({
         is_paid: true,
         paid_at: new Date().toISOString(),
@@ -98,7 +98,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Handle subscription
   if (priceType === 'monthly') {
     const { error: subError } = await supabase
-      .from('user_subscriptions')
+      .from('user_subscriptions_nw')
       .upsert({
         user_id: userId,
         stripe_subscription_id: session.subscription as string,
@@ -117,7 +117,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   // Update payment status
   const { error } = await supabase
-    .from('payments')
+    .from('payments_nw')
     .update({ status: 'succeeded' })
     .eq('stripe_payment_intent', paymentIntent.id)
 
@@ -131,7 +131,7 @@ async function handleSubscriptionPayment(invoice: Stripe.Invoice) {
 
   // Update subscription status
   const { error } = await supabase
-    .from('user_subscriptions')
+    .from('user_subscriptions_nw')
     .update({
       status: 'active',
       last_payment_at: new Date().toISOString()
@@ -146,7 +146,7 @@ async function handleSubscriptionPayment(invoice: Stripe.Invoice) {
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
   // Mark subscription as cancelled
   const { error } = await supabase
-    .from('user_subscriptions')
+    .from('user_subscriptions_nw')
     .update({
       status: 'cancelled',
       cancelled_at: new Date().toISOString()

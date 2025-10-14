@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useState } from 'react'
 import { redirect, useRouter } from 'next/navigation'
-import { CVSessionManager, CVSession } from '@/lib/database'
+import { CVSession } from '@/lib/database'
 import { useDropzone } from 'react-dropzone'
 import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -76,6 +76,8 @@ export default function Dashboard() {
     if (!user) return
 
     try {
+      // Import CVSessionManager dynamically to avoid circular imports
+      const { CVSessionManager } = await import('@/lib/database')
       const sessions = await CVSessionManager.getUserSessions(user.id)
       setCvSessions(sessions)
       
@@ -117,6 +119,7 @@ export default function Dashboard() {
 
     try {
       // Create a session and process the file
+      const { CVSessionManager } = await import('@/lib/database')
       const session = await CVSessionManager.createSession(user.id)
       if (!session) {
         throw new Error('Failed to create session')
@@ -182,10 +185,15 @@ export default function Dashboard() {
     if (!confirmed) return
 
     try {
-      const success = await CVSessionManager.deleteSession(sessionId)
-      if (success) {
+      const response = await fetch(`/api/cv/delete?sessionId=${sessionId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
         await fetchUserSessions() // Refresh the list
       } else {
+        const errorData = await response.json()
+        console.error('Delete error:', errorData)
         alert('Failed to delete CV. Please try again.')
       }
     } catch (error) {
@@ -239,7 +247,7 @@ export default function Dashboard() {
 
         <main>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your CV Analysis Results</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your CV Review Results</h2>
             
             {loadingSessions ? (
               <div className="text-center py-8">
@@ -330,7 +338,7 @@ export default function Dashboard() {
                         </h3>
                         
                         <p className="text-gray-600 mb-6">
-                          PDF or Word document • Free analysis in 2 minutes
+                          PDF or Word document • Free review in 2 minutes
                         </p>
                         
                         <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
@@ -338,7 +346,7 @@ export default function Dashboard() {
                         </button>
                         
                         <p className="text-gray-500 text-sm mt-4">
-                          ✓ Secure upload ✓ Instant analysis ✓ Professional recommendations
+                          ✓ Secure upload ✓ Instant review ✓ Professional recommendations
                         </p>
                       </div>
                     </div>
@@ -425,7 +433,7 @@ export default function Dashboard() {
                           </div>
                         ) : (
                           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div className="text-sm text-yellow-800">Analysis in progress...</div>
+                            <div className="text-sm text-yellow-800">Review in progress...</div>
                           </div>
                         )}
                       </div>
@@ -572,7 +580,7 @@ export default function Dashboard() {
               <div className="p-8">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">Add Your CV</h2>
-                  <p className="text-gray-600">Upload your resume to get AI-powered analysis and improvements</p>
+                  <p className="text-gray-600">Upload your resume to get AI-powered review and improvements</p>
                 </div>
 
                 <div 
@@ -593,7 +601,7 @@ export default function Dashboard() {
                     </h3>
                     
                     <p className="text-gray-600 mb-6">
-                      PDF or Word document • Free analysis in 2 minutes
+                      PDF or Word document • Free review in 2 minutes
                     </p>
                     
                     <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
@@ -601,7 +609,7 @@ export default function Dashboard() {
                     </button>
                     
                     <p className="text-gray-500 text-sm mt-4">
-                      ✓ Secure upload ✓ Instant analysis ✓ Professional recommendations
+                      ✓ Secure upload ✓ Instant review ✓ Professional recommendations
                     </p>
                   </div>
                 </div>

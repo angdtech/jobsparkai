@@ -519,34 +519,42 @@ export function ResumeTemplate2({
                   
                   if (achievementsComplete) {
                     return (
-                      <div className="p-3 rounded-lg border bg-green-50 border-green-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-gray-700">✓ Key Achievements</span>
-                          <span className="text-green-600 text-xs">Complete</span>
+                      <>
+                        <div className="p-3 rounded-lg border bg-green-50 border-green-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-800">✓ Key Achievements</span>
+                            <span className="text-green-600 text-xs">Complete</span>
+                          </div>
+                          <p className="text-xs text-gray-600">
+                            {achievementsCount}/3 achievements completed
+                          </p>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800">Professional Experience</span>
-                          <span className="text-blue-600 text-sm">→ Current</span>
+                        
+                        <div className="p-3 rounded-lg border bg-blue-50 border-blue-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-800">Professional Experience</span>
+                            <span className="text-blue-600 text-sm">→ Current</span>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-2">
+                            AI is scanning your experience for improvements
+                          </p>
+                          <button 
+                            onClick={() => {
+                              console.log('🚀 Improve Experience clicked')
+                              generateExperienceImprovements()
+                              setTimeout(() => {
+                                const experienceElement = document.querySelector('[data-section="experience"]')
+                                if (experienceElement) {
+                                  experienceElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                }
+                              }, 100)
+                            }}
+                            className="text-xs px-2 py-1 rounded text-white bg-blue-600 hover:bg-blue-700"
+                          >
+                            Improve Experience
+                          </button>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2">
-                          AI is scanning your experience for improvements
-                        </p>
-                        <button 
-                          onClick={() => {
-                            console.log('🚀 Improve Experience clicked')
-                            generateExperienceImprovements()
-                            setTimeout(() => {
-                              const experienceElement = document.querySelector('[data-section="experience"]')
-                              if (experienceElement) {
-                                experienceElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                              }
-                            }, 100)
-                          }}
-                          className="text-xs px-2 py-1 rounded text-white bg-blue-600 hover:bg-blue-700"
-                        >
-                          Improve Experience
-                        </button>
-                      </div>
+                      </>
                     )
                   } else {
                     return (
