@@ -6,10 +6,15 @@ import path from 'path'
 import { supabaseAdmin } from '@/lib/supabase'
 import OpenAI from 'openai'
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Initialize OpenAI client only when needed to avoid build-time errors
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.')
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 // Enhanced text extraction function
 async function extractTextFromFile(filePath: string, fileName: string): Promise<string> {
@@ -160,6 +165,7 @@ Return JSON:
 }`
 
   try {
+    const openai = getOpenAIClient()
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini', // Using the correct model name
       messages: [

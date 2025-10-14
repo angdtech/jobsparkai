@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client only when needed to avoid build-time errors
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.')
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 interface CVSection {
   section: string
@@ -96,6 +102,7 @@ HIGHLIGHTING RULES:
 Analyze the CV sections and identify issues - do not rewrite anything.
 `
 
+    const openai = getOpenAIClient()
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
