@@ -285,7 +285,7 @@ export default function CVSessionPage() {
     setAnalyzingCV(true)
     
     try {
-      const response = await fetch('/api/cv/analyze-test', {
+      const response = await fetch('/api/cv/analyze-parallel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

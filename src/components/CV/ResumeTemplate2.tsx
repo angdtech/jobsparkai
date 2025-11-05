@@ -69,6 +69,10 @@ interface ResumeTemplate2Props {
   onShowComments?: (comments: CommentItem[], text: string, position: { x: number; y: number }) => void
   editModeText?: string | null
   onEditModeTextChange?: (text: string | null) => void
+  hideContactDetails?: boolean
+  hidePhoto?: boolean
+  sectionLayout?: any
+  onSectionLayoutChange?: (layout: any) => void
 }
 
 export function ResumeTemplate2({ 
@@ -78,7 +82,11 @@ export function ResumeTemplate2({
   getCommentsForText, 
   onShowComments, 
   editModeText, 
-  onEditModeTextChange 
+  onEditModeTextChange,
+  hideContactDetails = false,
+  hidePhoto = false,
+  sectionLayout,
+  onSectionLayoutChange
 }: ResumeTemplate2Props) {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(data)
@@ -364,16 +372,9 @@ export function ResumeTemplate2({
   return (
     <div className="relative">
       {/* Edit Button */}
-      {isEditable && (
+      {isEditable && isEditing && (
         <div className="absolute top-4 right-4 z-10">
-          {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"
-            >
-              Edit Resume
-            </button>
-          ) : (
+          {isEditing && (
             <div className="flex space-x-2">
               <button
                 onClick={handleCancel}
@@ -393,231 +394,22 @@ export function ResumeTemplate2({
       )}
 
       <div className="w-full max-w-6xl mx-auto bg-white flex min-h-screen relative">
-        {/* CV Improvement Task Panel */}
-        {!isEditing && (
-          <div className="fixed right-4 top-20 w-80 bg-white border border-gray-200 rounded-xl shadow-lg p-4 z-50 max-h-[80vh] overflow-y-auto">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">CV Improvement Tasks</h3>
-              <p className="text-sm text-gray-600">Complete these to optimize your CV</p>
-            </div>
-            
-            <div className="space-y-3">
-              {/* Task 1: Tagline - Only show if not completed */}
-              {!currentData.personalInfo.tagline && (
-                <div className="p-3 rounded-lg border bg-yellow-50 border-yellow-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-800">Professional Tagline</span>
-                    <span className="text-yellow-600 text-sm">⚠ Current</span>
-                  </div>
-                  <p className="text-xs text-gray-600 mb-2">
-                    Add a tagline to grab recruiter attention in 6 seconds
-                  </p>
-                  <button 
-                    onClick={() => {
-                      const taglineElement = document.querySelector('[data-section="tagline"]')
-                      if (taglineElement) {
-                        taglineElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      }
-                    }}
-                    className="text-xs bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded"
-                  >
-                    Add Tagline
-                  </button>
-                </div>
-              )}
-
-              {/* Task 2: Summary - Show as current when tagline is done */}
-              {currentData.personalInfo.tagline && (
-                (() => {
-                  const summary = currentData.personalInfo.summary || ''
-                  const hasGoodLength = summary.length > 100 && summary.length < 600
-                  const hasQuantifiedResults = /\d+[%$]|\d+\s*(years?|months?)|increased|improved|reduced|grew|achieved/i.test(summary)
-                  const hasActionVerbs = /led|managed|developed|created|implemented|delivered|optimized|launched|spearheaded|established|recognized|driving|proven/i.test(summary)
-                  const hasRelevantKeywords = /product\s*manager|digital|mobile|agile|strategy|roadmap|stakeholder|user\s*experience|data\s*driven|strategic|innovation|automation|engagement|leadership/i.test(summary)
-                  const isWellStructured = summary.split('.').length >= 3
-                  
-                  const summaryComplete = hasGoodLength && hasQuantifiedResults && hasActionVerbs && hasRelevantKeywords && isWellStructured
-                  
-                  return (
-                    <div className={`p-3 rounded-lg border ${summaryComplete ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-800">Professional Summary</span>
-                        {summaryComplete ? (
-                          <span className="text-green-600 text-sm">✓ Complete</span>
-                        ) : (
-                          <span className="text-blue-600 text-sm">→ Current</span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-600 mb-2">
-                        {summaryComplete ? 
-                          'Excellent summary with quantified achievements and keywords!' :
-                          summary.length < 50 ? 
-                            'Add a compelling summary that highlights your key achievements' :
-                            'Improve your summary with specific metrics and action verbs'
-                        }
-                      </p>
-                      <div className="flex space-x-1">
-                        <button 
-                          onClick={() => {
-                            const summaryElement = document.querySelector('[data-section="summary"]')
-                            if (summaryElement) {
-                              summaryElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }
-                          }}
-                          className={`text-xs px-2 py-1 rounded text-white flex-1 ${summaryComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                        >
-                          {summaryComplete ? 'Review' : summary.length < 50 ? 'Add' : 'Improve'} Summary
-                        </button>
-                        {!summaryComplete && (
-                          <button 
-                            onClick={() => {
-                              setShowSummaryQuestions(true)
-                              setTimeout(() => {
-                                const summaryElement = document.querySelector('[data-section="summary"]')
-                                if (summaryElement) {
-                                  summaryElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                }
-                              }, 100)
-                            }}
-                            className="text-xs px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white"
-                            title="Create personalized summary"
-                          >
-                            ✨
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })()
-              )}
-
-              {/* Completed Tagline - Show as collapsed completed task */}
-              {currentData.personalInfo.tagline && (
-                <div className="p-2 rounded-lg border bg-green-50 border-green-200 opacity-75">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-700">✓ Professional Tagline</span>
-                    <span className="text-green-600 text-xs">Complete</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Future tasks - only show when summary is complete */}
-              {(() => {
-                const summary = currentData.personalInfo.summary || ''
-                const hasGoodLength = summary.length > 100 && summary.length < 600
-                const hasQuantifiedResults = /\d+[%$]|\d+\s*(years?|months?)|increased|improved|reduced|grew|achieved/i.test(summary)
-                const hasActionVerbs = /led|managed|developed|created|implemented|delivered|optimized|launched|spearheaded|established|recognized|driving|proven/i.test(summary)
-                const hasRelevantKeywords = /product\s*manager|digital|mobile|agile|strategy|roadmap|stakeholder|user\s*experience|data\s*driven|strategic|innovation|automation|engagement|leadership/i.test(summary)
-                const isWellStructured = summary.split('.').length >= 3
-                
-                const summaryComplete = hasGoodLength && hasQuantifiedResults && hasActionVerbs && hasRelevantKeywords && isWellStructured
-                
-                return summaryComplete && (() => {
-                  const hasAchievements = currentData.awards && currentData.awards.length > 0
-                  const achievementsCount = currentData.awards ? currentData.awards.length : 0
-                  const achievementsComplete = achievementsCount >= 3
-                  
-                  if (achievementsComplete) {
-                    return (
-                      <>
-                        <div className="p-3 rounded-lg border bg-green-50 border-green-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-800">✓ Key Achievements</span>
-                            <span className="text-green-600 text-xs">Complete</span>
-                          </div>
-                          <p className="text-xs text-gray-600">
-                            {achievementsCount}/3 achievements completed
-                          </p>
-                        </div>
-                        
-                        <div className="p-3 rounded-lg border bg-blue-50 border-blue-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-800">Professional Experience</span>
-                            <span className="text-blue-600 text-sm">→ Current</span>
-                          </div>
-                          <p className="text-xs text-gray-600 mb-2">
-                            AI is scanning your experience for improvements
-                          </p>
-                          <button 
-                            onClick={() => {
-                              console.log('🚀 Improve Experience clicked')
-                              generateExperienceImprovements()
-                              setTimeout(() => {
-                                const experienceElement = document.querySelector('[data-section="experience"]')
-                                if (experienceElement) {
-                                  experienceElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                }
-                              }, 100)
-                            }}
-                            className="text-xs px-2 py-1 rounded text-white bg-blue-600 hover:bg-blue-700"
-                          >
-                            Improve Experience
-                          </button>
-                        </div>
-                      </>
-                    )
-                  } else {
-                    return (
-                      <div className={`p-3 rounded-lg border ${hasAchievements ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-200'}`}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-800">Key Achievements</span>
-                          <span className={`text-sm ${hasAchievements ? 'text-blue-600' : 'text-yellow-600'}`}>
-                            {hasAchievements ? '→ Current' : '⚠ Current'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-600 mb-2">
-                          {achievementsCount === 0 
-                            ? 'Add 3 quantified achievements with metrics to stand out'
-                            : `${achievementsCount}/3 achievements added. ${3 - achievementsCount} more recommended for optimal impact.`
-                          }
-                        </p>
-                        <div className="flex space-x-1">
-                          <button 
-                            onClick={() => {
-                              const achievementsElement = document.querySelector('[data-section="achievements"]')
-                              if (achievementsElement) {
-                                achievementsElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                              }
-                            }}
-                            className={`text-xs px-2 py-1 rounded text-white ${hasAchievements ? 'bg-blue-600 hover:bg-blue-700' : 'bg-yellow-600 hover:bg-yellow-700'}`}
-                          >
-                            {achievementsCount === 0 ? 'Add Achievements' : 'Add More'}
-                          </button>
-                          {achievementsCount >= 1 && achievementsCount < 3 && (
-                            <button 
-                              onClick={() => {
-                                console.log('🚀 Skip to Experience clicked')
-                                console.log('📊 Current experience data:', currentData.experience)
-                                generateExperienceImprovements()
-                                console.log('✅ generateExperienceImprovements called')
-                              }}
-                              className="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50"
-                            >
-                              Skip to Experience
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  }
-                })()
-              })()}
-            </div>
-          </div>
-        )}
 
         {/* Left Sidebar */}
         <div className="w-80 bg-slate-800 text-white p-8 flex flex-col">
           {/* Profile Image */}
-          <div className="mb-8 text-center">
-            <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm">
-              Photo
+          {!hidePhoto && (
+            <div className="mb-8 text-center">
+              <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm">
+                Photo
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Contact */}
+          {!hideContactDetails && (
           <div className="mb-8">
-            <h3 className="text-lg font-bold mb-4">CONTACT</h3>
+              <h3 className="text-lg font-bold mb-4">CONTACT</h3>
             <div className="space-y-2">
               <div className="flex items-center">
                 <span className="w-16 text-xs text-gray-300 mr-2">Location:</span>
@@ -707,6 +499,7 @@ export function ResumeTemplate2({
               )}
             </div>
           </div>
+          )}
 
           {/* Skills */}
           <div className={`mb-8 ${getCommentsForText?.('skills section')?.some(c => c.targetText.startsWith('SECTION:Skills')) ? 'bg-yellow-50 border border-yellow-200 rounded-lg p-4' : ''}`}>
@@ -909,128 +702,6 @@ export function ResumeTemplate2({
                   />
                 </h1>
                 
-                {/* Tagline - Modern, compact design */}
-                <div data-section="tagline" className={`mb-6 ${!currentData.personalInfo.tagline ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 shadow-sm' : ''}`}>
-                  {!currentData.personalInfo.tagline ? (
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-1">Add Professional Tagline</h3>
-                        <p className="text-sm text-gray-600">First thing recruiters see - make it count!</p>
-                      </div>
-                      
-                      {/* AI Suggestion - Primary */}
-                      <div className="bg-white rounded-lg border border-blue-200 p-4 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">AI RECOMMENDED</span>
-                        </div>
-                        <p className="text-lg font-medium text-gray-800 mb-3">
-                          Product Manager | Digital & Mobile Apps | Agile Expert
-                        </p>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => {
-                              // Force update the data directly since we're not in edit mode
-                              const newData = { ...currentData }
-                              newData.personalInfo.tagline = 'Product Manager | Digital & Mobile Apps | Agile Expert'
-                              
-                              // Call onDataChange if available to save to database
-                              if (onDataChange) {
-                                onDataChange(newData)
-                              }
-                              
-                              // Scroll to summary section
-                              setTimeout(() => {
-                                const summaryElement = document.querySelector('[data-section="summary"]')
-                                if (summaryElement) {
-                                  summaryElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                }
-                              }, 500)
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                          >
-                            Use This
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm font-medium">
-                            Generate More Ideas
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Quick Alternatives */}
-                      <div className="grid grid-cols-1 gap-2">
-                        {[
-                          'Senior Product Manager | 8+ Years | Mobile & Web',
-                          'Product Strategy Expert | Agile Delivery | Team Leadership'
-                        ].map((suggestion, index) => (
-                          <div key={index} className="bg-gray-50 hover:bg-gray-100 rounded-lg p-3 cursor-pointer transition-colors border"
-                            onClick={() => {
-                              const newData = { ...currentData }
-                              newData.personalInfo.tagline = suggestion
-                              if (onDataChange) {
-                                onDataChange(newData)
-                              }
-                              setTimeout(() => {
-                                const summaryElement = document.querySelector('[data-section="summary"]')
-                                if (summaryElement) {
-                                  summaryElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                }
-                              }, 500)
-                            }}
-                          >
-                            <p className="text-sm text-gray-700 font-medium">"{suggestion}"</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Why it matters - compact */}
-                      <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                        <p className="text-xs text-yellow-800">
-                          <strong>Why this matters:</strong> Recruiters scan CVs in 6-8 seconds. A tagline instantly shows your value and helps ATS systems categorize you correctly.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    // Existing tagline - compact completed state
-                    <div className="text-left mb-4">
-                      {isEditing ? (
-                        <div className="space-y-2">
-                          <input
-                            type="text"
-                            value={currentData.personalInfo.tagline}
-                            onChange={(e) => updateField('personalInfo.tagline', e.target.value)}
-                            className="text-lg italic text-gray-600 w-full text-left border-b border-gray-300 bg-transparent"
-                            placeholder="Professional tagline..."
-                          />
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => updateField('personalInfo.tagline', '')}
-                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs"
-                            >
-                              Remove Tagline
-                            </button>
-                            <button
-                              onClick={() => updateField('personalInfo.tagline', originalData?.personalInfo?.tagline || '')}
-                              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs"
-                            >
-                              Reset to Original
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <p className="text-lg text-gray-600 italic text-left">
-                            <SmartText 
-                              text={currentData.personalInfo.tagline}
-                              comments={getCommentsForText?.(currentData.personalInfo.tagline) || []}
-                              onShowComments={onShowComments}
-                            />
-                          </p>
-                          
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
               </>
             )}
           </div>
@@ -1829,7 +1500,18 @@ export function ResumeTemplate2({
               )}
             </div>
             <div className="space-y-6">
-            {currentData.experience.map((exp, index) => (
+            {currentData.experience
+              .slice()
+              .sort((a, b) => {
+                const aHasPresent = a.duration.toLowerCase().includes('present')
+                const bHasPresent = b.duration.toLowerCase().includes('present')
+                if (aHasPresent && !bHasPresent) return -1
+                if (!aHasPresent && bHasPresent) return 1
+                const aYear = parseInt(a.duration.match(/\d{4}/)?.[0] || '0')
+                const bYear = parseInt(b.duration.match(/\d{4}/)?.[0] || '0')
+                return bYear - aYear
+              })
+              .map((exp, index) => (
               <div key={exp.id} className="relative group"
                 onMouseEnter={() => setHoveredExperienceDelete(index)}
                 onMouseLeave={() => setHoveredExperienceDelete(null)}
