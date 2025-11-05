@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   
+  // Turbopack configuration
+  turbo: {
+    root: '/Users/angelinadyer/Development/jobsparkai-main'
+  },
+  
   // Temporarily disable linting for deployment
   eslint: {
     ignoreDuringBuilds: true,

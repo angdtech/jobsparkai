@@ -2,6 +2,9 @@
 > jobspark-app@0.1.0 dev
 > next dev --turbopack
 
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'turbo'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
  ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
  We detected multiple lockfiles and selected the directory of /Users/angelinadyer/package-lock.json as the root directory.
  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
@@ -9,10 +12,10 @@
  Detected additional lockfiles: 
    * /Users/angelinadyer/Development/jobsparkai-main/package-lock.json
 
- ⚠ Port 3000 is in use by process 5365, using available port 3001 instead.
+ ⚠ Port 3000 is in use by process 98720, using available port 3001 instead.
    ▲ Next.js 15.5.2 (Turbopack)
    - Local:        http://localhost:3001
-   - Network:      http://192.168.1.113:3001
+   - Network:      http://192.168.1.117:3001
    - Environments: .env.local
 
  ✓ Starting...
@@ -20,12 +23,1191 @@ Creating turbopack project {
   dir: '/Users/angelinadyer/Development/jobsparkai-main',
   testMode: true
 }
- ✓ Ready in 1286ms
+ ✓ Ready in 1414ms
  ⚠ Webpack is configured while Turbopack is not, which may cause problems.
  ⚠ See instructions if you need to configure Turbopack:
   https://nextjs.org/docs/app/api-reference/next-config-js/turbopack
 
- ○ Compiling /api/cv/review-experience ...
- ✓ Compiled /api/cv/review-experience in 996ms
- POST /api/cv/review-experience 200 in 10065ms
-[?25h
+ ○ Compiling / ...
+[2m[DEBUG][22m Writing debug info to: [2m[34m`[39m[22m[34m/Users/angelinadyer/Development/jobsparkai-main/tailwindcss-30377.log[39m[2m[34m`[39m[22m
+
+
+[2m[86.14ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.04ms][22m  [2m ↳ [22mQuick bail check
+[2m[17.44ms][22m  [2m ↳ [22mSetup compiler
+[2m[ 0.19ms][22m    [2m ↳ [22mPostCSS AST -> Tailwind CSS AST
+[2m[17.24ms][22m    [2m ↳ [22mCreate compiler
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 1.80ms][22m  [2m ↳ [22mSetup scanner
+[2m[24.44ms][22m  [2m ↳ [22mScan for candidates
+[2m[16.03ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[20.65ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.18ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[ 2.26ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+ ✓ Compiled / in 3s
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+ GET / 200 in 3552ms
+ ✓ Compiled /favicon.ico in 208ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 534ms
+ ✓ Compiled /dashboard in 296ms
+ GET /dashboard 200 in 344ms
+
+[2m[44.62ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.24ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[20.92ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.61ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[10.15ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.26ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[270.21ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[  4.97ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 93.90ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 38.17ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[107.03ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 23.25ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[40.28ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.04ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.21ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[17.21ms][22m  [2m ↳ [22mScan for candidates
+[2m[15.31ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 2.55ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.80ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[29.77ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.14ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[14.41ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.77ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.67ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 5.67ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[57.04ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.06ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[36.80ms][22m  [2m ↳ [22mScan for candidates
+[2m[17.46ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.41ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.19ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[111.73ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.42ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 65.60ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 24.75ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[  3.81ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 16.85ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[27.51ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.05ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[10.53ms][22m  [2m ↳ [22mScan for candidates
+[2m[13.42ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.68ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.77ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[120.91ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.20ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 98.23ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 11.21ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[  3.09ms][22m  [2m ↳ [22mBuild utilities
+[2m[  7.94ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[33.76ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.12ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[15.67ms][22m  [2m ↳ [22mScan for candidates
+[2m[13.39ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.27ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.20ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+ GET /dashboard 200 in 351ms
+ GET / 200 in 89ms
+ GET / 200 in 43ms
+ GET /dashboard 200 in 64ms
+ ✓ Compiled /api/cv/sessions in 320ms
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 1107ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 653ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 701ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 1005ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 1057ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+❌ Error fetching sessions: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.auth_cv_sessions" does not exist'
+}
+ GET /api/cv/sessions 500 in 849ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 766ms
+ GET /dashboard 200 in 102ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 288ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 657ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 615ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 631ms
+ ○ Compiling /api/cv/upload ...
+ ✓ Compiled /api/cv/upload in 1601ms
+🚀 Upload API called at: 2025-10-28T12:17:31.335Z
+📊 Request details: {
+  method: 'POST',
+  url: 'http://localhost:3001/api/cv/upload',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    connection: 'keep-alive',
+    'content-length': '225311',
+    'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary8GhHRz9Vd6XnNbIO',
+    dnt: '1',
+    host: 'localhost:3001',
+    origin: 'http://localhost:3001',
+    referer: 'http://localhost:3001/dashboard',
+    'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+    'x-forwarded-for': '::1',
+    'x-forwarded-host': 'localhost:3001',
+    'x-forwarded-port': '3001',
+    'x-forwarded-proto': 'http'
+  }
+}
+File: AngelinaDyer_CV_2018.docx (2).pdf Session: session_1761653848995_z13kb1wu2
+File saved to disk: /Users/angelinadyer/Development/jobsparkai-main/public/uploads/cvs/session_1761653848995_z13kb1wu2-1761653851339.pdf
+Checking if session exists: session_1761653848995_z13kb1wu2
+Session found: {
+  id: '0b09bd41-f5a5-4074-90aa-718c46195a7c',
+  session_id: 'session_1761653848995_z13kb1wu2'
+}
+Updating session with file info: AngelinaDyer_CV_2018.docx (2).pdf /Users/angelinadyer/Development/jobsparkai-main/public/uploads/cvs/session_1761653848995_z13kb1wu2-1761653851339.pdf
+🔍 Starting CV extraction process...
+File path: /Users/angelinadyer/Development/jobsparkai-main/public/uploads/cvs/session_1761653848995_z13kb1wu2-1761653851339.pdf
+Session ID: session_1761653848995_z13kb1wu2
+📄 Extracting text from file...
+(node:30205) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+    at showFlaggedDeprecation (node:buffer:195:11)
+    at new Buffer (node:buffer:273:3)
+    at cloneValue (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3913:50)
+    at cloneValue (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3928:49)
+    at cloneValue (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3928:49)
+    at cloneValue (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3928:49)
+    at LoopbackPort.postMessage1 (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3942:39)
+    at MessageHandler.postMessage1 [as postMessage] (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:1657:37)
+    at MessageHandler.sendWithPromise (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:1402:30)
+    at _fetchDocument (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3462:46)
+    at /Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_pdf-parse_lib_pdf_js_v1_10_100_build_pdf_b84cc750.js:3428:28
+📄 PDF extraction results: {
+  totalPages: 5,
+  textLength: 18558,
+  infoTitle: 'AngelinaDyer_CV_2018.docx',
+  firstPageSample: '\n' +
+    '\n' +
+    ' \n' +
+    'Angelina Dyer\n' +
+    ' \n' +
+    ' \n' +
+    'Email: angelinadyer@icloud.com \n' +
+    'Mobile: 07581002575 \n' +
+    'Location: London \n' +
+    'LinkedIn: uk.linkedin.com/in/angelinadyer \n' +
+    ' \n' +
+    'Building amazing products for businesses to thrive, whilst see...'
+}
+✅ Text extracted successfully, length: 18558
+🤖 Parsing CV data with AI...
+📏 Input text length: 18558
+📝 First 200 chars: 
+
+ 
+Angelina Dyer
+ 
+ 
+Email: angelinadyer@icloud.com 
+Mobile: 07581002575 
+Location: London 
+LinkedIn: uk.linkedin.com/in/angelinadyer 
+ 
+Building amazing products for businesses to thrive, whilst see
+🤖 Starting simple AI parsing with gpt-4o-mini, text length: 18558
+📝 Raw CV text saved to: /Users/angelinadyer/Development/jobsparkai-main/public/raw-cv-text-session_1761653848995_z13kb1wu2.txt
+
+[2m[66.93ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.05ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 2.27ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[25.98ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.58ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[21.97ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 7.78ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 835ms
+ ✓ Compiled /resume in 374ms
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 425ms
+ GET /dashboard 200 in 80ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 1115ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 1054ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 880ms
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 75ms
+ GET /dashboard 200 in 52ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 808ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 814ms
+ ✓ Compiled /templates in 225ms
+ GET /templates?session=session_1761653848995_z13kb1wu2 200 in 266ms
+ GET /dashboard 200 in 47ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 818ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 792ms
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 76ms
+ GET /dashboard 200 in 61ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 788ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 846ms
+🤖 AI parsing completed, result length: 22995
+📝 AI response saved to: /Users/angelinadyer/Development/jobsparkai-main/public/ai-parsed-cv-session_1761653848995_z13kb1wu2.txt
+✅ JSON parsed successfully on first try
+📊 Parsing results: {
+  name: 'Angelina Dyer',
+  workExperience: 11,
+  education: 3,
+  skills: 0,
+  responseLength: 22995
+}
+🔍 FULL Extraction result received: {
+  hasError: false,
+  errorValue: undefined,
+  hasPersonalInfo: true,
+  personalInfoName: 'Angelina Dyer',
+  workExpCount: 11,
+  isFromFallback: false,
+  allKeys: [
+    'personal_info',
+    'professional_summary',
+    'work_experience',
+    'education',
+    'skills',
+    'extracted_text'
+  ],
+  resultType: 'object',
+  fallbackReason: undefined
+}
+📋 Personal info details: {
+  name: 'Angelina Dyer',
+  email: 'angelinadyer@icloud.com',
+  phone: '07581002575',
+  address: 'London',
+  linkedin: 'uk.linkedin.com/in/angelinadyer',
+  tagline: 'Building amazing products for businesses to thrive, whilst seeing my work put into motion, enables my success across multiple projects.'
+}
+💼 Work experience sample: {
+  title: 'Digital Product Manager',
+  company: 'iD Mobile at Dixons Carphone',
+  start_date: 'February 2018',
+  end_date: 'Present',
+  description_items: [
+    'Creation and delivery of the digital self-service strategy and roadmap',
+    'Introduced new campaigns and marketing initiatives into the app and my account online',
+    'Supporting business stakeholders e.g. billing manager, retention manager, to achieve an uplift of £250K - £500K through various projects through the app and my account online',
+    'Successfully delivering to prove a business case of over £1M in savings by moving call centre services from the contact centre into the app and my account online.',
+    'Negotiate a reduction in pricing of services with external suppliers with every initiative delivered',
+    'Implemented multiple initiatives to increase overall CLV and NPS',
+    'Increased key metrics such as customer engagement and registration',
+    'Involved in major re-platforming RFP process for the iD mobile app & my account online',
+    'Negotiated free design sprint with perspective supplier during RFP commercial discussions',
+    'Shortlisted and helped with final decision on new development partner',
+    'Conducted research across multiple sources: research panel (Qualitative & Quantitative research), app store, customer feedback and customer service reports.',
+    'Voice of the customer on the app and my account online',
+    'Create and update various customer journeys across the app and my account online',
+    'Working with external suppliers to help improve the self-service product',
+    'Improved current delivery processes to deliver quickly and efficiently',
+    'Worked within a startup environment driving innovation through new concepts and initiatives',
+    'Conducted multiple presentations across multiple stakeholders at all levels within the business',
+    'Successfully started to drive a shift in customer behaviour to increase registration and engagement',
+    'Creation and prioritisation of new change initiatives from concept to delivery',
+    'Working with the UX / UI team to deliver self-service initiatives and within brand guidelines',
+    'Brand alignment across the app and my account online',
+    'Implementation of various tools to gain more insight into the data',
+    'Increasing visibility of data across the app and my account',
+    'Weekly and monthly reporting on key KPI’s',
+    'Worked with social team to implement key communication',
+    'Worked with multiple stakeholders at all levels across the business',
+    'Participated in workshops to introduce new business propositions',
+    'Worked across all phases of the SDLC from concept to delivery',
+    'Used data and research to help make decisions and inform the overall product strategy and roadmap',
+    'Carried out competitor analysis'
+  ]
+}
+Extraction result: {
+  hasError: false,
+  hasPersonalInfo: true,
+  workExperienceCount: 11,
+  skillsCount: 0
+}
+🚪 Checking database save condition: {
+  hasNoError: true,
+  hasPersonalInfo: true,
+  willSaveToDatabase: {
+    name: 'Angelina Dyer',
+    email: 'angelinadyer@icloud.com',
+    phone: '07581002575',
+    address: 'London',
+    linkedin: 'uk.linkedin.com/in/angelinadyer',
+    tagline: 'Building amazing products for businesses to thrive, whilst seeing my work put into motion, enables my success across multiple projects.'
+  }
+}
+✅ CONDITION MET - Saving extracted CV content to database...
+
+[2m[26.26ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.14ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[15.48ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 7.56ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.48ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.54ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+📊 Session lookup result: {
+  sessionId: 'session_1761653848995_z13kb1wu2',
+  sessionFound: true,
+  authUserId: '2eb604c9-7b46-416c-a945-0331a7aef486'
+}
+🔍 Checking extraction result structure: {
+  hasPersonalInfo: true,
+  hasWorkExperience: true,
+  workExpCount: 11,
+  name: 'Angelina Dyer',
+  summary: 'Ready to perform and highly approachable, I take pride in enabling teams to efficiently deliver thei'
+}
+🗃️ CV content data to save: {
+  session_id: 'session_1761653848995_z13kb1wu2',
+  full_name: 'Angelina Dyer',
+  summary_length: 193,
+  work_experience_count: 11,
+  skills_count: undefined,
+  auth_user_id: '2eb604c9-7b46-416c-a945-0331a7aef486'
+}
+🔧 Full data object keys: [
+  'session_id',           'auth_user_id',
+  'full_name',            'email',
+  'phone',                'location',
+  'linkedin_url',         'website_url',
+  'professional_summary', 'work_experience',
+  'education',            'skills',
+  'certifications',       'languages',
+  'projects',             'achievements',
+  'extracted_from_file',  'extraction_method'
+]
+📊 Sample work experience: {
+  title: 'Digital Product Manager',
+  company: 'iD Mobile at Dixons Carphone',
+  start_date: 'February 2018',
+  end_date: 'Present',
+  description_items: [
+    'Creation and delivery of the digital self-service strategy and roadmap',
+    'Introduced new campaigns and marketing initiatives into the app and my account online',
+    'Supporting business stakeholders e.g. billing manager, retention manager, to achieve an uplift of £250K - £500K through various projects through the app and my account online',
+    'Successfully delivering to prove a business case of over £1M in savings by moving call centre services from the contact centre into the app and my account online.',
+    'Negotiate a reduction in pricing of services with external suppliers with every initiative delivered',
+    'Implemented multiple initiatives to increase overall CLV and NPS',
+    'Increased key metrics such as customer engagement and registration',
+    'Involved in major re-platforming RFP process for the iD mobile app & my account online',
+    'Negotiated free design sprint with perspective supplier during RFP commercial discussions',
+    'Shortlisted and helped with final decision on new development partner',
+    'Conducted research across multiple sources: research panel (Qualitative & Quantitative research), app store, customer feedback and customer service reports.',
+    'Voice of the customer on the app and my account online',
+    'Create and update various customer journeys across the app and my account online',
+    'Working with external suppliers to help improve the self-service product',
+    'Improved current delivery processes to deliver quickly and efficiently',
+    'Worked within a startup environment driving innovation through new concepts and initiatives',
+    'Conducted multiple presentations across multiple stakeholders at all levels within the business',
+    'Successfully started to drive a shift in customer behaviour to increase registration and engagement',
+    'Creation and prioritisation of new change initiatives from concept to delivery',
+    'Working with the UX / UI team to deliver self-service initiatives and within brand guidelines',
+    'Brand alignment across the app and my account online',
+    'Implementation of various tools to gain more insight into the data',
+    'Increasing visibility of data across the app and my account',
+    'Weekly and monthly reporting on key KPI’s',
+    'Worked with social team to implement key communication',
+    'Worked with multiple stakeholders at all levels across the business',
+    'Participated in workshops to introduce new business propositions',
+    'Worked across all phases of the SDLC from concept to delivery',
+    'Used data and research to help make decisions and inform the overall product strategy and roadmap',
+    'Carried out competitor analysis'
+  ]
+}
+💾 Attempting database INSERT...
+🔍 Database INSERT result:
+   - Error: null
+   - Success: true
+   - Data returned: false
+   - Saved record count: 0
+✅ Successfully saved CV content to database
+Saved data: null
+ POST /api/cv/upload 200 in 99225ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 993ms
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 59ms
+
+[2m[84.95ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.83ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[50.23ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.38ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[17.24ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 7.17ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 180ms
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 77ms
+
+[2m[25.33ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.11ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[13.48ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 6.92ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.54ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.18ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[34.55ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[16.99ms][22m  [2m ↳ [22mScan for candidates
+[2m[13.80ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.55ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.10ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+ ✓ Compiled in 137ms
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+ GET /resume?session=session_1761653848995_z13kb1wu2 200 in 1332ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 472ms
+
+[2m[287.42ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[  1.11ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[106.16ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 17.39ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[127.25ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 34.26ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[24.52ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[12.63ms][22m  [2m ↳ [22mScan for candidates
+[2m[10.19ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.22ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.39ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[65.39ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.09ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[34.32ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 7.64ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[14.60ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 8.64ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[21.14ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.05ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 9.56ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.41ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.22ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.85ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[68.07ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.54ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[52.66ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.87ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 3.98ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.82ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[22.75ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.06ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[11.01ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.33ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.51ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.76ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[43.75ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.12ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[24.64ms][22m  [2m ↳ [22mScan for candidates
+[2m[10.70ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 6.22ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.96ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[19.66ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.05ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 9.57ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.44ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.23ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.31ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+ ✓ Compiled in 128ms
+ GET /dashboard 200 in 396ms
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 1776ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 920ms
+ ○ Compiling /api/cv/delete ...
+ ✓ Compiled /api/cv/delete in 554ms
+🗑️ API: Attempting to delete session: session_1761653848995_z13kb1wu2
+🗑️ Attempting to delete session: session_1761653848995_z13kb1wu2
+✅ Successfully deleted analysis data
+✅ Successfully deleted content data
+✅ Successfully deleted session
+✅ API: Successfully deleted session: session_1761653848995_z13kb1wu2
+ DELETE /api/cv/delete?sessionId=session_1761653848995_z13kb1wu2 200 in 1847ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 666ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 714ms
+ ○ Compiling /api/cv/upload-parallel ...
+ ✓ Compiled /api/cv/upload-parallel in 791ms
+🚀 PARALLEL Upload API called
+📁 File saved: /Users/angelinadyer/Development/jobsparkai-main/public/uploads/cvs/session_1761726714721_en6vhvesp-1761726716259.pdf
+📄 Text extracted, length: 18558
+🚀 Starting PARALLEL AI parsing, text length: 18558
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 1400ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 923ms
+Supabase Config: {
+  url: 'https://ettmusfpujpwdnajqqku.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIs...',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIs...',
+  adminClient: true
+}
+ POST /api/cv/upload-parallel 200 in 22118ms
+ GET /dashboard 200 in 319ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 277ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 980ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 1 sessions
+✅ Found 0 analyses
+ GET /api/cv/sessions 200 in 978ms
+🗑️ API: Attempting to delete session: session_1761726714721_en6vhvesp
+🗑️ Attempting to delete session: session_1761726714721_en6vhvesp
+✅ Successfully deleted analysis data
+✅ Successfully deleted content data
+✅ Successfully deleted session
+✅ API: Successfully deleted session: session_1761726714721_en6vhvesp
+ DELETE /api/cv/delete?sessionId=session_1761726714721_en6vhvesp 200 in 965ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 670ms
+📥 Sessions API called
+Auth header present: true
+Token extracted: eyJhbGciOiJIUzI1NiIs...
+✅ User authenticated: 2eb604c9-7b46-416c-a945-0331a7aef486
+Using client: admin
+✅ Found 0 sessions
+ GET /api/cv/sessions 200 in 1073ms
+❌ AI parsing error: Error: AI API timeout after 60000ms
+    at Timeout._onTimeout (src/app/api/cv/upload-parallel/route.ts:41:29)
+  39 |   
+  40 |   const timeout = (ms: number) => new Promise((_, reject) => 
+> 41 |     setTimeout(() => reject(new Error(`AI API timeout after ${ms}ms`)), ms)
+     |                             ^
+  42 |   )
+  43 |   
+  44 |   try {
+❌ Upload error: {
+  message: 'AI parsing failed: AI API timeout after 60000ms',
+  stack: 'Error: AI parsing failed: AI API timeout after 60000ms\n' +
+    '    at parseCVParallel (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/[root-of-the-server]__579dae59._.js:283:15)\n' +
+    '    at async POST (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/[root-of-the-server]__579dae59._.js:322:28)\n' +
+    '    at async AppRouteRouteModule.do (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:38696)\n' +
+    '    at async AppRouteRouteModule.handle (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:45978)\n' +
+    '    at async responseGenerator (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_next_516b17a0._.js:14164:38)\n' +
+    '    at async AppRouteRouteModule.handleResponse (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:1:187643)\n' +
+    '    at async handleResponse (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_next_516b17a0._.js:14226:32)\n' +
+    '    at async handler (/Users/angelinadyer/Development/jobsparkai-main/.next/server/chunks/f4a9b_next_516b17a0._.js:14278:13)\n' +
+    '    at async DevServer.renderToResponseWithComponentsImpl (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/base-server.js:1422:9)\n' +
+    '    at async DevServer.renderPageComponent (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/base-server.js:1474:24)\n' +
+    '    at async DevServer.renderToResponseImpl (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/base-server.js:1514:32)\n' +
+    '    at async DevServer.pipeImpl (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/base-server.js:1025:25)\n' +
+    '    at async NextNodeServer.handleCatchallRenderRequest (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/next-server.js:393:17)\n' +
+    '    at async DevServer.handleRequestImpl (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/base-server.js:916:17)\n' +
+    '    at async /Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/dev/next-dev-server.js:399:20\n' +
+    '    at async Span.traceAsyncFn (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/trace/trace.js:157:20)\n' +
+    '    at async DevServer.handleRequest (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/dev/next-dev-server.js:395:24)\n' +
+    '    at async invokeRender (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/lib/router-server.js:240:21)\n' +
+    '    at async handleRequest (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/lib/router-server.js:437:24)\n' +
+    '    at async requestHandlerImpl (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/lib/router-server.js:485:13)\n' +
+    '    at async Server.requestListener (/Users/angelinadyer/Development/jobsparkai-main/node_modules/next/dist/server/lib/start-server.js:226:13)',
+  type: 'Error'
+}
+
+[2m[117.55ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.46ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 37.53ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 14.22ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[  9.40ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 55.56ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[28.76ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.08ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[12.09ms][22m  [2m ↳ [22mScan for candidates
+[2m[14.99ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.26ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.27ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[50.80ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.11ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[30.94ms][22m  [2m ↳ [22mScan for candidates
+[2m[11.13ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 4.17ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.35ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[35.06ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.03ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[21.01ms][22m  [2m ↳ [22mScan for candidates
+[2m[12.58ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.24ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.15ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[53.43ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.09ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[40.73ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.00ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.54ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.98ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[20.82ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 9.59ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 7.97ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.25ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.83ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[55.28ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.20ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[40.93ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.59ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.60ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.79ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[21.82ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 9.45ms][22m  [2m ↳ [22mScan for candidates
+[2m[10.69ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.24ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.37ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[150.59ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.18ms][22m  [2m ↳ [22mQuick bail check
+[2m[  1.26ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 15.75ms][22m  [2m ↳ [22mScan for candidates
+[2m[  9.75ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[112.65ms][22m  [2m ↳ [22mBuild utilities
+[2m[  8.84ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[  1.11ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[36.58ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.20ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[10.65ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.14ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[11.51ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.04ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[ 1.93ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[41.20ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.12ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[15.91ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.41ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[10.51ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 5.16ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[54.23ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.11ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[30.10ms][22m  [2m ↳ [22mScan for candidates
+[2m[18.63ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 2.82ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.46ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[57.33ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.12ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[22.75ms][22m  [2m ↳ [22mScan for candidates
+[2m[32.23ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.55ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.55ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[48.17ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.45ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[22.28ms][22m  [2m ↳ [22mScan for candidates
+[2m[19.52ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 3.22ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.49ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[40.74ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.06ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[23.75ms][22m  [2m ↳ [22mScan for candidates
+[2m[14.29ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.29ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.30ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[45.20ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.08ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.50ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[31.74ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.52ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.54ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.61ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[20.38ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.09ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 9.08ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.87ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.23ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.06ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[198.45ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.41ms][22m  [2m ↳ [22mQuick bail check
+[2m[  2.59ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 76.61ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 19.64ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 21.18ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 75.83ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[38.30ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.05ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[24.87ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 9.75ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.83ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.67ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[64.88ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.25ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[36.08ms][22m  [2m ↳ [22mScan for candidates
+[2m[15.22ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 8.42ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.72ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[63.21ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.11ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[36.37ms][22m  [2m ↳ [22mScan for candidates
+[2m[22.99ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.48ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.10ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[217.40ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.25ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 37.34ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 14.53ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[139.25ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 14.57ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[ 11.33ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[59.82ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.07ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[26.47ms][22m  [2m ↳ [22mScan for candidates
+[2m[30.54ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.93ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.56ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[201.25ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.17ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 28.53ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 11.79ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[113.95ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 46.12ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[38.33ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.57ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[21.74ms][22m  [2m ↳ [22mScan for candidates
+[2m[13.47ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.47ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.81ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[79.01ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.02ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.29ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[36.68ms][22m  [2m ↳ [22mScan for candidates
+[2m[33.84ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 1.22ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 6.29ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[34.05ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.21ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[15.36ms][22m  [2m ↳ [22mScan for candidates
+[2m[13.61ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.31ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 4.49ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[91.08ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.16ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[45.71ms][22m  [2m ↳ [22mScan for candidates
+[2m[27.94ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[14.94ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 2.17ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[63.65ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.09ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[40.99ms][22m  [2m ↳ [22mScan for candidates
+[2m[20.42ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.79ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.22ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[118.38ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.13ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 63.38ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 44.42ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[  1.27ms][22m  [2m ↳ [22mBuild utilities
+[2m[  8.99ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[47.08ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.21ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[14.63ms][22m  [2m ↳ [22mScan for candidates
+[2m[16.97ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.58ms][22m  [2m ↳ [22mBuild utilities
+[2m[13.85ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[92.06ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 3.50ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[55.81ms][22m  [2m ↳ [22mScan for candidates
+[2m[21.77ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 2.18ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 7.74ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[21.97ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.05ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[11.52ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 8.53ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.25ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.58ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[101.70ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.01ms][22m  [2m ↳ [22mQuick bail check
+[2m[  0.12ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 51.37ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 28.56ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[  5.67ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 13.70ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+
+[2m[40.84ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[ 0.00ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[28.92ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 7.93ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 0.63ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 3.18ms][22m  [2m ↳ [22mUpdate PostCSS AST
+

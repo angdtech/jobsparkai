@@ -7,6 +7,8 @@ import { supabase } from '@/lib/supabase'
 import { ResumeTemplate2 } from '@/components/CV/ResumeTemplate2'
 import { FeedbackType } from '@/components/CV/CommentHighlight'
 import { CommentPanel } from '@/components/CV/CommentPanel'
+import { CVChatbot } from '@/components/CV/CVChatbot'
+import { MessageCircle } from 'lucide-react'
 
 interface ResumeData {
   personalInfo: {
@@ -84,6 +86,13 @@ function ResumePageContent() {
     position: { x: number; y: number }
   } | null>(null)
   const [editModeText, setEditModeText] = useState<string | null>(null)
+  const [showChatbot, setShowChatbot] = useState(true)
+  const [hideContactDetails, setHideContactDetails] = useState(false)
+  const [hidePhoto, setHidePhoto] = useState(false)
+  const [sectionLayout, setSectionLayout] = useState({
+    sidebar: ['photo', 'contact', 'skills', 'languages'],
+    main: ['profile', 'achievements', 'experience', 'education']
+  })
 
   // Create default resume data structure with some intentional errors for testing
   const createDefaultResumeData = (): ResumeData => ({
@@ -141,7 +150,7 @@ function ResumePageContent() {
     try {
       // First try to get data from cv_content table
       const { data: cvContent, error: contentError } = await supabase
-        .from('cv_content_nw')
+        .from('cv_content')
         .select('*')
         .eq('session_id', sessionId)
         .maybeSingle()
@@ -149,23 +158,20 @@ function ResumePageContent() {
       if (!contentError && cvContent) {
         console.log('📊 Loading existing CV content for session:', sessionId, {
           hasContent: !!cvContent,
-          hasName: !!cvContent.full_name,
-          hasTagline: !!cvContent.tagline,
-          taglineValue: cvContent.tagline
+          hasName: !!cvContent.full_name
         })
         
         // Format data from cv_content table
         const formattedData: ResumeData = {
           personalInfo: {
             name: cvContent.full_name || 'Your Name',
-            title: 'Professional Title', // This might need to be extracted from summary
+            title: 'Professional Title',
             email: cvContent.email || 'your.email@example.com',
             phone: cvContent.phone || '+1 (555) 123-4567',
             address: cvContent.location || 'Your City, Country',
             summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.',
             website: cvContent.website_url || undefined,
-            linkedin: cvContent.linkedin_url || undefined,
-            tagline: cvContent.tagline || undefined
+            linkedin: cvContent.linkedin_url || undefined
           },
           experience: Array.isArray(cvContent.work_experience) 
             ? cvContent.work_experience.map((exp: any, index: number) => {
@@ -285,7 +291,7 @@ function ResumePageContent() {
 
       // If no content found, check if session exists in auth_cv_sessions
       const { data: sessionData, error: sessionError } = await supabase
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .select('*')
         .eq('session_id', sessionId)
         .eq('auth_user_id', user.id)
@@ -341,7 +347,6 @@ function ResumePageContent() {
         linkedin_url: data.personalInfo.linkedin || null,
         website_url: data.personalInfo.website || null,
         professional_summary: data.personalInfo.summary || '',
-        tagline: data.personalInfo.tagline || null,
         work_experience: data.experience?.map(exp => {
           const normalizedItems = Array.isArray(exp.description_items)
             ? exp.description_items
@@ -393,7 +398,7 @@ function ResumePageContent() {
 
       // Check if record exists first
       const { data: existingRecord, error: selectError } = await supabase
-        .from('cv_content_nw')
+        .from('cv_content')
         .select('id')
         .eq('session_id', sessionId)
         .eq('auth_user_id', user.id)
@@ -411,7 +416,7 @@ function ResumePageContent() {
         // Record exists, update it
         console.log('🔄 Updating existing record:', existingRecord.id)
         const { data: updateResult, error } = await supabase
-          .from('cv_content_nw')
+          .from('cv_content')
           .update(contentData)
           .eq('id', existingRecord.id)
           .select()
@@ -420,13 +425,8 @@ function ResumePageContent() {
         operationError = error
         
         if (error) {
-          console.error('❌ Update failed:', {
-            error,
-            code: error?.code,
-            message: error?.message,
-            details: error?.details,
-            hint: error?.hint
-          })
+          console.error('❌ Update failed:', error)
+          throw new Error(`Update failed: ${error.message || JSON.stringify(error)}`)
         } else {
           console.log('✅ Update successful:', updateResult?.length, 'records updated')
         }
@@ -434,7 +434,7 @@ function ResumePageContent() {
         // No record exists, insert new one
         console.log('➕ Creating new record')
         const { data: insertResult, error: insertError } = await supabase
-          .from('cv_content_nw')
+          .from('cv_content')
           .insert({
             ...contentData,
             created_at: new Date().toISOString()
@@ -445,33 +445,17 @@ function ResumePageContent() {
         operationError = insertError
         
         if (insertError) {
-          console.error('❌ Insert failed:', {
-            error: insertError,
-            code: insertError?.code,
-            message: insertError?.message,
-            details: insertError?.details,
-            hint: insertError?.hint
-          })
+          console.error('❌ Insert failed:', insertError)
+          throw new Error(`Insert failed: ${insertError.message || JSON.stringify(insertError)}`)
         } else {
           console.log('✅ Insert successful:', insertResult?.length, 'records created')
         }
       }
 
-      // Handle any operation errors
-      if (operationError) {
-        throw operationError
-      }
-
     } catch (error: any) {
-      console.error('❌ Error saving resume data:', {
-        error,
-        code: error?.code,
-        message: error?.message,
-        details: error?.details,
-        hint: error?.hint,
-        sessionId,
-        userId: user.id
-      })
+      console.error('❌ Error saving resume data:', error)
+      console.error('Session ID:', sessionId)
+      console.error('User ID:', user?.id)
       
       // Show user-friendly error message
       alert('Failed to save changes. Please try again.')
@@ -585,73 +569,99 @@ function ResumePageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+      {/* Resume Content with Chatbot */}
+      <div className="flex h-screen overflow-hidden">
+        {/* Resume Section */}
+        <div className="flex-1 overflow-y-auto py-8 px-4">
+          <div className="max-w-5xl mx-auto">
+            {/* Back to Dashboard */}
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-blue-600 hover:text-blue-800 flex items-center"
+              className="text-gray-900 font-semibold flex items-center hover:text-gray-700 mb-4"
             >
-              ← Back to Dashboard
+              &lt;- Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">CV Review</h1>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {/* Undo/Redo */}
-            <div className="flex items-center space-x-2">
+
+            {/* Action buttons above CV */}
+            <div className="flex items-center space-x-3 mb-6">
+              <button
+                onClick={() => setHideContactDetails(!hideContactDetails)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+              >
+                {hideContactDetails ? 'Show Contact Details' : 'Hide Contact Details'}
+              </button>
+
+              <button
+                onClick={() => setHidePhoto(!hidePhoto)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+              >
+                {hidePhoto ? 'Show Photo' : 'Hide Photo'}
+              </button>
+
               <button
                 onClick={undo}
                 disabled={historyIndex <= 0}
-                className={`p-2 rounded ${
+                className={`px-6 py-2.5 rounded-full text-sm font-medium ${
                   historyIndex <= 0
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
                 title="Undo (Ctrl+Z)"
               >
-                ↶
+                Undo
               </button>
+              
               <button
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
-                className={`p-2 rounded ${
+                className={`px-6 py-2.5 rounded-full text-sm font-medium ${
                   historyIndex >= history.length - 1
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
                 title="Redo (Ctrl+Y)"
               >
-                ↷
+                Redo
               </button>
-            </div>
-            
 
-            {/* Save Status */}
-            {isSaving && (
-              <div className="flex items-center text-sm text-gray-600">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                Saving...
-              </div>
-            )}
+              {/* Save Status */}
+              {isSaving && (
+                <div className="flex items-center text-sm text-gray-600 ml-4">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  Saving...
+                </div>
+              )}
+            </div>
+
+            {/* CV */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+            <ResumeTemplate2
+              data={resumeData}
+              onDataChange={updateResumeData}
+              isEditable={true}
+              getCommentsForText={getCommentsForText}
+              onShowComments={handleShowComments}
+              editModeText={editModeText}
+              onEditModeTextChange={setEditModeText}
+              hideContactDetails={hideContactDetails}
+              hidePhoto={hidePhoto}
+              sectionLayout={sectionLayout}
+              onSectionLayoutChange={setSectionLayout}
+            />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Resume Content */}
-      <div className="max-w-5xl mx-auto py-8 px-4">
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <ResumeTemplate2
-            data={resumeData}
-            onDataChange={updateResumeData}
-            isEditable={true}
-            getCommentsForText={getCommentsForText}
-            onShowComments={handleShowComments}
-            editModeText={editModeText}
-            onEditModeTextChange={setEditModeText}
-          />
-        </div>
+        {/* Chatbot Section - Sidebar */}
+        {resumeData && showChatbot && (
+          <div className="w-[500px] border-l border-gray-200 bg-white flex flex-col">
+            <CVChatbot
+              resumeData={resumeData}
+              onClose={() => setShowChatbot(false)}
+              onUpdateResume={updateResumeData}
+            />
+          </div>
+        )}
       </div>
 
       {/* Comment Panel */}
@@ -698,6 +708,7 @@ function ResumePageContent() {
           }}
         />
       )}
+
     </div>
   )
 }

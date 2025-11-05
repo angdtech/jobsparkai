@@ -96,7 +96,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Unlock CV session
   if (priceType === 'one-time') {
     const { error: unlockError } = await supabase
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .update({
         is_paid: true,
         paid_at: new Date().toISOString(),

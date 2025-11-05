@@ -75,7 +75,7 @@ export class CVSessionManager {
       // Use admin client to bypass RLS for session creation
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions_nw') // Use new table for new auth system
+        .from('auth_cv_sessions') // Use new table for new auth system
         .insert(insertData)
         .select()
         .single()
@@ -100,7 +100,7 @@ export class CVSessionManager {
       // Query new auth_cv_sessions table using admin client
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .select('*')
         .eq('auth_user_id', userId)
         .order('created_at', { ascending: false })
@@ -122,7 +122,7 @@ export class CVSessionManager {
       // Use admin client to access sessions (including anonymous ones)
       const client = supabaseAdmin || supabase
       const { data, error } = await client
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .select('*')
         .eq('session_id', sessionId)
         .single()
@@ -144,7 +144,7 @@ export class CVSessionManager {
       // Use admin client to update sessions (including anonymous ones)
       const client = supabaseAdmin || supabase
       const { error } = await client
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .update({
           ...updates,
           updated_at: new Date().toISOString()
@@ -171,9 +171,9 @@ export class CVSessionManager {
       console.log(`🗑️ Attempting to delete session: ${sessionId}`)
       
       // Delete all related data first (to avoid foreign key constraints)
-      // Delete from cv_ats_analysis_nw
+      // Delete from cv_ats_analysis
       const { error: analysisError } = await client
-        .from('cv_ats_analysis_nw')
+        .from('cv_ats_analysis')
         .delete()
         .eq('session_id', sessionId)
         
@@ -184,9 +184,9 @@ export class CVSessionManager {
         console.log('✅ Successfully deleted analysis data')
       }
       
-      // Delete from cv_content_nw  
+      // Delete from cv_content  
       const { error: contentError } = await client
-        .from('cv_content_nw')
+        .from('cv_content')
         .delete()
         .eq('session_id', sessionId)
         
@@ -199,7 +199,7 @@ export class CVSessionManager {
       
       // Delete the main session
       const { error: sessionError } = await client
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .delete()
         .eq('session_id', sessionId)
 
@@ -249,7 +249,7 @@ export class ATSAnalysisManager {
       console.log('📝 Inserting data:', insertData)
       
       const { data, error } = await client
-        .from('cv_ats_analysis_nw')
+        .from('cv_ats_analysis')
         .insert(insertData)
         .select()
         .single()
@@ -290,7 +290,7 @@ export class ATSAnalysisManager {
       }
       
       const { data, error } = await client
-        .from('cv_ats_analysis_nw')
+        .from('cv_ats_analysis')
         .select('*')
         .eq('session_id', sessionId)
         .maybeSingle() // Use maybeSingle() instead of single() to handle no results gracefully

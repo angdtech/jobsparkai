@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       
       const { supabase } = await import('@/lib/supabase')
       const { data: dbCvContent, error: cvError } = await supabase
-        .from('cv_content_nw')
+        .from('cv_content')
         .select('*')
         .eq('session_id', session_id)
         .maybeSingle()

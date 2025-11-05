@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     // Get the file path from database
     const { supabaseAdmin } = await import('@/lib/supabase')
     const { data: session, error } = await supabaseAdmin
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .select('file_path, file_name')
       .eq('session_id', sessionId)
       .single()

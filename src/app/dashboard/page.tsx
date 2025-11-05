@@ -451,14 +451,6 @@ export default function Dashboard() {
                                 <span>Build Resume</span>
                                 <ArrowRight className="h-4 w-4" />
                               </button>
-                              
-                              <button
-                                onClick={() => router.push(`/templates?session=${session.session_id}`)}
-                                className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                              >
-                                <Palette className="h-4 w-4" />
-                                <span>Choose Template</span>
-                              </button>
                             </div>
                           </>
                         ) : hasAnalysis ? (
@@ -470,14 +462,6 @@ export default function Dashboard() {
                               <FileCheck className="h-4 w-4" />
                               <span>Build Resume</span>
                             </button>
-                            
-                            <button
-                              onClick={() => router.push(`/templates?session=${session.session_id}`)}
-                              className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              <Palette className="h-4 w-4" />
-                              <span>Choose Template</span>
-                            </button>
                           </div>
                         ) : (
                           <div className="space-y-2">
@@ -486,13 +470,6 @@ export default function Dashboard() {
                               className="w-full text-center text-blue-600 hover:text-blue-700 text-sm font-medium py-2 transition-colors"
                             >
                               Build Resume
-                            </button>
-                            
-                            <button
-                              onClick={() => router.push(`/templates?session=${session.session_id}`)}
-                              className="w-full text-center text-gray-600 hover:text-gray-700 text-xs py-1 transition-colors"
-                            >
-                              Choose Template
                             </button>
                           </div>
                         )}

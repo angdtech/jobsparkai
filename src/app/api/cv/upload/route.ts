@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: existingSession, error: checkError } = await supabaseAdmin
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .select('id, session_id')
       .eq('session_id', sessionId)
       .maybeSingle()
@@ -382,7 +382,7 @@ export async function POST(request: NextRequest) {
     console.log('Updating session with file info:', file.name, filePath)
 
     const { error: dbError } = await supabaseAdmin
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .update({
         file_name: file.name,
         file_path: filePath,
@@ -469,7 +469,7 @@ export async function POST(request: NextRequest) {
         
         // Get the session owner to set auth_user_id properly
         const { data: sessionData, error: sessionError } = await supabaseAdmin
-          .from('auth_cv_sessions_nw')
+          .from('auth_cv_sessions')
           .select('auth_user_id')
           .eq('session_id', sessionId)
           .maybeSingle()
@@ -530,7 +530,7 @@ export async function POST(request: NextRequest) {
         // Simple INSERT - one CV per session
         console.log('💾 Attempting database INSERT...')
         const { data: savedData, error: cvError } = await supabaseAdmin
-          .from('cv_content_nw')
+          .from('cv_content')
           .insert(cvContentData)
           
         console.log('🔍 Database INSERT result:')

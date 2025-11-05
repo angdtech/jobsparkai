@@ -12,21 +12,21 @@ export async function GET(request: NextRequest) {
   try {
     // Check cv_ats_analysis table
     const { data: atsData, error: atsError } = await supabaseAdmin
-      .from('cv_ats_analysis_nw')
+      .from('cv_ats_analysis')
       .select('*')
       .eq('session_id', sessionId)
       .maybeSingle()
     
     // Check cv_content table 
     const { data: contentData, error: contentError } = await supabaseAdmin
-      .from('cv_content_nw')
+      .from('cv_content')
       .select('*')
       .eq('session_id', sessionId)
       .maybeSingle()
       
     // Check auth_cv_sessions table
     const { data: sessionData, error: sessionError } = await supabaseAdmin
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .select('*')
       .eq('session_id', sessionId)
       .maybeSingle()

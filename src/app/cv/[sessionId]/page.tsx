@@ -132,7 +132,7 @@ export default function CVSessionPage() {
             }
             
             const { data: existingAnalysisCheck, error: checkError } = await client
-              .from('cv_ats_analysis_nw')
+              .from('cv_ats_analysis')
               .select('*')
               .eq('session_id', sessionId)
               .maybeSingle()
@@ -237,7 +237,7 @@ export default function CVSessionPage() {
       
       // Check if CV content exists in database (should be there from upload)
       const { data: existingCvContent, error: cvContentError } = await supabase
-        .from('cv_content_nw')
+        .from('cv_content')
         .select('*')
         .eq('session_id', sessionId)
         .maybeSingle() // Use maybeSingle to handle 0 or 1 rows gracefully

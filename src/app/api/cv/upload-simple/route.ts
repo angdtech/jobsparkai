@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
       // Try to insert new session (for anonymous users)
       const { data, error } = await supabaseAdmin
-        .from('auth_cv_sessions_nw')
+        .from('auth_cv_sessions')
         .insert(sessionData)
         .select()
         .single()
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         // If insert fails, try to update existing session (for dashboard users)
         console.log('Insert failed, trying update:', error.message)
         const { error: updateError } = await supabaseAdmin
-          .from('auth_cv_sessions_nw')
+          .from('auth_cv_sessions')
           .update({
             file_name: file.name,
             file_path: filePath,

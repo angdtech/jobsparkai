@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
     
     // Check session data
     const { data: session, error: sessionError } = await supabaseAdmin
-      .from('auth_cv_sessions_nw')
+      .from('auth_cv_sessions')
       .select('*')
       .eq('session_id', sessionId)
       .single()
     
     // Check content data
     const { data: content, error: contentError } = await supabaseAdmin
-      .from('cv_content_nw')
+      .from('cv_content')
       .select('*')
       .eq('session_id', sessionId)
       .single()
