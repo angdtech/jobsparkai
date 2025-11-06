@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/cv/download-pdf/route.ts": {
+      "maxDuration": 60,
+      "memory": 3008
+    }
+  }
+}

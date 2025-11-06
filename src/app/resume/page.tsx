@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, Suspense } from 'react'
+import { useEffect, useState, useCallback, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -8,7 +8,7 @@ import { ResumeTemplate2 } from '@/components/CV/ResumeTemplate2'
 import { FeedbackType } from '@/components/CV/CommentHighlight'
 import { CommentPanel } from '@/components/CV/CommentPanel'
 import { CVChatbot } from '@/components/CV/CVChatbot'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, Download } from 'lucide-react'
 
 interface ResumeData {
   personalInfo: {
@@ -93,6 +93,8 @@ function ResumePageContent() {
     sidebar: ['photo', 'contact', 'skills', 'languages'],
     main: ['profile', 'achievements', 'experience', 'education']
   })
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
+  const resumeRef = useRef<HTMLDivElement>(null)
 
   // Create default resume data structure with some intentional errors for testing
   const createDefaultResumeData = (): ResumeData => ({
@@ -468,16 +470,19 @@ function ResumePageContent() {
   const updateResumeData = useCallback((newData: ResumeData) => {
     setResumeData(newData)
     
-    // Add to history
-    const newHistory = history.slice(0, historyIndex + 1)
-    newHistory.push(newData)
-    setHistory(newHistory)
-    setHistoryIndex(newHistory.length - 1)
+    // Add to history using functional updates to avoid stale closures
+    setHistoryIndex(prevIndex => {
+      setHistory(prevHistory => {
+        const newHistory = prevHistory.slice(0, prevIndex + 1)
+        newHistory.push(newData)
+        return newHistory
+      })
+      return prevIndex + 1
+    })
     
     // Auto-save after a short delay
-    const timeoutId = setTimeout(() => saveResumeData(newData), 1000)
-    return () => clearTimeout(timeoutId)
-  }, [history, historyIndex, saveResumeData])
+    setTimeout(() => saveResumeData(newData), 1000)
+  }, [saveResumeData])
 
   // Undo function
   const undo = useCallback(() => {
@@ -498,6 +503,87 @@ function ResumePageContent() {
       saveResumeData(history[newIndex])
     }
   }, [historyIndex, history, saveResumeData])
+
+  // Download CV as PDF using server-side Puppeteer
+  const downloadPDF = async () => {
+    if (!resumeRef.current) return
+    
+    setIsDownloadingPDF(true)
+    try {
+      const element = resumeRef.current
+      
+      // Get all stylesheets
+      const styles = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules)
+              .map(rule => rule.cssText)
+              .join('\n')
+          } catch (e) {
+            return ''
+          }
+        })
+        .join('\n')
+      
+      // Create full HTML document
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              ${styles}
+              /* Hide only interactive buttons for PDF */
+              button {
+                display: none !important;
+              }
+              /* Hide empty sections */
+              section:empty,
+              div:empty {
+                display: none !important;
+              }
+            </style>
+          </head>
+          <body>
+            ${element.innerHTML}
+          </body>
+        </html>
+      `
+      
+      // Send to API route for PDF generation
+      const response = await fetch('/api/cv/download-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          html,
+          name: resumeData?.personalInfo.name || 'CV'
+        }),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+      
+      // Download the PDF
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${resumeData?.personalInfo.name || 'CV'}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Failed to generate PDF. Please try again.')
+    } finally {
+      setIsDownloadingPDF(false)
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -570,7 +656,7 @@ function ResumePageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Resume Content with Chatbot */}
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen">
         {/* Resume Section */}
         <div className="flex-1 overflow-y-auto py-8 px-4">
           <div className="max-w-5xl mx-auto">
@@ -599,29 +685,13 @@ function ResumePageContent() {
               </button>
 
               <button
-                onClick={undo}
-                disabled={historyIndex <= 0}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium ${
-                  historyIndex <= 0
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-                title="Undo (Ctrl+Z)"
+                onClick={downloadPDF}
+                disabled={isDownloadingPDF}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Download as PDF"
               >
-                Undo
-              </button>
-              
-              <button
-                onClick={redo}
-                disabled={historyIndex >= history.length - 1}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium ${
-                  historyIndex >= history.length - 1
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-                title="Redo (Ctrl+Y)"
-              >
-                Redo
+                <Download className="h-4 w-4" />
+                {isDownloadingPDF ? 'Generating...' : 'Download PDF'}
               </button>
 
               {/* Save Status */}
@@ -634,7 +704,7 @@ function ResumePageContent() {
             </div>
 
             {/* CV */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div ref={resumeRef} className="bg-white shadow-lg rounded-lg overflow-hidden">
             <ResumeTemplate2
               data={resumeData}
               onDataChange={updateResumeData}

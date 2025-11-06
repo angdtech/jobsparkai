@@ -20,7 +20,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hi! I'm your CV assistant. I can help you:\n\n• Answer questions about your resume\n• Suggest improvements to specific sections\n• Update your CV content directly\n• Provide career advice\n\nJust ask me to update something like 'Change my job title to Senior Product Manager' or 'Make my summary more impactful'!"
+      content: "Hi! I'm your CV assistant. I can help you:\n\n• Answer questions about your resume\n• Suggest improvements to specific sections\n• Update your CV content directly\n• Compare your CV to a job description\n• Provide career advice\n\nJust ask me to update something like 'Change my job title to Senior Product Manager' or 'Make my summary more impactful'!"
     }
   ])
   const [input, setInput] = useState('')
@@ -70,14 +70,26 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       // Merge each top-level key
       Object.keys(message.cvUpdate).forEach(key => {
         if (Array.isArray(message.cvUpdate[key])) {
-          // For arrays, append new items
-          if (Array.isArray(mergedData[key])) {
-            mergedData[key] = [...mergedData[key], ...message.cvUpdate[key]]
+          // For arrays with items that have IDs, update by ID or append new ones
+          if (Array.isArray(mergedData[key]) && mergedData[key].length > 0 && mergedData[key][0]?.id) {
+            const updateArray = [...mergedData[key]]
+            message.cvUpdate[key].forEach((newItem: any) => {
+              const existingIndex = updateArray.findIndex((item: any) => item.id === newItem.id)
+              if (existingIndex >= 0) {
+                // Update existing item
+                updateArray[existingIndex] = { ...updateArray[existingIndex], ...newItem }
+              } else {
+                // Append new item
+                updateArray.push(newItem)
+              }
+            })
+            mergedData[key] = updateArray
           } else {
+            // Replace the entire array if no IDs present
             mergedData[key] = message.cvUpdate[key]
           }
         } else if (typeof message.cvUpdate[key] === 'object' && message.cvUpdate[key] !== null) {
-          // For objects, merge properties
+          // For objects, deep merge properties
           mergedData[key] = { ...mergedData[key], ...message.cvUpdate[key] }
         } else {
           // For primitives, replace
@@ -86,6 +98,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       })
       
       console.log('📝 Merged resume data:', mergedData)
+      console.log('📝 Original resume data:', resumeData)
       onUpdateResume(mergedData)
       
       // Mark as applied
@@ -210,12 +223,70 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
                 <div className="mt-3 pt-3 border-t border-blue-200 bg-blue-50 rounded p-3">
                   <p className="text-xs text-blue-700 font-medium mb-2">💡 CV Update Ready</p>
                   
-                  {/* Show preview of changes */}
-                  <div className="mb-3 p-2 bg-white rounded border border-blue-200">
-                    <p className="text-xs font-semibold text-gray-700 mb-1">Changes to apply:</p>
-                    <pre className="text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">
-                      {JSON.stringify(message.cvUpdate, null, 2)}
-                    </pre>
+                  {/* Show preview of changes - formatted and readable */}
+                  <div className="mb-3 p-3 bg-white rounded border border-blue-200">
+                    <p className="text-xs font-semibold text-gray-700 mb-3">📝 Suggested Changes:</p>
+                    <div className="text-sm text-gray-700 space-y-3">
+                      {Object.entries(message.cvUpdate).map(([key, value]) => (
+                        <div key={key} className="pb-3 border-b border-gray-100 last:border-0">
+                          <div className="font-semibold capitalize text-blue-700 mb-2 flex items-center gap-2">
+                            {key === 'personalInfo' && '👤'}
+                            {key === 'experience' && '💼'}
+                            {key === 'skills' && '🛠️'}
+                            {key === 'education' && '🎓'}
+                            {key === 'summary' && '📄'}
+                            <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}</span>
+                          </div>
+                          <div className="mt-2 pl-4 space-y-2">
+                            {typeof value === 'object' && value !== null ? (
+                              Array.isArray(value) ? (
+                                <div className="space-y-3">
+                                  {value.map((item: any, idx: number) => (
+                                    <div key={idx} className="bg-blue-50 p-2 rounded">
+                                      {typeof item === 'object' ? (
+                                        <div className="space-y-1">
+                                          {Object.entries(item).map(([k, v]) => (
+                                            <div key={k} className="text-gray-700">
+                                              <span className="font-medium text-gray-900 capitalize">
+                                                {k.replace(/_/g, ' ')}:
+                                              </span>{' '}
+                                              {Array.isArray(v) ? (
+                                                <ul className="list-disc list-inside ml-4 mt-1 space-y-0.5">
+                                                  {(v as any[]).map((listItem, i) => (
+                                                    <li key={i} className="text-gray-600">{String(listItem)}</li>
+                                                  ))}
+                                                </ul>
+                                              ) : (
+                                                <span className="text-gray-600">{String(v)}</span>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <span className="text-gray-700">{String(item)}</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="space-y-1">
+                                  {Object.entries(value).map(([k, v]) => (
+                                    <div key={k} className="text-gray-700">
+                                      <span className="font-medium text-gray-900 capitalize">
+                                        {k.replace(/_/g, ' ')}:
+                                      </span>{' '}
+                                      <span className="text-gray-600">{String(v)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            ) : (
+                              <p className="text-gray-600">{String(value)}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   
                   <p className="text-xs text-gray-600 mb-3">Would you like to apply these changes to your CV?</p>
@@ -259,6 +330,31 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       </div>
 
       <div className="p-4 border-t border-gray-200 bg-white">
+        {/* Quick Action Buttons */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          <button
+            onClick={() => setInput('Scan my CV and give me a comprehensive analysis')}
+            className="text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full border border-blue-200 transition-colors"
+            disabled={isLoading}
+          >
+            🔍 Scan my CV
+          </button>
+          <button
+            onClick={() => setInput('Compare my CV to this job description: ')}
+            className="text-xs px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-full border border-green-200 transition-colors"
+            disabled={isLoading}
+          >
+            📊 Compare to Job Description
+          </button>
+          <button
+            onClick={() => setInput('Help me improve my professional summary')}
+            className="text-xs px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-full border border-purple-200 transition-colors"
+            disabled={isLoading}
+          >
+            ✨ Improve Summary
+          </button>
+        </div>
+        
         <div className="flex space-x-2 mb-2 items-end">
           <textarea
             ref={inputRef}

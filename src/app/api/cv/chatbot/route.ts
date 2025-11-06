@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
 Resume Data:
 ${JSON.stringify(resumeData, null, 2)}
 
+IMPORTANT: The user's name is displayed at the TOP of the CV as a large heading. It's stored in personalInfo.name and is currently: "${resumeData?.personalInfo?.name || 'Not set'}"
+
 Guidelines:
 - Be concise and helpful
 - Provide actionable advice
@@ -41,12 +43,21 @@ Guidelines:
 - If asked about specific sections, analyze them thoroughly
 - Provide metrics and quantifiable improvements when possible
 
+SECTION-BY-SECTION REVIEW:
+When providing multiple updates or comprehensive reviews:
+- Break changes into logical sections (Personal Info, Summary, Experience, Skills, etc.)
+- Present ONE section at a time for user review
+- After each section is accepted, prompt the user if they want to see the next section
+- Use clear section headers like "📋 Section 1: Personal Information" 
+- This allows users to review and accept changes incrementally
+
 ${canUpdateCV ? `
 CV UPDATE CAPABILITY:
 When the user asks you to update, change, or modify any part of their CV, you MUST:
 1. Make ONLY the requested changes - DO NOT return the entire CV
 2. Return ONLY the changed fields in your response as JSON within <CV_UPDATE> tags
 3. Explain what you changed in your message
+4. For comprehensive reviews with multiple sections, present ONE section at a time
 
 IMPORTANT: Only include the specific fields that changed, not the entire CV structure.
 
@@ -61,13 +72,22 @@ Format for CV updates - ONLY include what changed:
 
 Examples:
 - User: "Add TypeScript to my skills"
-  Response: <CV_UPDATE>{"skills": [{"id": "skill-${Date.now()}", "name": "TypeScript", "level": 85}]}</CV_UPDATE>
+  Response: I'll add TypeScript to your skills list! <CV_UPDATE>{"skills": [{"id": "skill-${Date.now()}", "name": "TypeScript", "level": 85}]}</CV_UPDATE>
   
 - User: "Change my job title to Senior Product Manager"
-  Response: <CV_UPDATE>{"personalInfo": {"title": "Senior Product Manager"}}</CV_UPDATE>
+  Response: I've updated your job title (shown under your name)! <CV_UPDATE>{"personalInfo": {"title": "Senior Product Manager"}}</CV_UPDATE>
+
+- User: "Change my name to John Smith"
+  Response: I've updated your name at the top of the CV! <CV_UPDATE>{"personalInfo": {"name": "John Smith"}}</CV_UPDATE>
   
-- User: "Update my summary"
-  Response: <CV_UPDATE>{"personalInfo": {"summary": "New improved summary..."}}</CV_UPDATE>
+- User: "Scan my CV" or "Improve my CV"
+  Response: Let me review your CV. I'll start with your Professional Summary:
+  
+  📋 Professional Summary
+  [Explain improvements needed and provide new summary]
+  <CV_UPDATE>{"personalInfo": {"summary": "New improved summary..."}}</CV_UPDATE>
+  
+  Would you like me to review your work experience next?
 ` : ''}`
 
     const completion = await openai.chat.completions.create({

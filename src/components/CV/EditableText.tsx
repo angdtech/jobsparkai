@@ -56,7 +56,7 @@ export function EditableText({
   }, [isEditing])
 
   const handleSave = () => {
-    if (onTextChange) {
+    if (onTextChange && editValue !== text) {
       onTextChange(editValue)
     }
     setIsEditing(false)
@@ -83,6 +83,20 @@ export function EditableText({
     }
   }
 
+  const handleBlur = () => {
+    // Auto-save on blur (modern inline editing)
+    handleSave()
+  }
+
+  const handleClick = () => {
+    if (onTextChange) {
+      setIsEditing(true)
+      if (onEditModeChange) {
+        onEditModeChange(true)
+      }
+    }
+  }
+
   if (isEditing) {
     return (
       <div className="inline-block w-full">
@@ -92,7 +106,8 @@ export function EditableText({
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className={`${className} border border-blue-300 rounded px-2 py-1 w-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            onBlur={handleBlur}
+            className={`${className} border-2 border-blue-400 rounded px-2 py-1 w-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50`}
             placeholder={placeholder}
             rows={3}
           />
@@ -103,34 +118,26 @@ export function EditableText({
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className={`${className} border border-blue-300 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            onBlur={handleBlur}
+            className={`${className} border-2 border-blue-400 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50`}
             placeholder={placeholder}
           />
         )}
-        <div className="flex space-x-2 mt-2">
-          <button
-            onClick={handleSave}
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-          >
-            Save
-          </button>
-          <button
-            onClick={handleCancel}
-            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-          >
-            Cancel
-          </button>
-        </div>
       </div>
     )
   }
 
   return (
-    <SmartText 
-      text={text}
-      comments={comments}
-      onShowComments={onShowComments}
-      className={className}
-    />
+    <div 
+      onClick={handleClick}
+      className={`${onTextChange ? 'cursor-text hover:bg-blue-50 rounded px-1 transition-colors' : ''} ${className}`}
+      title={onTextChange ? 'Click to edit' : ''}
+    >
+      <SmartText 
+        text={text}
+        comments={comments}
+        onShowComments={onShowComments}
+      />
+    </div>
   )
 }

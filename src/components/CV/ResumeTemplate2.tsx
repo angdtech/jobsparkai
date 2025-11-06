@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SmartText } from './SmartText'
 import { EditableText } from './EditableText'
 import { FeedbackType } from './CommentHighlight'
@@ -26,6 +26,15 @@ interface ResumeData {
     tagline?: string
     website?: string
     linkedin?: string
+  }
+  sectionHeadings?: {
+    profile?: string
+    achievements?: string
+    experience?: string
+    education?: string
+    skills?: string
+    languages?: string
+    contact?: string
   }
   experience: Array<{
     id: string
@@ -137,6 +146,8 @@ export function ResumeTemplate2({
   const [hoveredLanguageDelete, setHoveredLanguageDelete] = useState<number | null>(null)
   const [hoveredExperienceDelete, setHoveredExperienceDelete] = useState<number | null>(null)
   const [showSummaryFeedback, setShowSummaryFeedback] = useState(true)
+  const summaryTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const summaryChangeTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleSave = () => {
     onDataChange(editData)
@@ -204,6 +215,14 @@ export function ResumeTemplate2({
   }
 
   const currentData = isEditing ? editData : data
+
+  // Auto-resize summary textarea on mount and content change
+  useEffect(() => {
+    if (summaryTextareaRef.current) {
+      summaryTextareaRef.current.style.height = 'auto'
+      summaryTextareaRef.current.style.height = summaryTextareaRef.current.scrollHeight + 'px'
+    }
+  }, [currentData.personalInfo.summary])
 
   // Generate personalized summary based on user answers
   // AI Recruiter Review - gets real feedback from experienced recruiter
@@ -393,10 +412,10 @@ export function ResumeTemplate2({
         </div>
       )}
 
-      <div className="w-full max-w-6xl mx-auto bg-white flex min-h-screen relative">
+      <div className="w-full bg-white flex min-h-screen relative">
 
         {/* Left Sidebar */}
-        <div className="w-80 bg-slate-800 text-white p-8 flex flex-col">
+        <div className="w-[35%] bg-slate-800 text-white py-10 px-10 flex flex-col">
           {/* Profile Image */}
           {!hidePhoto && (
             <div className="mb-8 text-center">
@@ -409,7 +428,19 @@ export function ResumeTemplate2({
           {/* Contact */}
           {!hideContactDetails && (
           <div className="mb-8">
-              <h3 className="text-lg font-bold mb-4">CONTACT</h3>
+              <h3 className="text-lg font-bold mb-4">
+                <EditableText
+                  text={currentData.sectionHeadings?.contact || 'CONTACT'}
+                  comments={[]}
+                  onTextChange={(newText) => {
+                    const newData = JSON.parse(JSON.stringify(currentData))
+                    if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                    newData.sectionHeadings.contact = newText
+                    onDataChange(newData)
+                  }}
+                  className="text-lg font-bold"
+                />
+              </h3>
             <div className="space-y-2">
               <div className="flex items-center">
                 <span className="w-16 text-xs text-gray-300 mr-2">Location:</span>
@@ -503,7 +534,19 @@ export function ResumeTemplate2({
 
           {/* Skills */}
           <div className={`mb-8 ${getCommentsForText?.('skills section')?.some(c => c.targetText.startsWith('SECTION:Skills')) ? 'bg-yellow-50 border border-yellow-200 rounded-lg p-4' : ''}`}>
-            <h3 className="text-lg font-bold mb-4">SKILLS</h3>
+            <h3 className="text-lg font-bold mb-4">
+              <EditableText
+                text={currentData.sectionHeadings?.skills || 'SKILLS'}
+                comments={[]}
+                onTextChange={(newText) => {
+                  const newData = JSON.parse(JSON.stringify(currentData))
+                  if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                  newData.sectionHeadings.skills = newText
+                  onDataChange(newData)
+                }}
+                className="text-lg font-bold"
+              />
+            </h3>
             
             {/* Handle both categorized skills (object) and simple skills (array) */}
             {typeof currentData.skills === 'object' && !Array.isArray(currentData.skills) ? (
@@ -679,37 +722,35 @@ export function ResumeTemplate2({
         </div>
 
         {/* Right Content */}
-        <div className="flex-1 p-8 bg-white">
+        <div className="w-[65%] py-10 px-10 bg-white">
           {/* Header */}
           <div className="mb-8">
-            {isEditing ? (
-              <>
-                <input
-                  type="text"
-                  value={currentData.personalInfo.name}
-                  onChange={(e) => updateField('personalInfo.name', e.target.value)}
-                  className="text-4xl font-bold text-gray-900 mb-2 border-b-2 border-gray-300 w-full bg-transparent"
-                  placeholder="Your Name"
-                />
-              </>
-            ) : (
-              <>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  <SmartText 
-                    text={currentData.personalInfo.name}
-                    comments={getCommentsForText?.(currentData.personalInfo.name) || []}
-                    onShowComments={onShowComments}
-                  />
-                </h1>
-                
-              </>
-            )}
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <EditableText
+                text={currentData.personalInfo.name}
+                comments={getCommentsForText?.(currentData.personalInfo.name) || []}
+                onShowComments={onShowComments}
+                onTextChange={(newText) => updateField('personalInfo.name', newText)}
+                className="text-4xl font-bold text-gray-900"
+                placeholder="Your Name"
+              />
+            </h1>
           </div>
 
           {/* Profile */}
           <div data-section="summary" className={`mb-8 ${getCommentsForText?.(currentData.personalInfo.summary)?.some(c => c.targetText.startsWith('SECTION:Professional Summary')) ? 'bg-yellow-50 border border-yellow-200 rounded-lg p-4' : ''}`}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">
-              PROFILE
+              <EditableText
+                text={currentData.sectionHeadings?.profile || 'PROFILE'}
+                comments={[]}
+                onTextChange={(newText) => {
+                  const newData = JSON.parse(JSON.stringify(currentData))
+                  if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                  newData.sectionHeadings.profile = newText
+                  onDataChange(newData)
+                }}
+                className="text-xl font-bold"
+              />
             </h3>
             
             {/* Summary Analysis Section - Show when tagline is complete and summary is the next task */}
@@ -1054,8 +1095,13 @@ export function ResumeTemplate2({
                             onDataChange(newData)
                           }
                         }}
-                        className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none"
-                        rows={4}
+                        className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none overflow-hidden"
+                        style={{ minHeight: '60px', height: 'auto' }}
+                        onInput={(e) => {
+                          const target = e.target as HTMLTextAreaElement
+                          target.style.height = 'auto'
+                          target.style.height = target.scrollHeight + 'px'
+                        }}
                         placeholder="Professional summary describing your experience and expertise"
                       />
                       
@@ -1087,23 +1133,44 @@ export function ResumeTemplate2({
                   <textarea
                     value={currentData.personalInfo.summary}
                     onChange={(e) => updateField('personalInfo.summary', e.target.value)}
-                    className="text-sm text-gray-700 leading-relaxed border border-gray-300 rounded px-3 py-2 w-full"
-                    rows={4}
+                    className="text-sm text-gray-700 leading-relaxed border border-gray-300 rounded px-3 py-2 w-full resize-none overflow-hidden"
+                    style={{ minHeight: '60px', height: 'auto' }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement
+                      target.style.height = 'auto'
+                      target.style.height = target.scrollHeight + 'px'
+                    }}
                     placeholder="Professional summary"
                   />
                 ) : (
                   <>
                     <textarea
+                      ref={summaryTextareaRef}
                       value={currentData.personalInfo.summary}
                       onChange={(e) => {
+                        const newValue = e.target.value
                         const newData = { ...currentData }
-                        newData.personalInfo.summary = e.target.value
-                        if (onDataChange) {
-                          onDataChange(newData)
+                        newData.personalInfo.summary = newValue
+                        
+                        // Update immediately for responsive UI
+                        setEditData(newData)
+                        
+                        // Auto-resize on change
+                        e.target.style.height = 'auto'
+                        e.target.style.height = e.target.scrollHeight + 'px'
+                        
+                        // Debounce the history update to avoid flooding
+                        if (summaryChangeTimerRef.current) {
+                          clearTimeout(summaryChangeTimerRef.current)
                         }
+                        summaryChangeTimerRef.current = setTimeout(() => {
+                          if (onDataChange) {
+                            onDataChange(newData)
+                          }
+                        }, 500) // Save to history after 500ms of no typing
                       }}
                       className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none"
-                      rows={4}
+                      style={{ minHeight: '60px' }}
                       placeholder="Professional summary describing your experience and expertise"
                     />
                     
@@ -1116,7 +1183,17 @@ export function ResumeTemplate2({
           {/* Achievements Section */}
           <div data-section="achievements" className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">
-              ACHIEVEMENTS
+              <EditableText
+                text={currentData.sectionHeadings?.achievements || 'ACHIEVEMENTS'}
+                comments={[]}
+                onTextChange={(newText) => {
+                  const newData = JSON.parse(JSON.stringify(currentData))
+                  if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                  newData.sectionHeadings.achievements = newText
+                  onDataChange(newData)
+                }}
+                className="text-xl font-bold"
+              />
             </h3>
             
             {/* Display achievements as bullet points */}
@@ -1254,7 +1331,17 @@ export function ResumeTemplate2({
             <div className="flex items-center justify-between mb-4">
               <div className="flex-1 relative">
                 <h3 className="text-xl font-bold text-gray-900 border-b-2 border-gray-300 pb-2">
-                  PROFESSIONAL EXPERIENCE
+                  <EditableText
+                    text={currentData.sectionHeadings?.experience || 'PROFESSIONAL EXPERIENCE'}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                      newData.sectionHeadings.experience = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-xl font-bold"
+                  />
                 </h3>
                 {isLoadingReview && (
                   <div className="absolute inset-0 bg-blue-50 bg-opacity-95 rounded-lg flex items-center justify-center">
@@ -1499,6 +1586,28 @@ export function ResumeTemplate2({
                 </div>
               )}
             </div>
+            
+            {/* Add Position button at top */}
+            <button
+              onClick={() => {
+                const newData = { ...currentData }
+                newData.experience.push({
+                  id: `exp-${Date.now()}`,
+                  position: 'New Position',
+                  company: 'Company Name',
+                  duration: 'January 2024 - Present',
+                  description: 'Key responsibilities and achievements',
+                  description_items: ['Key responsibility or achievement with specific results']
+                })
+                if (onDataChange) {
+                  onDataChange(newData)
+                }
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 mb-4 flex items-center border border-blue-200 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              + Add Position
+            </button>
+            
             <div className="space-y-6">
             {currentData.experience
               .slice()
@@ -1556,46 +1665,49 @@ export function ResumeTemplate2({
                 ) : (
                   <>
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
+                      <div className="flex-1 mr-4">
                         <input
                           type="text"
                           value={exp.position}
                           onChange={(e) => {
-                            const newData = { ...currentData }
+                            const newData = JSON.parse(JSON.stringify(currentData))
                             newData.experience[index].position = e.target.value
+                            setEditData(newData)
                             if (onDataChange) {
                               onDataChange(newData)
                             }
                           }}
-                          className="text-lg font-bold text-gray-900 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 w-full"
+                          className="text-lg font-bold text-gray-900 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all"
                           placeholder="Job Title"
                         />
                         <input
                           type="text"
                           value={exp.company}
                           onChange={(e) => {
-                            const newData = { ...currentData }
+                            const newData = JSON.parse(JSON.stringify(currentData))
                             newData.experience[index].company = e.target.value
+                            setEditData(newData)
                             if (onDataChange) {
                               onDataChange(newData)
                             }
                           }}
-                          className="text-gray-600 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 w-full"
+                          className="text-gray-600 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all"
                           placeholder="Company Name"
                         />
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 flex-shrink-0">
                         <input
                           type="text"
                           value={exp.duration}
                           onChange={(e) => {
-                            const newData = { ...currentData }
+                            const newData = JSON.parse(JSON.stringify(currentData))
                             newData.experience[index].duration = e.target.value
+                            setEditData(newData)
                             if (onDataChange) {
                               onDataChange(newData)
                             }
                           }}
-                          className="text-sm text-gray-500 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 w-[200px]"
+                          className="text-sm text-gray-500 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 text-right min-w-[180px] cursor-text transition-all"
                           placeholder="Duration"
                         />
                         {hoveredExperienceDelete === index && (
@@ -1964,12 +2076,7 @@ export function ResumeTemplate2({
                             )
                           })
                         } else {
-                          // No content - show placeholder
-                          return (
-                            <li className="text-gray-500 text-sm italic">
-                              • No job description available - click "Improve with AI" to add details
-                            </li>
-                          )
+                          return null
                         }
                       })()}
                     </ul>
@@ -1995,32 +2102,23 @@ export function ResumeTemplate2({
                 )}
               </div>
             ))}
-            <button
-              onClick={() => {
-                const newData = { ...currentData }
-                newData.experience.push({
-                  id: `exp-${Date.now()}`,
-                  position: 'New Position',
-                  company: 'Company Name',
-                  duration: 'January 2024 - Present',
-                  description: 'Key responsibilities and achievements',
-                  description_items: ['Key responsibility or achievement with specific results']
-                })
-                if (onDataChange) {
-                  onDataChange(newData)
-                }
-              }}
-              className="text-sm text-blue-600 hover:text-blue-800 mt-8 flex items-center border border-blue-200 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-            >
-              + Add Position
-            </button>
             </div>
           </div>
 
           {/* Education */}
           <div className={`${getCommentsForText?.('education section')?.some(c => c.targetText.startsWith('SECTION:Education')) ? 'bg-yellow-50 border border-yellow-200 rounded-lg p-4' : ''}`}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">
-              EDUCATION
+              <EditableText
+                text={currentData.sectionHeadings?.education || 'EDUCATION'}
+                comments={[]}
+                onTextChange={(newText) => {
+                  const newData = JSON.parse(JSON.stringify(currentData))
+                  if (!newData.sectionHeadings) newData.sectionHeadings = {}
+                  newData.sectionHeadings.education = newText
+                  onDataChange(newData)
+                }}
+                className="text-xl font-bold"
+              />
             </h3>
             <div className="space-y-4">
               {currentData.education.map((edu, index) => (
@@ -2029,7 +2127,7 @@ export function ResumeTemplate2({
                   onMouseLeave={() => setHoveredEducationDelete(null)}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <div className="flex-1">
+                    <div className="flex-1 mr-4">
                       <input
                         type="text"
                         value={edu.degree}
@@ -2057,7 +2155,7 @@ export function ResumeTemplate2({
                         placeholder="School/University"
                       />
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
                       <input
                         type="text"
                         value={edu.duration}
@@ -2068,7 +2166,7 @@ export function ResumeTemplate2({
                             onDataChange(newData)
                           }
                         }}
-                        className="text-sm text-gray-500 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 w-[200px]"
+                        className="text-sm text-gray-500 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 w-auto text-right"
                         placeholder="Duration"
                       />
                       {hoveredEducationDelete === index && (
