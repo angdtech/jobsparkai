@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, X, Loader2, Save, Download, Check, XCircle } from 'lucide-react'
+import { Send, X, Loader2, Save, Download, Check, XCircle, Lock } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { getChatUsage } from '@/lib/chat-usage'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -17,6 +19,7 @@ interface CVChatbotProps {
 }
 
 export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProps) {
+  const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -25,8 +28,21 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [chatUsage, setChatUsage] = useState<{ used: number; limit: number; hasAccess: boolean; hasSubscription: boolean } | null>(null)
+  const [loadingUsage, setLoadingUsage] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    async function fetchUsage() {
+      if (user?.id) {
+        const usage = await getChatUsage(user.id)
+        setChatUsage(usage)
+      }
+      setLoadingUsage(false)
+    }
+    fetchUsage()
+  }, [user])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -117,6 +133,18 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
+    if (!chatUsage?.hasAccess) {
+      setMessages(prev => [...prev, {
+        role: 'user',
+        content: input
+      }, {
+        role: 'assistant',
+        content: 'Subscribe for £5/month to continue using the AI chat assistant with unlimited access!'
+      }])
+      setInput('')
+      return
+    }
+
     const userMessage: Message = { role: 'user', content: input }
     setMessages(prev => [...prev, userMessage])
     setInput('')
@@ -131,7 +159,8 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
         body: JSON.stringify({
           messages: [...messages, userMessage],
           resumeData,
-          canUpdateCV: !!onUpdateResume
+          canUpdateCV: !!onUpdateResume,
+          userId: user?.id
         }),
       })
 
@@ -145,15 +174,28 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       console.log('📝 CV Update data:', data.cvUpdate)
       console.log('📝 Has cvUpdate?', !!data.cvUpdate)
       
+      // Always show update buttons if AI provided CV update tags
+      // OR if response contains improvement suggestions
+      let cvUpdate = data.cvUpdate
+      
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.message,
-        cvUpdate: data.cvUpdate
+        cvUpdate: cvUpdate
       }
       
       console.log('📨 Assistant message object:', assistantMessage)
       
       setMessages(prev => [...prev, assistantMessage])
+
+      if (user?.id && chatUsage && !chatUsage.hasSubscription) {
+        const newUsed = chatUsage.used + 1
+        setChatUsage({
+          ...chatUsage,
+          used: newUsed,
+          hasAccess: newUsed < chatUsage.limit
+        })
+      }
 
       if (data.cvUpdate) {
         console.log('✅ CV update received, waiting for user to accept', data.cvUpdate)
@@ -181,9 +223,14 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold text-lg">CV Assistant</h3>
-          <p className="text-xs text-blue-100">Powered by GPT-4.1-mini • Can update your CV</p>
+          <div className="flex items-center space-x-3">
+            <p className="text-xs text-blue-100">Ask questions or request CV updates</p>
+            {chatUsage?.hasSubscription && (
+              <span className="text-xs bg-green-600 px-2 py-0.5 rounded-full">Premium</span>
+            )}
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -221,75 +268,6 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
               {/* CV Update Actions */}
               {message.cvUpdate && !message.updateApplied && (
                 <div className="mt-3 pt-3 border-t border-blue-200 bg-blue-50 rounded p-3">
-                  <p className="text-xs text-blue-700 font-medium mb-2">💡 CV Update Ready</p>
-                  
-                  {/* Show preview of changes - formatted and readable */}
-                  <div className="mb-3 p-3 bg-white rounded border border-blue-200">
-                    <p className="text-xs font-semibold text-gray-700 mb-3">📝 Suggested Changes:</p>
-                    <div className="text-sm text-gray-700 space-y-3">
-                      {Object.entries(message.cvUpdate).map(([key, value]) => (
-                        <div key={key} className="pb-3 border-b border-gray-100 last:border-0">
-                          <div className="font-semibold capitalize text-blue-700 mb-2 flex items-center gap-2">
-                            {key === 'personalInfo' && '👤'}
-                            {key === 'experience' && '💼'}
-                            {key === 'skills' && '🛠️'}
-                            {key === 'education' && '🎓'}
-                            {key === 'summary' && '📄'}
-                            <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}</span>
-                          </div>
-                          <div className="mt-2 pl-4 space-y-2">
-                            {typeof value === 'object' && value !== null ? (
-                              Array.isArray(value) ? (
-                                <div className="space-y-3">
-                                  {value.map((item: any, idx: number) => (
-                                    <div key={idx} className="bg-blue-50 p-2 rounded">
-                                      {typeof item === 'object' ? (
-                                        <div className="space-y-1">
-                                          {Object.entries(item).map(([k, v]) => (
-                                            <div key={k} className="text-gray-700">
-                                              <span className="font-medium text-gray-900 capitalize">
-                                                {k.replace(/_/g, ' ')}:
-                                              </span>{' '}
-                                              {Array.isArray(v) ? (
-                                                <ul className="list-disc list-inside ml-4 mt-1 space-y-0.5">
-                                                  {(v as any[]).map((listItem, i) => (
-                                                    <li key={i} className="text-gray-600">{String(listItem)}</li>
-                                                  ))}
-                                                </ul>
-                                              ) : (
-                                                <span className="text-gray-600">{String(v)}</span>
-                                              )}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ) : (
-                                        <span className="text-gray-700">{String(item)}</span>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div className="space-y-1">
-                                  {Object.entries(value).map(([k, v]) => (
-                                    <div key={k} className="text-gray-700">
-                                      <span className="font-medium text-gray-900 capitalize">
-                                        {k.replace(/_/g, ' ')}:
-                                      </span>{' '}
-                                      <span className="text-gray-600">{String(v)}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )
-                            ) : (
-                              <p className="text-gray-600">{String(value)}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <p className="text-xs text-gray-600 mb-3">Would you like to apply these changes to your CV?</p>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => applyUpdate(index)}
@@ -311,7 +289,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
 
               {message.updateApplied && (
                 <div className="mt-2 pt-2 border-t border-green-200 bg-green-50 rounded p-2">
-                  <p className="text-xs text-green-700 font-medium">✓ Changes Applied to CV</p>
+                  <p className="text-xs text-green-700 font-medium">Changes Applied to CV</p>
                 </div>
               )}
             </div>
@@ -330,6 +308,22 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       </div>
 
       <div className="p-4 border-t border-gray-200 bg-white">
+        {!chatUsage?.hasAccess && chatUsage && (
+          <div className="mb-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Unlock Unlimited AI Chat</p>
+                <p className="text-xs text-gray-600">Subscribe for £5/month for unlimited AI assistance</p>
+              </div>
+              <button
+                onClick={() => window.location.href = '/pricing'}
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap"
+              >
+                Subscribe Now
+              </button>
+            </div>
+          </div>
+        )}
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap gap-2 mb-3">
           <button
@@ -337,21 +331,21 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
             className="text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full border border-blue-200 transition-colors"
             disabled={isLoading}
           >
-            🔍 Scan my CV
+            Scan my CV
           </button>
           <button
             onClick={() => setInput('Compare my CV to this job description: ')}
             className="text-xs px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-full border border-green-200 transition-colors"
             disabled={isLoading}
           >
-            📊 Compare to Job Description
+            Compare to Job Description
           </button>
           <button
             onClick={() => setInput('Help me improve my professional summary')}
             className="text-xs px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-full border border-purple-200 transition-colors"
             disabled={isLoading}
           >
-            ✨ Improve Summary
+            Improve Summary
           </button>
         </div>
         

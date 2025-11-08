@@ -28,15 +28,15 @@ const features = [
   },
   {
     icon: <FileText className="h-8 w-8" />,
-    title: "Smart Formatting",
-    description: "Professional layouts designed by recruitment experts to make your resume stand out from the crowd.",
+    title: "Professional Editing",
+    description: "Edit and refine your resume with our intuitive interface designed to help you create a polished final document.",
     color: "from-green-400 to-emerald-500"
   },
   {
     icon: <BarChart3 className="h-8 w-8" />,
-    title: "Real-Time Scoring",
-    description: "Get instant feedback with detailed scoring across format, content, keywords, and overall effectiveness.",
-    color: "from-purple-400 to-pink-500"
+    title: "AI-Powered Feedback",
+    description: "Get instant feedback and recommendations to improve your resume format, content, and keywords.",
+    color: "from-orange-400 to-red-500"
   },
   {
     icon: <Award className="h-8 w-8" />,
@@ -59,7 +59,7 @@ const features = [
   {
     icon: <Clock className="h-8 w-8" />,
     title: "Lightning Fast",
-    description: "Get comprehensive analysis and recommendations in under 2 minutes with our optimized AI pipeline.",
+    description: "Get comprehensive analysis and recommendations in under 1 minute with our optimized AI pipeline.",
     color: "from-orange-400 to-red-500"
   }
 ]
@@ -76,13 +76,13 @@ export default function FeaturesSection() {
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Everything You Need to{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
               Succeed
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Our comprehensive suite of AI-powered tools transforms your resume into a job-landing machine. 
-            From ATS optimization to real-time feedback, we've got you covered.
+            From ATS optimization to AI feedback, we've got you covered.
           </p>
         </div>
 
@@ -113,8 +113,8 @@ export default function FeaturesSection() {
             <span>Join 10,000+ professionals who landed their dream jobs</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
-              Start Free Analysis
+            <button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Get Started
             </button>
             <span className="text-sm text-gray-500">No credit card required</span>
           </div>

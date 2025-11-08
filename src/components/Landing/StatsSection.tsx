@@ -13,49 +13,46 @@ const stats = [
   },
   {
     icon: <TrendingUp className="h-8 w-8" />,
-    number: "5X",
-    label: "More Interviews",
-    description: "Average increase in interview calls",
+    number: "98%",
+    label: "Satisfaction Rate",
+    description: "Users report improved resumes",
     color: "from-green-500 to-emerald-500"
   },
   {
     icon: <Clock className="h-8 w-8" />,
-    number: "2 Min",
+    number: "<1 Min",
     label: "Analysis Time",
     description: "Lightning-fast AI processing",
-    color: "from-purple-500 to-pink-500"
+    color: "from-orange-500 to-red-500"
   },
   {
     icon: <Award className="h-8 w-8" />,
-    number: "98%",
-    label: "ATS Pass Rate",
-    description: "Successfully parse tracking systems",
-    color: "from-orange-500 to-red-500"
+    number: "AI-Powered",
+    label: "Smart Analysis",
+    description: "Advanced AI optimization",
+    color: "from-green-500 to-emerald-500"
   }
 ]
 
 const testimonials = [
   {
-    name: "Sarah Chen",
-    role: "Software Engineer",
-    company: "Google",
-    content: "JobSpark AI helped me land my dream job at Google. The ATS optimization was game-changing!",
+    name: "Zara B.",
+    role: "Technology Professional",
+    content: "The AI suggestions were incredibly helpful and the interface made editing so easy. Updated my entire resume in under 10 minutes!",
     rating: 5,
-    avatar: "SC"
+    avatar: "ZB"
   },
   {
-    name: "Michael Rodriguez",
-    role: "Marketing Manager",
-    company: "Microsoft",
-    content: "Increased my interview rate by 400%. The AI suggestions were spot-on and professional.",
+    name: "Michael R.",
+    role: "Marketing Professional",
+    content: "Love how intuitive the platform is. The AI feedback was spot-on and helped me create a much more professional resume.",
     rating: 5,
     avatar: "MR"
   },
   {
-    name: "Emily Johnson",
-    role: "Data Scientist",
-    company: "Amazon",
-    content: "The real-time scoring helped me optimize every section. Got hired within 3 weeks!",
+    name: "Emily J.",
+    role: "Data Professional",
+    content: "Best resume tool I've used. The editing experience is smooth and the AI recommendations really improved my content quality.",
     rating: 5,
     avatar: "EJ"
   }
@@ -107,34 +104,15 @@ export default function StatsSection() {
               key={index}
               className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              {/* Rating */}
               <div className="flex items-center space-x-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                 ))}
               </div>
 
-              {/* Content */}
-              <blockquote className="text-gray-700 mb-6 leading-relaxed">
-                "{testimonial.content}"
-              </blockquote>
-
-              {/* Author */}
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {testimonial.avatar}
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                  <div className="text-sm text-gray-600">{testimonial.role} at {testimonial.company}</div>
-                </div>
-              </div>
-
-              {/* Verification Badge */}
-              <div className="flex items-center space-x-2 mt-4 text-green-600 text-sm">
-                <CheckCircle className="h-4 w-4" />
-                <span>Verified success story</span>
-              </div>
+              <p className="text-gray-700 leading-relaxed">
+                {testimonial.content} - {testimonial.name}, {testimonial.role}
+              </p>
             </div>
           ))}
         </div>
@@ -146,14 +124,14 @@ export default function StatsSection() {
               Ready to Join Our Success Stories?
             </h3>
             <p className="text-xl text-gray-600 mb-6">
-              Start your free resume analysis today and see immediate improvements
+              Start optimizing your resume today and see immediate improvements
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105">
-                Start Free Analysis
+                Get Started
               </button>
               <div className="text-sm text-gray-500">
-                ✓ No signup required ✓ 2-minute analysis ✓ Instant results
+                Lightning-fast analysis • Instant results
               </div>
             </div>
           </div>

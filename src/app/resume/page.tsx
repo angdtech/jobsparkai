@@ -8,6 +8,7 @@ import { ResumeTemplate2 } from '@/components/CV/ResumeTemplate2'
 import { FeedbackType } from '@/components/CV/CommentHighlight'
 import { CommentPanel } from '@/components/CV/CommentPanel'
 import { CVChatbot } from '@/components/CV/CVChatbot'
+import { trackUserInteraction } from '@/lib/analytics'
 import { MessageCircle, Download } from 'lucide-react'
 
 interface ResumeData {
@@ -76,7 +77,7 @@ function ResumePageContent() {
   const sessionId = searchParams.get('session')
   
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [history, setHistory] = useState<ResumeData[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [isSaving, setIsSaving] = useState(false)
@@ -94,7 +95,32 @@ function ResumePageContent() {
     main: ['profile', 'achievements', 'experience', 'education']
   })
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
+  const [currentFactIndex, setCurrentFactIndex] = useState(0)
   const resumeRef = useRef<HTMLDivElement>(null)
+
+  // Rotating facts for loading screen
+  const LOADING_FACTS = [
+    {
+      title: "Did you know?",
+      text: "75% of resumes are rejected by ATS systems before a human ever sees them."
+    },
+    {
+      title: "Pro tip:",
+      text: "Recruiters spend only 7.4 seconds scanning a resume. Every word needs to count."
+    },
+    {
+      title: "Industry insight:",
+      text: "Resumes with quantified achievements get 40% more interview callbacks than generic descriptions."
+    },
+    {
+      title: "Quick fact:",
+      text: "Using action verbs like 'Led', 'Increased', or 'Developed' makes your CV 33% more likely to get noticed."
+    },
+    {
+      title: "Expert advice:",
+      text: "Tailoring your CV to each job description can increase your interview chances by up to 50%."
+    }
+  ]
 
   // Create default resume data structure with some intentional errors for testing
   const createDefaultResumeData = (): ResumeData => ({
@@ -145,20 +171,26 @@ function ResumePageContent() {
   // Load resume data from database
   const loadResumeData = useCallback(async () => {
     if (!sessionId || !user) {
-      setIsLoading(false)
       return
     }
 
+    const parsingInProgress = sessionStorage.getItem('parsing_in_progress') === sessionId
+    
+    if (parsingInProgress) {
+      setIsLoading(true)
+    }
+    
     try {
-      // First try to get data from cv_content table
+      // First try to get data from cv_content table - ONLY for current user
       const { data: cvContent, error: contentError } = await supabase
         .from('cv_content')
         .select('*')
         .eq('session_id', sessionId)
+        .eq('auth_user_id', user.id)
         .maybeSingle()
 
       if (!contentError && cvContent) {
-        console.log('📊 Loading existing CV content for session:', sessionId, {
+        console.log('Loading existing CV content for session:', sessionId, {
           hasContent: !!cvContent,
           hasName: !!cvContent.full_name
         })
@@ -287,7 +319,11 @@ function ResumePageContent() {
         setResumeData(formattedData)
         setHistory([formattedData])
         setHistoryIndex(0)
-        setIsLoading(false)
+        
+        if (parsingInProgress) {
+          sessionStorage.removeItem('parsing_in_progress')
+          setIsLoading(false)
+        }
         return
       }
 
@@ -301,32 +337,23 @@ function ResumePageContent() {
 
       if (sessionError) {
         console.error('Session not found:', sessionError)
-        // Create default data for new sessions
-        const defaultData = createDefaultResumeData()
-        setResumeData(defaultData)
-        setHistory([defaultData])
-        setHistoryIndex(0)
-        setIsLoading(false)
+        if (parsingInProgress) {
+          setIsLoading(false)
+        }
         return
       }
 
-      // Session exists but no CV content found - this means the CV wasn't properly extracted
-      console.log('Session exists but no CV content found - CV extraction may have failed')
-      // Instead of default data, try to reload or show an error
-      const defaultData = createDefaultResumeData()
-      setResumeData(defaultData)
-      setHistory([defaultData])
-      setHistoryIndex(0)
+      if (parsingInProgress) {
+        console.log('Session exists but no CV content found - parsing in progress')
+      } else {
+        console.log('Session exists but no CV content found - parsing may have failed')
+      }
 
     } catch (error) {
       console.error('Error loading resume data:', error)
-      // Fallback to default data
-      const defaultData = createDefaultResumeData()
-      setResumeData(defaultData)
-      setHistory([defaultData])
-      setHistoryIndex(0)
-    } finally {
-      setIsLoading(false)
+      if (parsingInProgress) {
+        setIsLoading(false)
+      }
     }
   }, [sessionId, user])
 
@@ -480,9 +507,20 @@ function ResumePageContent() {
       return prevIndex + 1
     })
     
+    // Track CV edit interaction
+    trackUserInteraction({
+      interactionType: 'cv_edit',
+      metadata: {
+        sessionId,
+        hasName: !!newData.personalInfo?.name,
+        experienceCount: newData.experience?.length || 0,
+        educationCount: newData.education?.length || 0,
+      }
+    })
+    
     // Auto-save after a short delay
     setTimeout(() => saveResumeData(newData), 1000)
-  }, [saveResumeData])
+  }, [saveResumeData, sessionId])
 
   // Undo function
   const undo = useCallback(() => {
@@ -507,6 +545,15 @@ function ResumePageContent() {
   // Download CV as PDF using server-side Puppeteer
   const downloadPDF = async () => {
     if (!resumeRef.current) return
+    
+    // Track PDF download
+    trackUserInteraction({
+      interactionType: 'pdf_download',
+      metadata: {
+        sessionId,
+        cvName: resumeData?.personalInfo?.name || 'Unknown',
+      }
+    })
     
     setIsDownloadingPDF(true)
     try {
@@ -597,6 +644,27 @@ function ResumePageContent() {
     }
 
     loadResumeData()
+    
+    // Poll for parsing completion if upload is in progress
+    const parsingSession = sessionStorage.getItem('parsing_in_progress')
+    if (parsingSession === sessionId) {
+      const pollInterval = setInterval(async () => {
+        const { data } = await supabase
+          .from('cv_content')
+          .select('id')
+          .eq('session_id', sessionId)
+          .maybeSingle()
+        
+        if (data) {
+          // Parsing complete! Reload data and stop polling
+          sessionStorage.removeItem('parsing_in_progress')
+          clearInterval(pollInterval)
+          loadResumeData()
+        }
+      }, 2000) // Check every 2 seconds
+      
+      return () => clearInterval(pollInterval)
+    }
   }, [user, loading, sessionId, router, loadResumeData])
 
   // Keyboard shortcuts
@@ -626,31 +694,82 @@ function ResumePageContent() {
     setSelectedComments({ comments, text, position })
   }, [])
 
+  // Cycle through facts while loading
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isLoading) {
+      interval = setInterval(() => {
+        setCurrentFactIndex((prevIndex) => (prevIndex + 1) % LOADING_FACTS.length)
+      }, 4000) // Change fact every 4 seconds
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isLoading, LOADING_FACTS.length])
+
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your resume...</p>
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md">
+          {/* Animated Icon Container */}
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+            <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+              <svg className="h-8 w-8 text-blue-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            {/* Rotating ring */}
+            <div className="absolute inset-0 border-4 border-transparent border-t-blue-400 rounded-full animate-spin"></div>
+          </div>
+          
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Analyzing Your CV
+          </h2>
+          
+          <p className="text-gray-600 mb-6">
+            Our AI is reading your CV and extracting your experience, skills, and achievements.
+          </p>
+          
+          {/* Animated Progress Dots */}
+          <div className="flex justify-center space-x-2 mb-6">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          </div>
+
+          {/* Rotating Facts */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 transition-all duration-500">
+            <p className="text-sm text-blue-800 font-medium mb-2">
+              {LOADING_FACTS[currentFactIndex].title}
+            </p>
+            <p className="text-xs text-blue-700 leading-relaxed">
+              {LOADING_FACTS[currentFactIndex].text}
+            </p>
+          </div>
+          
+          {/* Fact indicators */}
+          <div className="flex justify-center space-x-1 mt-4">
+            {LOADING_FACTS.map((_, index) => (
+              <div
+                key={index}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  index === currentFactIndex ? 'bg-blue-500' : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     )
   }
 
-  if (!user || !sessionId || !resumeData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Unable to load resume data</p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    )
+  if (!user || !sessionId) {
+    return null
+  }
+  
+  if (!resumeData) {
+    return null
   }
 
   return (
@@ -663,9 +782,12 @@ function ResumePageContent() {
             {/* Back to Dashboard */}
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-900 font-semibold flex items-center hover:text-gray-700 mb-4"
+              className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
             >
-              &lt;- Back to Dashboard
+              <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="font-medium">Dashboard</span>
             </button>
 
             {/* Action buttons above CV */}

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { incrementChatUsage } from '@/lib/chat-usage'
+import { supabase } from '@/lib/supabase'
 
 let openaiClient: OpenAI | null = null
 
@@ -16,7 +18,7 @@ function getOpenAIClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, resumeData, canUpdateCV } = await request.json()
+    const { messages, resumeData, canUpdateCV, userId } = await request.json()
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -42,6 +44,8 @@ Guidelines:
 - Keep responses friendly and professional
 - If asked about specific sections, analyze them thoroughly
 - Provide metrics and quantifiable improvements when possible
+- NEVER ask "Would you like me to update this?" or "Should I apply these changes?" - just provide the improved version
+- Accept/Reject buttons will automatically appear for the user
 
 SECTION-BY-SECTION REVIEW:
 When providing multiple updates or comprehensive reviews:
@@ -57,9 +61,15 @@ When the user asks you to update, change, or modify any part of their CV, you MU
 1. Make ONLY the requested changes - DO NOT return the entire CV
 2. Return ONLY the changed fields in your response as JSON within <CV_UPDATE> tags
 3. Explain what you changed in your message
-4. For comprehensive reviews with multiple sections, present ONE section at a time
+4. ALWAYS include the <CV_UPDATE> tags when making suggestions - DO NOT ask if they want to apply changes
+5. For comprehensive reviews with multiple sections, present ONE section at a time
 
-IMPORTANT: Only include the specific fields that changed, not the entire CV structure.
+CRITICAL RULES - MUST FOLLOW:
+1. When user asks to update/improve/change ANYTHING, you MUST include <CV_UPDATE> tags
+2. Format: Brief explanation (1-2 lines) + <CV_UPDATE>JSON</CV_UPDATE>
+3. NEVER write long explanations without the tags
+4. NEVER ask "Would you like me to update?" - just provide the tags
+5. Example response: "Here's an improved version:\n\n<CV_UPDATE>{\"personalInfo\":{\"summary\":\"New text\"}}</CV_UPDATE>"
 
 Format for CV updates - ONLY include what changed:
 <CV_UPDATE>
@@ -75,10 +85,10 @@ Examples:
   Response: I'll add TypeScript to your skills list! <CV_UPDATE>{"skills": [{"id": "skill-${Date.now()}", "name": "TypeScript", "level": 85}]}</CV_UPDATE>
   
 - User: "Change my job title to Senior Product Manager"
-  Response: I've updated your job title (shown under your name)! <CV_UPDATE>{"personalInfo": {"title": "Senior Product Manager"}}</CV_UPDATE>
+  Response: I've updated your job title! <CV_UPDATE>{"personalInfo": {"title": "Senior Product Manager"}}</CV_UPDATE>
 
 - User: "Change my name to John Smith"
-  Response: I've updated your name at the top of the CV! <CV_UPDATE>{"personalInfo": {"name": "John Smith"}}</CV_UPDATE>
+  Response: I've updated your name! <CV_UPDATE>{"personalInfo": {"name": "John Smith"}}</CV_UPDATE>
   
 - User: "Scan my CV" or "Improve my CV"
   Response: Let me review your CV. I'll start with your Professional Summary:
@@ -87,11 +97,14 @@ Examples:
   [Explain improvements needed and provide new summary]
   <CV_UPDATE>{"personalInfo": {"summary": "New improved summary..."}}</CV_UPDATE>
   
-  Would you like me to review your work experience next?
+  Let me know when you're ready to review your work experience next!
+
+REMEMBER: Even if response is long, you MUST end with <CV_UPDATE> tags. User CANNOT update their CV without these tags!
 ` : ''}`
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-mini',
+      model: 'gpt-4o-mini',
+      max_tokens: 800, // Increased to ensure CV_UPDATE tags fit
       messages: [
         { role: 'system', content: systemPrompt },
         ...messages.map((msg: any) => ({
@@ -99,12 +112,19 @@ Examples:
           content: msg.content
         }))
       ],
-      temperature: 0.7,
-      max_tokens: 1000,
+      temperature: 0.7
     })
 
     let assistantMessage = completion.choices[0]?.message?.content || 
       'Sorry, I could not generate a response.'
+    
+    // Check if response was truncated due to token limit
+    const finishReason = completion.choices[0]?.finish_reason
+    const wasTruncated = finishReason === 'length'
+    
+    if (wasTruncated) {
+      assistantMessage += '\n\n_Response truncated. Subscribe for £5/month for unlimited detailed responses!_'
+    }
 
     console.log('🤖 AI Response:', assistantMessage.substring(0, 200))
 
@@ -130,6 +150,14 @@ Examples:
       }
     } else {
       console.log('⚠️ No CV_UPDATE tags found. canUpdateCV:', canUpdateCV)
+    }
+
+    if (userId) {
+      try {
+        await supabase.rpc('increment_chat_usage', { user_id: userId })
+      } catch (err) {
+        console.error('Error incrementing chat usage:', err)
+      }
     }
 
     return NextResponse.json({

@@ -80,7 +80,7 @@ export default function FreemiumAnalysis({ analysis, onUpgrade, fileName }: Free
           </div>
           <div className="flex items-center space-x-1">
             <TrendingUp className="h-3 w-3" />
-            <span>5X interviews</span>
+            <span>AI-powered</span>
           </div>
           <div className="flex items-center space-x-1">
             <Star className="h-3 w-3 text-yellow-400 fill-current" />

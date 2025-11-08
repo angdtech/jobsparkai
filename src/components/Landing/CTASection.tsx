@@ -9,11 +9,11 @@ interface CTASectionProps {
 
 export default function CTASection({ onGetStarted }: CTASectionProps) {
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-400 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gray-400 rounded-full filter blur-3xl"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -21,7 +21,7 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
           {/* Main Heading */}
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Zap className="h-4 w-4 text-yellow-400" />
-            <span>Limited Time: Free Analysis</span>
+            <span>Get Started Today</span>
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
@@ -44,11 +44,11 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
             </div>
             <div className="flex items-center space-x-3 text-white">
               <CheckCircle className="h-6 w-6 text-green-400 flex-shrink-0" />
-              <span className="text-lg">Real-time AI feedback</span>
+              <span className="text-lg">AI-powered feedback</span>
             </div>
             <div className="flex items-center space-x-3 text-white">
               <CheckCircle className="h-6 w-6 text-green-400 flex-shrink-0" />
-              <span className="text-lg">Professional templates</span>
+              <span className="text-lg">Professional formatting</span>
             </div>
             <div className="flex items-center space-x-3 text-white">
               <CheckCircle className="h-6 w-6 text-green-400 flex-shrink-0" />
@@ -70,7 +70,7 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
               onClick={onGetStarted}
               className="group bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-6 px-12 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3"
             >
-              <span>Start Free Analysis</span>
+              <span>Get Started</span>
               <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
             </button>
             
@@ -89,8 +89,8 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 text-center">
               <div className="text-white">
-                <div className="text-3xl font-bold mb-2 text-green-400">FREE</div>
-                <div className="text-sm">No hidden costs</div>
+                <div className="text-3xl font-bold mb-2 text-green-400">FAST</div>
+                <div className="text-sm">Quick setup</div>
               </div>
               <div className="text-white">
                 <div className="flex items-center justify-center space-x-1 text-3xl font-bold mb-2">
@@ -112,8 +112,8 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
 
           {/* Final Message */}
           <div className="mt-12 text-white/80 text-lg">
-            <p className="mb-2">🚀 Ready to land your dream job?</p>
-            <p>Upload your resume and get instant AI-powered insights</p>
+            <p className="mb-2">Ready to land your dream job?</p>
+            <p>Get started and receive instant AI-powered insights</p>
           </div>
         </div>
       </div>

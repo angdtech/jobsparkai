@@ -28,8 +28,8 @@ export default function CVUpload({ onFileUploaded, sessionId }: CVUploadProps) {
       formData.append('cv_file', file)
       formData.append('session_id', sessionId)
 
-      // Upload file to our API (now includes extraction)
-      const uploadResponse = await fetch('/api/cv/upload', {
+      // Upload file to our PARALLEL API (includes extraction + analysis)
+      const uploadResponse = await fetch('/api/cv/upload-analyze-parallel', {
         method: 'POST',
         body: formData,
       })

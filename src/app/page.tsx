@@ -99,10 +99,13 @@ export default function Home() {
               ×
             </button>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Get Started Free</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Get Started</h2>
               <p className="text-gray-600">Create your JobSpark AI account</p>
             </div>
-            <SignUpForm onSuccess={() => setShowSignUpModal(false)} />
+            <SignUpForm onSuccess={() => {
+              setShowSignUpModal(false)
+              router.push('/dashboard')
+            }} />
             <div className="text-center mt-4">
               <button
                 onClick={() => {

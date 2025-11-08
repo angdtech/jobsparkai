@@ -9,6 +9,8 @@ interface SignUpFormProps {
 }
 
 export default function SignUpForm({ onSuccess }: SignUpFormProps) {
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -38,7 +40,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
     }
 
     try {
-      const { error } = await signUp(email, password)
+      const { data, error } = await signUp(email, password, firstName, lastName)
       
       if (error && typeof error === 'object' && 'message' in error) {
         const errorMessage = (error as { message: string }).message
@@ -46,10 +48,10 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       } else if (error) {
         setError('Sign up failed')
       } else {
-        setSuccess('Account created! Please check your email for a confirmation link.')
+        setSuccess('Account created successfully! Redirecting to dashboard...')
         setTimeout(() => {
-          onSuccess?.()
-        }, 2000)
+          window.location.href = '/dashboard'
+        }, 1000)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -60,6 +62,49 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* First Name & Last Name */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="signup-firstname" className="block text-sm font-medium text-gray-700 mb-2">
+            First Name
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <User className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="signup-firstname"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              placeholder="First name"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label htmlFor="signup-lastname" className="block text-sm font-medium text-gray-700 mb-2">
+            Last Name
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <User className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="signup-lastname"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+              placeholder="Last name"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Email */}
       <div>
         <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -161,7 +206,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         ) : (
           <div className="flex items-center justify-center space-x-2">
             <User className="h-5 w-5" />
-            <span>Create Free Account</span>
+            <span>Create Account</span>
           </div>
         )}
       </button>

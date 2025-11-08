@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { CVSession } from '@/lib/database'
 import { useDropzone } from 'react-dropzone'
 import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette } from 'lucide-react'
@@ -49,9 +49,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!loading && !user) {
-      redirect('/')
+      router.push('/')
     }
-  }, [user, loading])
+  }, [user, loading, router])
 
   useEffect(() => {
     if (user) {
@@ -130,34 +130,27 @@ export default function Dashboard() {
       formData.append('cv_file', file)
       formData.append('session_id', session.session_id)
       
-      // Upload and analyze
-      const uploadResponse = await fetch('/api/cv/upload', {
-        method: 'POST',
-        body: formData
-      })
-
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text()
-        throw new Error(`Upload failed: ${errorText}`)
-      }
-
-      const uploadResult = await uploadResponse.json()
       const sessionId = session.session_id
 
-      // Give a moment for the analysis to feel complete
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Close modal (if it was open) and refresh sessions  
+      // Close modal and redirect IMMEDIATELY - parsing happens in background
       setShowUploadModal(false)
       setIsUploading(false)
       setUploadStep(0)
-      await fetchUserSessions()
-
+      
       // Set flag for fresh upload to trigger onboarding
       sessionStorage.setItem('fresh_upload', 'true')
+      sessionStorage.setItem('parsing_in_progress', sessionId)
       
-      // Redirect directly to resume page
+      // Redirect to resume page immediately - it will show loading state
       router.push(`/resume?session=${sessionId}`)
+      
+      // Upload and parse in background with PROGRESSIVE parsing (don't await)
+      fetch('/api/cv/upload-progressive', {
+        method: 'POST',
+        body: formData
+      }).catch(error => {
+        console.error('Background upload failed:', error)
+      })
       
     } catch (error) {
       console.error('Upload failed:', error)
@@ -224,7 +217,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">CV Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {user.email}</p>
+              <p className="text-gray-600">Welcome back, {user.user_metadata?.first_name || user.email}</p>
             </div>
             <div className="flex items-center space-x-3">
               {cvSessions.length > 0 && (
@@ -252,7 +245,7 @@ export default function Dashboard() {
             {loadingSessions ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p className="text-gray-600">Loading sessions...</p>
+                <p className="text-gray-600">Loading resumes...</p>
               </div>
             ) : cvSessions.length === 0 ? (
               <div className="text-center py-8">
@@ -368,7 +361,11 @@ export default function Dashboard() {
                   })
                   
                   return (
-                    <div key={session.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+                    <div 
+                      key={session.id} 
+                      className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:border-blue-200 cursor-pointer"
+                      onClick={() => router.push(`/resume?session=${session.session_id}`)}
+                    >
                       {/* Header */}
                       <div className="p-6 pb-4">
                         <div className="flex items-start justify-between mb-3">
@@ -388,7 +385,10 @@ export default function Dashboard() {
                           </div>
                           
                           <button
-                            onClick={() => deleteCV(session.session_id)}
+                            onClick={(e) => {
+                              e.stopPropagation() // Prevent card click
+                              deleteCV(session.session_id)
+                            }}
                             className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -431,48 +431,13 @@ export default function Dashboard() {
                               </div>
                             )}
                           </div>
-                        ) : (
-                          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div className="text-sm text-yellow-800">Review in progress...</div>
-                          </div>
-                        )}
+                        ) : null}
                       </div>
                       
-                      {/* Actions */}
-                      <div className="px-6 pb-6 space-y-2">
-                        {hasAnalysis && issueCount > 0 ? (
-                          <>
-                            <div className="space-y-2">
-                              <button
-                                onClick={() => router.push(`/resume?session=${session.session_id}`)}
-                                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
-                              >
-                                <Target className="h-4 w-4" />
-                                <span>Build Resume</span>
-                                <ArrowRight className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </>
-                        ) : hasAnalysis ? (
-                          <div className="space-y-2">
-                            <button
-                              onClick={() => router.push(`/resume?session=${session.session_id}`)}
-                              className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
-                            >
-                              <FileCheck className="h-4 w-4" />
-                              <span>Build Resume</span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <button
-                              onClick={() => router.push(`/resume?session=${session.session_id}`)}
-                              className="w-full text-center text-blue-600 hover:text-blue-700 text-sm font-medium py-2 transition-colors"
-                            >
-                              Build Resume
-                            </button>
-                          </div>
-                        )}
+                      {/* Footer Badge */}
+                      <div className="px-6 pb-6 flex items-center justify-between text-sm text-gray-500">
+                        <span>Click to edit resume</span>
+                        <ArrowRight className="h-4 w-4" />
                       </div>
                     </div>
                   )
@@ -515,10 +480,10 @@ export default function Dashboard() {
                   
                   <div className="space-y-3 max-w-md mx-auto mb-8">
                     <p className="text-lg text-gray-700 font-medium">
-                      Scanning for interview-killing issues
+                      Parsing your CV with AI
                     </p>
                     <p className="text-sm text-gray-600">
-                      We're checking for ATS compatibility, formatting problems, and content gaps that recruiters flag
+                      Extracting your experience, skills, and education into an editable format
                     </p>
                   </div>
                 </div>

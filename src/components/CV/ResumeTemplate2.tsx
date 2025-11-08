@@ -741,7 +741,7 @@ export function ResumeTemplate2({
           <div data-section="summary" className={`mb-8 ${getCommentsForText?.(currentData.personalInfo.summary)?.some(c => c.targetText.startsWith('SECTION:Professional Summary')) ? 'bg-yellow-50 border border-yellow-200 rounded-lg p-4' : ''}`}>
             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">
               <EditableText
-                text={currentData.sectionHeadings?.profile || 'PROFILE'}
+                text={currentData.sectionHeadings?.profile || 'SUMMARY'}
                 comments={[]}
                 onTextChange={(newText) => {
                   const newData = JSON.parse(JSON.stringify(currentData))
