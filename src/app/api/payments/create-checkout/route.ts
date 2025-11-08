@@ -3,10 +3,15 @@ import Stripe from 'stripe'
 
 // Initialize Stripe client only when needed to avoid build-time errors
 function getStripeClient() {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+  // Use test key in development, live key in production
+  const secretKey = process.env.NODE_ENV === 'production'
+    ? process.env.STRIPE_SECRET_KEY
+    : process.env.STRIPE_TEST_SECRET_KEY
+  
+  if (!secretKey) {
+    throw new Error('Missing Stripe secret key environment variable')
   }
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+  return new Stripe(secretKey, {
     apiVersion: '2025-08-27.basil'
   })
 }
@@ -19,12 +24,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
     }
 
+    // Get base URL from the request headers (works for any domain/port)
+    const host = request.headers.get('host') || 'localhost:3001'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const baseUrl = `${protocol}://${host}`
+    
     // Define prices
     const prices = {
       'one-time': {
         mode: 'payment' as const,
-        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cv/${sessionId}?payment=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cv/${sessionId}?payment=cancelled`,
+        success_url: `${baseUrl}/cv/${sessionId}?payment=success`,
+        cancel_url: `${baseUrl}/cv/${sessionId}?payment=cancelled`,
         line_items: [
           {
             price_data: {
@@ -41,8 +51,8 @@ export async function POST(request: NextRequest) {
       },
       'monthly': {
         mode: 'subscription' as const,
-        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?subscription=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?subscription=cancelled`,
+        success_url: `${baseUrl}/dashboard?subscription=success`,
+        cancel_url: `${baseUrl}/dashboard?subscription=cancelled`,
         line_items: [
           {
             price_data: {

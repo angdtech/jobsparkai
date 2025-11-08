@@ -2,9 +2,56 @@
 
 import { useRouter } from 'next/navigation'
 import { Check } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { useState } from 'react'
 
 export default function PricingPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubscribe = async () => {
+    if (!user) {
+      router.push('/')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Use test keys in development, live keys in production
+      const publishableKey = process.env.NODE_ENV === 'production' 
+        ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+        : process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY!
+      
+      const stripe = (await import('@stripe/stripe-js')).loadStripe(publishableKey)
+      
+      const response = await fetch('/api/payments/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceType: 'monthly',
+          sessionId: 'pricing-page',
+          userId: user.id
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.checkoutUrl) {
+        // Modern approach: direct redirect to Stripe checkout URL
+        window.location.href = data.checkoutUrl
+      } else {
+        alert('Failed to create checkout session')
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error)
+      alert('Failed to create checkout session')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 py-20 px-4">
@@ -83,10 +130,11 @@ export default function PricingPage() {
               </li>
             </ul>
             <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-white text-orange-600 hover:bg-gray-100 font-medium py-3 rounded-full transition-colors"
+              onClick={handleSubscribe}
+              disabled={isLoading}
+              className="w-full bg-white text-orange-600 hover:bg-gray-100 font-medium py-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Subscribe Now
+              {isLoading ? 'Loading...' : 'Subscribe Now'}
             </button>
           </div>
         </div>
@@ -96,7 +144,7 @@ export default function PricingPage() {
             onClick={() => router.push('/')}
             className="text-white/80 hover:text-white transition-colors"
           >
-            ← Back to Home
+            ← Back
           </button>
         </div>
       </div>

@@ -4,10 +4,15 @@ import { supabase } from '@/lib/supabase'
 
 // Initialize Stripe client only when needed to avoid build-time errors
 function getStripeClient() {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+  // Use test key in development, live key in production
+  const secretKey = process.env.NODE_ENV === 'production'
+    ? process.env.STRIPE_SECRET_KEY
+    : process.env.STRIPE_TEST_SECRET_KEY
+  
+  if (!secretKey) {
+    throw new Error('Missing Stripe secret key environment variable')
   }
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+  return new Stripe(secretKey, {
     apiVersion: '2025-08-27.basil'
   })
 }
@@ -125,6 +130,22 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     if (subError) {
       console.error('Error creating subscription:', subError)
     }
+
+    // Update user_profiles to mark as subscribed
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .update({
+        subscription_status: 'active',
+        subscription_tier: 'pro',
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: session.subscription as string,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+
+    if (profileError) {
+      console.error('Error updating user profile:', profileError)
+    }
   }
 }
 
@@ -155,6 +176,19 @@ async function handleSubscriptionPayment(invoice: Stripe.Invoice) {
   if (error) {
     console.error('Error updating subscription payment:', error)
   }
+
+  // Also update user_profiles
+  const { error: profileError } = await supabase
+    .from('user_profiles')
+    .update({
+      subscription_status: 'active',
+      updated_at: new Date().toISOString()
+    })
+    .eq('stripe_subscription_id', subscriptionId)
+
+  if (profileError) {
+    console.error('Error updating user profile subscription:', profileError)
+  }
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
@@ -169,5 +203,19 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
 
   if (error) {
     console.error('Error cancelling subscription:', error)
+  }
+
+  // Also update user_profiles
+  const { error: profileError } = await supabase
+    .from('user_profiles')
+    .update({
+      subscription_status: 'cancelled',
+      subscription_ends_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq('stripe_subscription_id', subscription.id)
+
+  if (profileError) {
+    console.error('Error updating user profile cancellation:', profileError)
   }
 }
