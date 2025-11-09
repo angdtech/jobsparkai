@@ -26,6 +26,7 @@ interface ResumeData {
     tagline?: string
     website?: string
     linkedin?: string
+    photoUrl?: string
   }
   sectionHeadings?: {
     profile?: string
@@ -419,9 +420,40 @@ export function ResumeTemplate2({
           {/* Profile Image */}
           {!hidePhoto && (
             <div className="mb-8 text-center">
-              <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm">
-                Photo
-              </div>
+              <input
+                type="file"
+                id="photo-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    const reader = new FileReader()
+                    reader.onload = (event) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.photoUrl = event.target?.result as string
+                      onDataChange(newData)
+                    }
+                    reader.readAsDataURL(file)
+                  }
+                }}
+              />
+              <label
+                htmlFor="photo-upload"
+                className="cursor-pointer block"
+              >
+                {currentData.personalInfo.photoUrl ? (
+                  <img
+                    src={currentData.personalInfo.photoUrl}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg hover:opacity-80 transition-opacity"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm hover:bg-gray-500 transition-colors">
+                    Click to upload photo
+                  </div>
+                )}
+              </label>
             </div>
           )}
 
