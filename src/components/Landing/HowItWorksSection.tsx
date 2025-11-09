@@ -6,20 +6,20 @@ import { Upload, Sparkles, Download, ArrowRight } from 'lucide-react'
 const steps = [
   {
     icon: <Upload className="h-12 w-12" />,
-    title: "Upload Your CV",
-    description: "Simply drag and drop your existing resume or CV in any format.",
+    title: "Upload Your Resume",
+    description: "Simply drag and drop your existing resume in any format.",
     color: "from-blue-500 to-cyan-500"
   },
   {
     icon: <Sparkles className="h-12 w-12" />,
-    title: "AI Analysis",
-    description: "Our AI analyzes your CV and provides instant feedback and improvements.",
+    title: "Update & Use AI Assistant",
+    description: "Make updates to your resume and use our AI assistant to optimize your content.",
     color: "from-orange-500 to-red-500"
   },
   {
     icon: <Download className="h-12 w-12" />,
-    title: "Download & Apply",
-    description: "Get your optimized CV in professional PDF format and start applying.",
+    title: "Download Your Resume",
+    description: "Once you're ready, download your professional resume and start applying.",
     color: "from-green-500 to-emerald-500"
   }
 ]
@@ -34,7 +34,7 @@ export default function HowItWorksSection() {
             How It Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Get your professionally optimized CV in just 3 simple steps
+            Get your professionally optimized resume in just 3 simple steps
           </p>
         </div>
 
