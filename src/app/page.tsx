@@ -8,7 +8,9 @@ import { useRouter } from 'next/navigation'
 import Header from '@/components/Landing/Header'
 import HeroSection from '@/components/Landing/HeroSection'
 import FeaturesSection from '@/components/Landing/FeaturesSection'
+import HowItWorksSection from '@/components/Landing/HowItWorksSection'
 import StatsSection from '@/components/Landing/StatsSection'
+import AboutUsSection from '@/components/Landing/AboutUsSection'
 import CTASection from '@/components/Landing/CTASection'
 import LoginForm from '@/components/Auth/LoginForm'
 import SignUpForm from '@/components/Auth/SignUpForm'
@@ -57,7 +59,9 @@ export default function Home() {
       <Header onLogin={handleLogin} onSignUp={handleSignUp} />
       <HeroSection onGetStarted={handleGetStarted} />
       <FeaturesSection onGetStarted={handleGetStarted} />
+      <HowItWorksSection />
       <StatsSection onGetStarted={handleGetStarted} />
+      <AboutUsSection />
       <CTASection onGetStarted={handleGetStarted} />
 
       {/* Login Modal */}
