@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { SmartText } from './SmartText'
 import { EditableText } from './EditableText'
 import { FeedbackType } from './CommentHighlight'
+import { Trash2 } from 'lucide-react'
 
 interface CommentItem {
   type: FeedbackType
@@ -1743,7 +1744,7 @@ export function ResumeTemplate2({
                           placeholder="Duration"
                         />
                         <button 
-                          className="text-red-500 hover:text-red-700 cursor-pointer text-xl font-bold ml-2"
+                          className="text-red-500 hover:text-red-700 cursor-pointer ml-2 p-1"
                           onClick={(e) => {
                             e.stopPropagation()
                             if (confirm('Delete this job experience?')) {
@@ -1756,7 +1757,7 @@ export function ResumeTemplate2({
                           }}
                           title="Delete job"
                         >
-                          🗑️
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
