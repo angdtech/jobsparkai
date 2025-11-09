@@ -32,7 +32,7 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
           </h2>
 
           <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed">
-            Join over 10,000 professionals who landed their dream jobs with AI-optimized resumes. 
+            Join thousands of professionals who landed their dream jobs with AI-optimized resumes. 
             Get started today and see results immediately.
           </p>
 
@@ -81,7 +81,7 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
                 ))}
                 <span className="text-white ml-2">4.9/5</span>
               </div>
-              <div className="text-white/80 text-sm">Rated by 10,000+ users</div>
+              <div className="text-white/80 text-sm">Rated by thousands of users</div>
             </div>
           </div>
 

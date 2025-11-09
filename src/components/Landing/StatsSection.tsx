@@ -6,7 +6,7 @@ import { TrendingUp, Users, Clock, Award, Star, CheckCircle } from 'lucide-react
 const stats = [
   {
     icon: <Users className="h-8 w-8" />,
-    number: "10,000+",
+    number: "Thousands",
     label: "Resumes Optimized",
     description: "Professionals trust JobSpark AI",
     color: "from-blue-500 to-cyan-500"
