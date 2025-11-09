@@ -89,8 +89,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    // Clear Supabase session
+    await supabase.auth.signOut({ scope: 'local' })
+    
+    // Clear all localStorage
+    localStorage.clear()
+    
+    // Clear all sessionStorage
+    sessionStorage.clear()
+    
+    // Reset PostHog
+    if (posthog.__loaded) {
+      posthog.reset()
+    }
+    
+    // Force reload to clear all state
+    window.location.href = '/'
+    return { error: null }
   }
 
   const value = {

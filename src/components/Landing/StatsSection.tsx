@@ -3,6 +3,10 @@
 import React from 'react'
 import { TrendingUp, Users, Clock, Award, Star, CheckCircle } from 'lucide-react'
 
+interface StatsSectionProps {
+  onGetStarted?: () => void
+}
+
 const stats = [
   {
     icon: <Users className="h-8 w-8" />,
@@ -58,9 +62,9 @@ const testimonials = [
   }
 ]
 
-export default function StatsSection() {
+export default function StatsSection({ onGetStarted }: StatsSectionProps) {
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section id="testimonials" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto px-4">
         {/* Stats Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
@@ -127,7 +131,7 @@ export default function StatsSection() {
               Start optimizing your resume today and see immediate improvements
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105">
+              <button onClick={onGetStarted} className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105">
                 Get Started
               </button>
               <div className="text-sm text-gray-500">

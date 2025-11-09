@@ -13,6 +13,10 @@ import {
   CheckCircle 
 } from 'lucide-react'
 
+interface FeaturesSectionProps {
+  onGetStarted?: () => void
+}
+
 const features = [
   {
     icon: <Zap className="h-8 w-8" />,
@@ -64,7 +68,7 @@ const features = [
   }
 ]
 
-export default function FeaturesSection() {
+export default function FeaturesSection({ onGetStarted }: FeaturesSectionProps) {
   return (
     <section id="features" className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -113,7 +117,7 @@ export default function FeaturesSection() {
             <span>Join thousands of professionals who've improved their resumes</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+            <button onClick={onGetStarted} className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
               Get Started
             </button>
             <span className="text-sm text-gray-500">No credit card required</span>

@@ -25,7 +25,8 @@ export default function Header({ onLogin, onSignUp }: HeaderProps) {
 
   const navLinks = [
     { href: '#features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' }
+    { href: '/pricing', label: 'Pricing' },
+    { href: '#testimonials', label: 'Reviews' }
   ]
 
   return (

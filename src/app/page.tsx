@@ -56,8 +56,8 @@ export default function Home() {
     <div className="min-h-screen">
       <Header onLogin={handleLogin} onSignUp={handleSignUp} />
       <HeroSection onGetStarted={handleGetStarted} />
-      <FeaturesSection />
-      <StatsSection />
+      <FeaturesSection onGetStarted={handleGetStarted} />
+      <StatsSection onGetStarted={handleGetStarted} />
       <CTASection onGetStarted={handleGetStarted} />
 
       {/* Login Modal */}
