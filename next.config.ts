@@ -4,12 +4,6 @@ const nextConfig: NextConfig = {
   // Production-ready configuration
   poweredByHeader: false,
   compress: true,
-  output: 'standalone',
-  
-  // Disable static error page generation
-  generateBuildId: async () => {
-    return 'build-' + Date.now()
-  },
   
   // Temporarily disable linting for deployment
   eslint: {
@@ -19,6 +13,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
+  // Disable static page generation to avoid Html import error
   experimental: {
     optimizePackageImports: ['@supabase/auth-ui-react'],
   },
