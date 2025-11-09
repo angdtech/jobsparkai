@@ -1749,10 +1749,12 @@ export function ResumeTemplate2({
                             e.preventDefault()
                             e.stopPropagation()
                             console.log('Delete clicked for index:', index)
-                            const newData = JSON.parse(JSON.stringify(currentData))
+                            const newData = JSON.parse(JSON.stringify(data))
                             console.log('Before delete:', newData.experience.length, 'jobs')
                             newData.experience.splice(index, 1)
                             console.log('After delete:', newData.experience.length, 'jobs')
+                            // Update both editData state and call parent onChange
+                            setEditData(newData)
                             onDataChange(newData)
                           }}
                           title="Delete job"
