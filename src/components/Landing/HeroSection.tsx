@@ -26,7 +26,7 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
         <div className="flex items-center justify-center space-x-6 mb-8 text-white/80">
           <div className="flex items-center space-x-1">
             <Users className="h-4 w-4" />
-            <span className="text-sm">10,000+ users</span>
+            <span className="text-sm">Thousands of professionals</span>
           </div>
           <div className="flex items-center space-x-1">
             <Star className="h-4 w-4 text-yellow-400 fill-current" />
@@ -57,7 +57,7 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
             Get Started
           </button>
           <p className="text-white/60 text-sm mt-4">
-            Join thousands of professionals landing their dream jobs
+            Join thousands of professionals who've improved their resumes
           </p>
         </div>
 

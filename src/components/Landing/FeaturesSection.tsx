@@ -17,13 +17,13 @@ const features = [
   {
     icon: <Zap className="h-8 w-8" />,
     title: "AI-Powered Analysis",
-    description: "Advanced GPT-4 technology analyzes your resume and provides intelligent recommendations for maximum impact.",
+    description: "Advanced AI technology analyzes your resume and provides intelligent recommendations for maximum impact.",
     color: "from-yellow-400 to-orange-500"
   },
   {
     icon: <Target className="h-8 w-8" />,
     title: "ATS Optimization",
-    description: "Ensure your resume passes through Applicant Tracking Systems with our proven optimization techniques.",
+    description: "Ensure your resume passes through Applicant Tracking Systems with our proven optimization techniques (Coming Soon).",
     color: "from-blue-400 to-indigo-500"
   },
   {
@@ -47,7 +47,7 @@ const features = [
   {
     icon: <Download className="h-8 w-8" />,
     title: "Multiple Formats",
-    description: "Export your optimized resume in PDF, TXT, or editable formats with professional quality.",
+    description: "Export your optimized resume in PDF or editable formats with professional quality.",
     color: "from-cyan-400 to-blue-500"
   },
   {
@@ -110,7 +110,7 @@ export default function FeaturesSection() {
         <div className="text-center mt-16">
           <div className="inline-flex items-center space-x-2 text-green-600 font-medium mb-4">
             <CheckCircle className="h-5 w-5" />
-            <span>Join 10,000+ professionals who landed their dream jobs</span>
+            <span>Join thousands of professionals who've improved their resumes</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
