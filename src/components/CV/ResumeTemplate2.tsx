@@ -1744,18 +1744,19 @@ export function ResumeTemplate2({
                           placeholder="Duration"
                         />
                         <button 
-                          className="text-red-500 hover:text-red-700 cursor-pointer ml-2 p-1"
+                          className="text-red-500 hover:text-red-700 cursor-pointer ml-2 p-1 transition-colors"
                           onClick={(e) => {
+                            e.preventDefault()
                             e.stopPropagation()
-                            if (confirm('Delete this job experience?')) {
-                              const newData = { ...currentData }
-                              newData.experience.splice(index, 1)
-                              if (onDataChange) {
-                                onDataChange(newData)
-                              }
-                            }
+                            console.log('Delete clicked for index:', index)
+                            const newData = JSON.parse(JSON.stringify(currentData))
+                            console.log('Before delete:', newData.experience.length, 'jobs')
+                            newData.experience.splice(index, 1)
+                            console.log('After delete:', newData.experience.length, 'jobs')
+                            onDataChange(newData)
                           }}
                           title="Delete job"
+                          type="button"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
