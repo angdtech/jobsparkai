@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   
+  // Disable static optimization completely
+  output: 'standalone',
+  
   // Temporarily disable linting for deployment
   eslint: {
     ignoreDuringBuilds: true,
@@ -13,7 +16,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Disable static page generation to avoid Html import error
   experimental: {
     optimizePackageImports: ['@supabase/auth-ui-react'],
   },
