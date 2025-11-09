@@ -1742,23 +1742,22 @@ export function ResumeTemplate2({
                           className="text-sm text-gray-500 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 text-right min-w-[180px] cursor-text transition-all"
                           placeholder="Duration"
                         />
-                        {hoveredExperienceDelete === index && (
-                          <span 
-                            className="text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation()
+                        <button 
+                          className="text-red-500 hover:text-red-700 cursor-pointer text-xl font-bold ml-2"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (confirm('Delete this job experience?')) {
                               const newData = { ...currentData }
                               newData.experience.splice(index, 1)
                               if (onDataChange) {
                                 onDataChange(newData)
                               }
-                              setHoveredExperienceDelete(null)
-                            }}
-                            title="Delete entire experience"
-                          >
-                            ×
-                          </span>
-                        )}
+                            }
+                          }}
+                          title="Delete job"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                     <ul className="space-y-1 ml-4">

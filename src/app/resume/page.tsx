@@ -208,7 +208,8 @@ function ResumePageContent() {
             address: cvContent.location || 'Your City, Country',
             summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.',
             website: cvContent.website_url || undefined,
-            linkedin: cvContent.linkedin_url || undefined
+            linkedin: cvContent.linkedin_url || undefined,
+            photoUrl: cvContent.photo_url || undefined
           },
           experience: Array.isArray(cvContent.work_experience) 
             ? cvContent.work_experience.map((exp: any, index: number) => {
@@ -419,6 +420,7 @@ function ResumePageContent() {
           name: lang.name || '',
           level: lang.level || ''
         })) || [],
+        photo_url: data.personalInfo.photoUrl || null,
         updated_at: new Date().toISOString()
       }
 
