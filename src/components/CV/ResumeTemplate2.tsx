@@ -1703,12 +1703,10 @@ export function ResumeTemplate2({
                           type="text"
                           value={exp.position}
                           onChange={(e) => {
-                            const newData = JSON.parse(JSON.stringify(currentData))
+                            const newData = JSON.parse(JSON.stringify(data))
                             newData.experience[index].position = e.target.value
                             setEditData(newData)
-                            if (onDataChange) {
-                              onDataChange(newData)
-                            }
+                            onDataChange(newData)
                           }}
                           className="text-lg font-bold text-gray-900 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all"
                           placeholder="Job Title"
@@ -1717,12 +1715,10 @@ export function ResumeTemplate2({
                           type="text"
                           value={exp.company}
                           onChange={(e) => {
-                            const newData = JSON.parse(JSON.stringify(currentData))
+                            const newData = JSON.parse(JSON.stringify(data))
                             newData.experience[index].company = e.target.value
                             setEditData(newData)
-                            if (onDataChange) {
-                              onDataChange(newData)
-                            }
+                            onDataChange(newData)
                           }}
                           className="text-gray-600 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all"
                           placeholder="Company Name"
@@ -1733,12 +1729,10 @@ export function ResumeTemplate2({
                           type="text"
                           value={exp.duration}
                           onChange={(e) => {
-                            const newData = JSON.parse(JSON.stringify(currentData))
+                            const newData = JSON.parse(JSON.stringify(data))
                             newData.experience[index].duration = e.target.value
                             setEditData(newData)
-                            if (onDataChange) {
-                              onDataChange(newData)
-                            }
+                            onDataChange(newData)
                           }}
                           className="text-sm text-gray-500 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 text-right min-w-[180px] cursor-text transition-all"
                           placeholder="Duration"
