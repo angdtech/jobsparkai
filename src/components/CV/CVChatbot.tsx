@@ -224,9 +224,9 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
     <div className="flex flex-col h-full bg-white">
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg">CV Assistant</h3>
+          <h3 className="font-semibold text-lg">Résumé Assistant</h3>
           <div className="flex items-center space-x-3">
-            <p className="text-xs text-blue-100">Ask questions or request CV updates</p>
+            <p className="text-xs text-blue-100">Ask questions or request résumé updates</p>
             {chatUsage?.hasSubscription && (
               <span className="text-xs bg-green-600 px-2 py-0.5 rounded-full">Premium</span>
             )}
