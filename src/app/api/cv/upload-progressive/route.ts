@@ -16,7 +16,7 @@ async function extractTextFromBuffer(buffer: Buffer, fileName: string): Promise<
   try {
     if (fileExtension === '.pdf') {
       const pdfParse = (await import('pdf-parse')).default
-      const pdfData = await pdfParse(buffer)
+      const pdfData = await pdfParse(buffer, { max: 0 })
       return pdfData.text
     } 
     else if (fileExtension === '.docx') {
