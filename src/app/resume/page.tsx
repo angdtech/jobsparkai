@@ -179,10 +179,6 @@ function ResumePageContent() {
 
     const parsingInProgress = sessionStorage.getItem('parsing_in_progress') === sessionId
     
-    if (parsingInProgress) {
-      setIsLoading(true)
-    }
-    
     try {
       // First try to get data from cv_content table - ONLY for current user
       const { data: cvContent, error: contentError } = await supabase
@@ -197,6 +193,11 @@ function ResumePageContent() {
           hasContent: !!cvContent,
           hasName: !!cvContent.full_name
         })
+        
+        // CV already exists - clear parsing flag and don't show loading
+        if (parsingInProgress) {
+          sessionStorage.removeItem('parsing_in_progress')
+        }
         
         // Format data from cv_content table
         const formattedData: ResumeData = {
@@ -349,6 +350,7 @@ function ResumePageContent() {
 
       if (parsingInProgress) {
         console.log('Session exists but no CV content found - parsing in progress')
+        setIsLoading(true)
       } else {
         console.log('Session exists but no CV content found - parsing may have failed')
       }
