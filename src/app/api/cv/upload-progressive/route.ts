@@ -15,7 +15,9 @@ async function extractTextFromBuffer(buffer: Buffer, fileName: string): Promise<
   
   try {
     if (fileExtension === '.pdf') {
-      throw new Error('PDF upload temporarily disabled. Please upload DOCX or TXT format.')
+      const pdfParse = (await import('pdf-parse')).default
+      const pdfData = await pdfParse(buffer)
+      return pdfData.text
     } 
     else if (fileExtension === '.docx') {
       const mammoth = await import('mammoth')
