@@ -1698,6 +1698,21 @@ export function ResumeTemplate2({
                 ) : (
                   <>
                     <div className="flex justify-between items-start mb-2">
+                      <button 
+                        className="text-red-500 hover:text-red-700 cursor-pointer mr-2 p-1 transition-colors flex-shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          const newData = JSON.parse(JSON.stringify(data))
+                          const actualIndex = data.experience.findIndex(item => item.id === exp.id)
+                          newData.experience.splice(actualIndex, 1)
+                          onDataChange(newData)
+                        }}
+                        title="Delete job"
+                        type="button"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                       <div className="flex-1 mr-4">
                         <input
                           type="text"
@@ -1725,7 +1740,7 @@ export function ResumeTemplate2({
                           placeholder="Company Name"
                         />
                       </div>
-                      <div className="flex items-center space-x-2 flex-shrink-0">
+                      <div className="flex items-center flex-shrink-0">
                         <input
                           type="text"
                           value={exp.duration}
@@ -1738,21 +1753,6 @@ export function ResumeTemplate2({
                           className="text-sm text-gray-500 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 text-right min-w-[180px] cursor-text transition-all"
                           placeholder="Duration"
                         />
-                        <button 
-                          className="text-red-500 hover:text-red-700 cursor-pointer ml-2 p-1 transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            const newData = JSON.parse(JSON.stringify(data))
-                            const actualIndex = data.experience.findIndex(item => item.id === exp.id)
-                            newData.experience.splice(actualIndex, 1)
-                            onDataChange(newData)
-                          }}
-                          title="Delete job"
-                          type="button"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
                     </div>
                     <ul className="space-y-1 ml-4">
