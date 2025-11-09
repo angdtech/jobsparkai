@@ -27,8 +27,7 @@ export default function Header({ onLogin, onSignUp }: HeaderProps) {
     { href: '#features', label: 'Features' },
     { href: '#how-it-works', label: 'How It Works' },
     { href: '/pricing', label: 'Pricing' },
-    { href: '#testimonials', label: 'Reviews' },
-    { href: '#about', label: 'About' }
+    { href: '#testimonials', label: 'Reviews' }
   ]
 
   return (
