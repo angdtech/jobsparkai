@@ -446,7 +446,7 @@ export function ResumeTemplate2({
                   <img
                     src={currentData.personalInfo.photoUrl}
                     alt="Profile"
-                    className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg hover:opacity-80 transition-opacity"
+                    className="w-32 h-32 rounded-full mx-auto object-cover shadow-lg hover:opacity-80 transition-opacity"
                   />
                 ) : (
                   <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm hover:bg-gray-500 transition-colors">
@@ -742,7 +742,7 @@ export function ResumeTemplate2({
 
           {/* Hobbies */}
           {currentData.hobbies && currentData.hobbies.length > 0 && (
-            <div>
+            <div data-section="hobbies">
               <h3 className="text-lg font-bold mb-4">HOBBIES</h3>
               <ul className="space-y-1 text-sm">
                 {currentData.hobbies.map((hobby, index) => (

@@ -575,6 +575,20 @@ function ResumePageContent() {
         })
         .join('\n')
       
+      // Clone the element to modify it without affecting the display
+      const clonedElement = element.cloneNode(true) as HTMLElement
+      
+      // Hide sections with no data
+      if (!resumeData?.awards || resumeData.awards.length === 0) {
+        const achievementsSection = clonedElement.querySelector('[data-section="achievements"]')
+        if (achievementsSection) achievementsSection.remove()
+      }
+      
+      if (!resumeData?.hobbies || resumeData.hobbies.length === 0) {
+        const hobbiesSection = clonedElement.querySelector('[data-section="hobbies"]')
+        if (hobbiesSection) hobbiesSection.remove()
+      }
+      
       // Create full HTML document
       const html = `
         <!DOCTYPE html>
@@ -587,15 +601,10 @@ function ResumePageContent() {
               button {
                 display: none !important;
               }
-              /* Hide empty sections */
-              section:empty,
-              div:empty {
-                display: none !important;
-              }
             </style>
           </head>
           <body>
-            ${element.innerHTML}
+            ${clonedElement.innerHTML}
           </body>
         </html>
       `
