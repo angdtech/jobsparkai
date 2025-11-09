@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { existsSync } from 'fs'
 import path from 'path'
 import { supabaseAdmin } from '@/lib/supabase'
 import OpenAI from 'openai'
@@ -12,25 +10,22 @@ function getOpenAIClient() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 }
 
-async function extractTextFromFile(filePath: string, fileName: string): Promise<string> {
+async function extractTextFromBuffer(buffer: Buffer, fileName: string): Promise<string> {
   const fileExtension = path.extname(fileName).toLowerCase()
   
   try {
     if (fileExtension === '.pdf') {
       const pdfParse = (await import('pdf-parse')).default
-      const fs = await import('fs')
-      const dataBuffer = await fs.promises.readFile(filePath)
-      const pdfData = await pdfParse(dataBuffer)
+      const pdfData = await pdfParse(buffer)
       return pdfData.text
     } 
     else if (fileExtension === '.docx') {
       const mammoth = await import('mammoth')
-      const rawResult = await mammoth.extractRawText({ path: filePath })
+      const rawResult = await mammoth.extractRawText({ buffer })
       return rawResult.value
     }
     else if (fileExtension === '.txt') {
-      const fsPromises = require('fs').promises
-      return await fsPromises.readFile(filePath, 'utf-8')
+      return buffer.toString('utf-8')
     }
     else {
       throw new Error(`Unsupported file type: ${fileExtension}`)
@@ -315,25 +310,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 })
     }
 
-    // STEP 1: Save file to disk
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'cvs')
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
-
+    // STEP 1: Upload to Supabase Storage
     const timestamp = Date.now()
     const fileExtension = path.extname(file.name)
     const fileName = `${sessionId}-${timestamp}${fileExtension}`
-    const filePath = path.join(uploadsDir, fileName)
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
     
-    console.log('✅ File saved:', Date.now() - startTime, 'ms')
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('cv-uploads')
+      .upload(`cvs/${fileName}`, buffer, {
+        contentType: file.type,
+        upsert: false
+      })
+    
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      throw new Error(`Failed to upload file: ${uploadError.message}`)
+    }
+    
+    const filePath = uploadData.path
+    console.log('✅ File uploaded to Supabase:', Date.now() - startTime, 'ms')
 
-    // STEP 2: Extract text from file
-    const extractedText = await extractTextFromFile(filePath, file.name)
+    // STEP 2: Extract text from buffer
+    const extractedText = await extractTextFromBuffer(buffer, file.name)
     console.log('✅ Text extracted:', Date.now() - startTime, 'ms, length:', extractedText.length)
 
     if (!extractedText.trim() || extractedText.length < 50) {
