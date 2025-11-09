@@ -1,0 +1,9 @@
+branch-defaults:
+  main:
+    environment: Jobsparkai-prod
+global:
+  application_name: Jobsparkai
+  default_platform: Node.js 22 running on 64bit Amazon Linux 2023
+  default_region: us-east-1
+  profile: eb-cli
+  sc: git
