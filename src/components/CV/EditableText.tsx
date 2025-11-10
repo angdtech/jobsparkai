@@ -24,6 +24,7 @@ interface EditableTextProps {
   onEditModeChange?: (isEditing: boolean) => void
   multiline?: boolean
   placeholder?: string
+  hoverClassName?: string
 }
 
 export function EditableText({ 
@@ -35,7 +36,8 @@ export function EditableText({
   isEditMode = false,
   onEditModeChange,
   multiline = false,
-  placeholder = ''
+  placeholder = '',
+  hoverClassName = 'hover:bg-blue-50'
 }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(isEditMode)
   const [editValue, setEditValue] = useState(text)
@@ -130,7 +132,7 @@ export function EditableText({
   return (
     <div 
       onClick={handleClick}
-      className={`${onTextChange ? 'cursor-text hover:bg-blue-50 rounded px-1 transition-colors' : ''} ${className}`}
+      className={`${onTextChange ? `cursor-text ${hoverClassName} rounded px-1 transition-colors` : ''} ${className}`}
       title={onTextChange ? 'Click to edit' : ''}
     >
       <SmartText 

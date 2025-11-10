@@ -495,6 +495,7 @@ export function ResumeTemplate2({
                       onDataChange(newData)
                     }}
                     className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
                   />
                 </div>
               </div>
@@ -510,6 +511,7 @@ export function ResumeTemplate2({
                       onDataChange(newData)
                     }}
                     className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
                   />
                 </div>
               </div>
@@ -525,6 +527,7 @@ export function ResumeTemplate2({
                       onDataChange(newData)
                     }}
                     className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
                   />
                 </div>
               </div>
@@ -543,6 +546,7 @@ export function ResumeTemplate2({
                         onDataChange(newData)
                       }}
                       className="text-sm text-white"
+                      hoverClassName="hover:bg-slate-700"
                     />
                   </div>
                 </div>
@@ -562,6 +566,7 @@ export function ResumeTemplate2({
                         onDataChange(newData)
                       }}
                       className="text-sm text-white"
+                      hoverClassName="hover:bg-slate-700"
                     />
                   </div>
                 </div>
