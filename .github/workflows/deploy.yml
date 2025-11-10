@@ -17,9 +17,29 @@ jobs:
           username: ubuntu
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
+            echo "================================================"
+            echo "🚀 Starting deployment to Lightsail"
+            echo "================================================"
+            
+            echo "📂 Navigating to project directory..."
             cd /home/ubuntu/jobsparkai
+            
+            echo "📥 Pulling latest code from GitHub..."
             git pull origin main
+            
+            echo "📦 Installing dependencies..."
             npm install
+            
+            echo "🔨 Building application..."
             npm run build
+            
+            echo "🔄 Restarting PM2 process..."
             pm2 restart jobsparkai
-            echo "Deployment complete!"
+            
+            echo "✅ Checking PM2 status..."
+            pm2 status
+            
+            echo "================================================"
+            echo "✅ Deployment complete!"
+            echo "🌐 Site live at: https://jobsparkai.com"
+            echo "================================================"
