@@ -580,13 +580,19 @@ function ResumePageContent() {
     const saveLayoutPreference = async () => {
       if (user && layoutMode) {
         try {
-          await supabase
+          const { data, error } = await supabase
             .from('user_profiles')
             .update({ resume_layout_preference: layoutMode })
             .eq('id', user.id)
-          console.log('✅ Layout preference saved:', layoutMode)
+            .select()
+          
+          if (error) {
+            console.error('❌ Failed to save layout preference:', error)
+          } else {
+            console.log('✅ Layout preference saved:', layoutMode, 'Response:', data)
+          }
         } catch (error) {
-          console.error('❌ Failed to save layout preference:', error)
+          console.error('❌ Exception saving layout preference:', error)
         }
       }
     }
