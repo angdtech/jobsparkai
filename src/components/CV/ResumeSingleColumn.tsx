@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ContactDetailsInline } from './ContactDetailsInline'
 import { SkillsInline } from './SkillsInline'
 
-// Simple inline editable text component
+// Simple inline editable text component with auto-expanding textarea
 function SimpleEditableText({ value, onChange, multiline = false, className = '', fullWidth = false }: {
   value: string
   onChange: (value: string) => void
@@ -12,18 +12,34 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
+  const textareaRef = useState<HTMLTextAreaElement | null>(null)[0]
 
   const handleSave = () => {
     onChange(editValue)
     setIsEditing(false)
   }
 
+  // Auto-resize textarea to fit content
+  const autoResize = (textarea: HTMLTextAreaElement) => {
+    textarea.style.height = 'auto'
+    textarea.style.height = textarea.scrollHeight + 'px'
+  }
+
   if (isEditing) {
-    if (multiline) {
+    // Always use textarea for fullWidth items (like experience bullets) so they can expand
+    if (multiline || fullWidth) {
       return (
         <textarea
+          ref={(el) => {
+            if (el) {
+              autoResize(el)
+            }
+          }}
           value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          onChange={(e) => {
+            setEditValue(e.target.value)
+            autoResize(e.target)
+          }}
           onBlur={handleSave}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
@@ -31,9 +47,8 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
               setIsEditing(false)
             }
           }}
-          className={`${className} border border-blue-300 rounded px-2 py-1 w-full`}
+          className={`${className} border border-blue-300 rounded px-2 py-1 w-full resize-none overflow-hidden`}
           autoFocus
-          rows={3}
         />
       )
     }
@@ -50,7 +65,7 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
             setIsEditing(false)
           }
         }}
-        className={`${className} border border-blue-300 rounded px-2 py-1 ${fullWidth ? 'w-full' : 'min-w-[200px]'}`}
+        className={`${className} border border-blue-300 rounded px-2 py-1 min-w-[200px]`}
         autoFocus
       />
     )
