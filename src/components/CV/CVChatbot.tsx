@@ -172,7 +172,10 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `Failed to get response: ${response.status}`)
+        const errorMsg = errorData.details 
+          ? `${errorData.error}: ${errorData.details}`
+          : errorData.error || `Failed to get response: ${response.status}`
+        throw new Error(errorMsg)
       }
 
       const data = await response.json()
