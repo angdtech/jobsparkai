@@ -28,6 +28,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-dropzone": "^14.3.8",
+    "resend": "^6.4.2",
     "stripe": "^18.5.0"
   },
   "devDependencies": {

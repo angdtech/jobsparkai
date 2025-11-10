@@ -11,6 +11,7 @@ import FeaturesSection from '@/components/Landing/FeaturesSection'
 import HowItWorksSection from '@/components/Landing/HowItWorksSection'
 import StatsSection from '@/components/Landing/StatsSection'
 import CTASection from '@/components/Landing/CTASection'
+import Footer from '@/components/Landing/Footer'
 import LoginForm from '@/components/Auth/LoginForm'
 import SignUpForm from '@/components/Auth/SignUpForm'
 
@@ -61,6 +62,7 @@ export default function Home() {
       <HowItWorksSection />
       <StatsSection onGetStarted={handleGetStarted} />
       <CTASection onGetStarted={handleGetStarted} />
+      <Footer />
 
       {/* Login Modal */}
       {showLoginModal && (

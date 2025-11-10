@@ -194,7 +194,9 @@ function ResumePageContent() {
           hasName: !!cvContent.full_name
         })
         
-        // CV already exists - clear parsing flag and don't show loading
+        // CRITICAL: CV already exists in database - DO NOT SHOW LOADING OVERLAY
+        // Clear the parsing flag and return immediately without any loading state
+        // This prevents the loading overlay from showing on page refresh for existing CVs
         if (parsingInProgress) {
           sessionStorage.removeItem('parsing_in_progress')
         }
@@ -325,10 +327,9 @@ function ResumePageContent() {
         setHistory([formattedData])
         setHistoryIndex(0)
         
-        if (parsingInProgress) {
-          sessionStorage.removeItem('parsing_in_progress')
-          setIsLoading(false)
-        }
+        // IMPORTANT: CV data loaded successfully - ensure loading overlay is OFF
+        // DO NOT call setIsLoading(true) here under any circumstances
+        // The parsing flag has already been cleared above
         return
       }
 
@@ -342,12 +343,12 @@ function ResumePageContent() {
 
       if (sessionError) {
         console.error('Session not found:', sessionError)
-        if (parsingInProgress) {
-          setIsLoading(false)
-        }
+        // Session doesn't exist - don't show loading
         return
       }
 
+      // CRITICAL: Only show loading overlay if CV doesn't exist AND parsing is in progress
+      // This should only happen during initial upload, never on page refresh for existing CVs
       if (parsingInProgress) {
         console.log('Session exists but no CV content found - parsing in progress')
         setIsLoading(true)
@@ -357,9 +358,7 @@ function ResumePageContent() {
 
     } catch (error) {
       console.error('Error loading resume data:', error)
-      if (parsingInProgress) {
-        setIsLoading(false)
-      }
+      // On error, never show loading overlay
     }
   }, [sessionId, user])
 
@@ -604,6 +603,19 @@ function ResumePageContent() {
               /* Hide only interactive buttons for PDF */
               button {
                 display: none !important;
+              }
+              /* Reduce spacing for PDF to fit more content */
+              .mb-8 {
+                margin-bottom: 0.5rem !important;
+              }
+              .mb-6 {
+                margin-bottom: 0.5rem !important;
+              }
+              .space-y-6 > * + * {
+                margin-top: 0.5rem !important;
+              }
+              .space-y-4 > * + * {
+                margin-top: 0.5rem !important;
               }
             </style>
           </head>

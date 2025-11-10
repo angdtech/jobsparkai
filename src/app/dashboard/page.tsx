@@ -211,8 +211,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1">
+        <div className="container mx-auto px-4 py-12">
         <header className="mb-12">
           <div className="flex justify-between items-center">
             <div>
@@ -446,7 +447,28 @@ export default function Dashboard() {
             )}
           </div>
         </main>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-8 border-t border-gray-200 bg-white mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center space-x-6 text-sm text-gray-600">
+            <a href="/contact" className="hover:text-gray-900 transition-colors">
+              Contact Us
+            </a>
+            <a href="/privacy-policy" className="hover:text-gray-900 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="/terms-of-service" className="hover:text-gray-900 transition-colors">
+              Terms of Service
+            </a>
+          </div>
+          <p className="text-center text-xs text-gray-500 mt-4">
+            © {new Date().getFullYear()} JobSpark AI. All rights reserved.
+          </p>
+        </div>
+      </footer>
 
       {/* Upload Modal */}
       {showUploadModal && (
