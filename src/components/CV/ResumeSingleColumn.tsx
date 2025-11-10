@@ -1,8 +1,59 @@
+import { useState } from 'react'
 import { ContactDetailsInline } from './ContactDetailsInline'
 import { SkillsInline } from './SkillsInline'
-import { EditableText } from './EditableText'
-import { SmartText } from './SmartText'
-import { Plus, Trash2 } from 'lucide-react'
+
+// Simple inline editable text component
+function SimpleEditableText({ value, onChange, multiline = false, className = '' }: {
+  value: string
+  onChange: (value: string) => void
+  multiline?: boolean
+  className?: string
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(value)
+
+  const handleSave = () => {
+    onChange(editValue)
+    setIsEditing(false)
+  }
+
+  if (isEditing) {
+    if (multiline) {
+      return (
+        <textarea
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleSave}
+          className={`${className} border border-blue-300 rounded px-2 py-1 w-full`}
+          autoFocus
+          rows={3}
+        />
+      )
+    }
+    return (
+      <input
+        type="text"
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onBlur={handleSave}
+        className={`${className} border border-blue-300 rounded px-2 py-1`}
+        autoFocus
+      />
+    )
+  }
+
+  return (
+    <span
+      onClick={() => {
+        setEditValue(value)
+        setIsEditing(true)
+      }}
+      className={`${className} cursor-pointer hover:bg-blue-50 rounded px-1`}
+    >
+      {value || 'Click to edit...'}
+    </span>
+  )
+}
 
 interface ResumeData {
   personalInfo: {
@@ -79,14 +130,14 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
       {/* Name and Title */}
       <div className="mb-6 text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          <EditableText
+          <SimpleEditableText
             value={data.personalInfo.name}
             onChange={(value) => updatePersonalInfo('name', value)}
             className="text-4xl font-bold text-gray-900"
           />
         </h1>
         <p className="text-xl text-gray-600">
-          <EditableText
+          <SimpleEditableText
             value={data.personalInfo.title}
             onChange={(value) => updatePersonalInfo('title', value)}
             className="text-xl text-gray-600"
@@ -105,7 +156,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Summary</h3>
           <div className="text-gray-700">
-            <EditableText
+            <SimpleEditableText
               value={data.personalInfo.summary}
               onChange={(value) => updatePersonalInfo('summary', value)}
               multiline
@@ -124,7 +175,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h4 className="font-semibold text-gray-900">
-                    <EditableText
+                    <SimpleEditableText
                       value={exp.position}
                       onChange={(value) => {
                         const newExp = [...data.experience]
@@ -135,7 +186,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                     />
                   </h4>
                   <p className="text-gray-600">
-                    <EditableText
+                    <SimpleEditableText
                       value={exp.company}
                       onChange={(value) => {
                         const newExp = [...data.experience]
@@ -147,7 +198,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                   </p>
                 </div>
                 <span className="text-sm text-gray-500">
-                  <EditableText
+                  <SimpleEditableText
                     value={exp.duration}
                     onChange={(value) => {
                       const newExp = [...data.experience]
@@ -162,7 +213,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                 <ul className="list-disc list-inside space-y-1 text-gray-700">
                   {exp.description_items.map((item, itemIdx) => (
                     <li key={itemIdx}>
-                      <EditableText
+                      <SimpleEditableText
                         value={item}
                         onChange={(value) => {
                           const newExp = [...data.experience]
@@ -178,7 +229,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                 </ul>
               ) : exp.description ? (
                 <p className="text-gray-700">
-                  <EditableText
+                  <SimpleEditableText
                     value={exp.description}
                     onChange={(value) => {
                       const newExp = [...data.experience]
@@ -204,7 +255,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
               <div className="flex justify-between items-start mb-1">
                 <div>
                   <h4 className="font-semibold text-gray-900">
-                    <EditableText
+                    <SimpleEditableText
                       value={edu.degree}
                       onChange={(value) => {
                         const newEdu = [...data.education]
@@ -215,7 +266,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                     />
                   </h4>
                   <p className="text-gray-600">
-                    <EditableText
+                    <SimpleEditableText
                       value={edu.school}
                       onChange={(value) => {
                         const newEdu = [...data.education]
@@ -227,7 +278,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                   </p>
                 </div>
                 <span className="text-sm text-gray-500">
-                  <EditableText
+                  <SimpleEditableText
                     value={edu.duration}
                     onChange={(value) => {
                       const newEdu = [...data.education]
@@ -240,7 +291,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
               </div>
               {edu.description && (
                 <p className="text-gray-700 text-sm">
-                  <EditableText
+                  <SimpleEditableText
                     value={edu.description}
                     onChange={(value) => {
                       const newEdu = [...data.education]
