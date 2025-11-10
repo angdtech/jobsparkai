@@ -133,6 +133,12 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
+    // Wait for usage to load if still loading
+    if (loadingUsage) {
+      return
+    }
+
+    // Check if user has access (subscription or free chats remaining)
     if (!chatUsage?.hasAccess) {
       setMessages(prev => [...prev, {
         role: 'user',
@@ -165,7 +171,8 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       })
 
       if (!response.ok) {
-        throw new Error('Failed to get response')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to get response: ${response.status}`)
       }
 
       const data = await response.json()
@@ -204,9 +211,10 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+        content: `Sorry, I encountered an error: ${errorMessage}. Please try again.`
       }])
     } finally {
       setIsLoading(false)
