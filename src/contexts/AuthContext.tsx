@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Track user in PostHog (only if initialized and not a test email)
         const testEmails = [
-          'angelinadyer@icloud.com',
           'test@example.com'
         ]
         
