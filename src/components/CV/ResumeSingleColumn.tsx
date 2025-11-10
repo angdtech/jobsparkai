@@ -3,11 +3,12 @@ import { ContactDetailsInline } from './ContactDetailsInline'
 import { SkillsInline } from './SkillsInline'
 
 // Simple inline editable text component
-function SimpleEditableText({ value, onChange, multiline = false, className = '' }: {
+function SimpleEditableText({ value, onChange, multiline = false, className = '', fullWidth = false }: {
   value: string
   onChange: (value: string) => void
   multiline?: boolean
   className?: string
+  fullWidth?: boolean
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
@@ -24,6 +25,12 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setEditValue(value)
+              setIsEditing(false)
+            }
+          }}
           className={`${className} border border-blue-300 rounded px-2 py-1 w-full`}
           autoFocus
           rows={3}
@@ -36,7 +43,14 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleSave}
-        className={`${className} border border-blue-300 rounded px-2 py-1`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSave()
+          if (e.key === 'Escape') {
+            setEditValue(value)
+            setIsEditing(false)
+          }
+        }}
+        className={`${className} border border-blue-300 rounded px-2 py-1 ${fullWidth ? 'w-full' : 'min-w-[200px]'}`}
         autoFocus
       />
     )
@@ -48,7 +62,7 @@ function SimpleEditableText({ value, onChange, multiline = false, className = ''
         setEditValue(value)
         setIsEditing(true)
       }}
-      className={`${className} cursor-pointer hover:bg-blue-50 rounded px-1`}
+      className={`${className} cursor-pointer hover:bg-blue-50 rounded px-1 ${fullWidth ? 'block' : 'inline'}`}
     >
       {value || 'Click to edit...'}
     </span>
@@ -210,9 +224,9 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                 </span>
               </div>
               {exp.description_items && exp.description_items.length > 0 ? (
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                <ul className="list-disc ml-5 space-y-1 text-gray-700">
                   {exp.description_items.map((item, itemIdx) => (
-                    <li key={itemIdx}>
+                    <li key={itemIdx} className="pl-2">
                       <SimpleEditableText
                         value={item}
                         onChange={(value) => {
@@ -223,6 +237,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                           onDataChange({ ...data, experience: newExp })
                         }}
                         className="text-gray-700"
+                        fullWidth
                       />
                     </li>
                   ))}
