@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { SmartText } from './SmartText'
 import { EditableText } from './EditableText'
 import { FeedbackType } from './CommentHighlight'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Upload } from 'lucide-react'
 
 interface CommentItem {
   type: FeedbackType
@@ -441,17 +441,25 @@ export function ResumeTemplate2({
               />
               <label
                 htmlFor="photo-upload"
-                className="cursor-pointer block"
+                className="cursor-pointer block relative group"
               >
                 {currentData.personalInfo.photoUrl ? (
-                  <img
-                    src={currentData.personalInfo.photoUrl}
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full mx-auto object-cover shadow-lg hover:opacity-80 transition-opacity"
-                  />
+                  <div className="relative w-32 h-32 mx-auto">
+                    <img
+                      src={currentData.personalInfo.photoUrl}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full object-cover shadow-lg group-hover:opacity-60 transition-opacity"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Upload className="w-8 h-8 text-white drop-shadow-lg" />
+                    </div>
+                  </div>
                 ) : (
                   <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm hover:bg-gray-500 transition-colors">
-                    Click to upload photo
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="w-6 h-6" />
+                      <span className="text-xs">Upload photo</span>
+                    </div>
                   </div>
                 )}
               </label>
