@@ -11,8 +11,11 @@ import { ResumeTemplate2 } from '@/components/CV/ResumeTemplate2'
 import { FeedbackType } from '@/components/CV/CommentHighlight'
 import { CommentPanel } from '@/components/CV/CommentPanel'
 import { CVChatbot } from '@/components/CV/CVChatbot'
+import { ContactDetailsInline } from '@/components/CV/ContactDetailsInline'
+import { SkillsInline } from '@/components/CV/SkillsInline'
+import { ResumeSingleColumn } from '@/components/CV/ResumeSingleColumn'
 import { trackUserInteraction } from '@/lib/analytics'
-import { MessageCircle, Download } from 'lucide-react'
+import { MessageCircle, Download, LayoutGrid, Sidebar } from 'lucide-react'
 
 interface ResumeData {
   personalInfo: {
@@ -93,6 +96,7 @@ function ResumePageContent() {
   const [showChatbot, setShowChatbot] = useState(true)
   const [hideContactDetails, setHideContactDetails] = useState(false)
   const [hidePhoto, setHidePhoto] = useState(false)
+  const [layoutMode, setLayoutMode] = useState<'sidebar' | 'single-column'>('sidebar')
   const [sectionLayout, setSectionLayout] = useState({
     sidebar: ['photo', 'contact', 'skills', 'languages'],
     main: ['profile', 'achievements', 'experience', 'education']
@@ -820,19 +824,49 @@ function ResumePageContent() {
 
             {/* Action buttons above CV */}
             <div className="flex items-center space-x-3 mb-6">
-              <button
-                onClick={() => setHideContactDetails(!hideContactDetails)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
-              >
-                {hideContactDetails ? 'Show Contact Details' : 'Hide Contact Details'}
-              </button>
+              {/* Layout Toggle */}
+              <div className="flex items-center bg-gray-100 rounded-full p-1">
+                <button
+                  onClick={() => setLayoutMode('sidebar')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    layoutMode === 'sidebar'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Sidebar className="h-4 w-4" />
+                  Sidebar Layout
+                </button>
+                <button
+                  onClick={() => setLayoutMode('single-column')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    layoutMode === 'single-column'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Single Column
+                </button>
+              </div>
 
-              <button
-                onClick={() => setHidePhoto(!hidePhoto)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
-              >
-                {hidePhoto ? 'Show Photo' : 'Hide Photo'}
-              </button>
+              {layoutMode === 'sidebar' && (
+                <>
+                  <button
+                    onClick={() => setHideContactDetails(!hideContactDetails)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+                  >
+                    {hideContactDetails ? 'Show Contact Details' : 'Hide Contact Details'}
+                  </button>
+
+                  <button
+                    onClick={() => setHidePhoto(!hidePhoto)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+                  >
+                    {hidePhoto ? 'Show Photo' : 'Hide Photo'}
+                  </button>
+                </>
+              )}
 
               <button
                 onClick={downloadPDF}
@@ -855,19 +889,26 @@ function ResumePageContent() {
 
             {/* CV */}
             <div ref={resumeRef} className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <ResumeTemplate2
-              data={resumeData}
-              onDataChange={updateResumeData}
-              isEditable={true}
-              getCommentsForText={getCommentsForText}
-              onShowComments={handleShowComments}
-              editModeText={editModeText}
-              onEditModeTextChange={setEditModeText}
-              hideContactDetails={hideContactDetails}
-              hidePhoto={hidePhoto}
-              sectionLayout={sectionLayout}
-              onSectionLayoutChange={setSectionLayout}
-            />
+              {layoutMode === 'single-column' ? (
+                <ResumeSingleColumn
+                  data={resumeData}
+                  onDataChange={updateResumeData}
+                />
+              ) : (
+                <ResumeTemplate2
+                  data={resumeData}
+                  onDataChange={updateResumeData}
+                  isEditable={true}
+                  getCommentsForText={getCommentsForText}
+                  onShowComments={handleShowComments}
+                  editModeText={editModeText}
+                  onEditModeTextChange={setEditModeText}
+                  hideContactDetails={hideContactDetails}
+                  hidePhoto={hidePhoto}
+                  sectionLayout={sectionLayout}
+                  onSectionLayoutChange={setSectionLayout}
+                />
+              )}
             </div>
           </div>
         </div>
