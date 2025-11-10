@@ -198,19 +198,6 @@ function ResumePageContent() {
           hasName: !!cvContent.full_name
         })
         
-        // Load user's layout preference
-        if (user) {
-          const { data: profile } = await supabase
-            .from('user_profiles')
-            .select('resume_layout_preference')
-            .eq('id', user.id)
-            .maybeSingle()
-          
-          if (profile?.resume_layout_preference) {
-            setLayoutMode(profile.resume_layout_preference as 'sidebar' | 'single-column')
-          }
-        }
-        
         // CRITICAL: CV already exists in database - DO NOT SHOW LOADING OVERLAY
         // Clear the parsing flag and return immediately without any loading state
         // This prevents the loading overlay from showing on page refresh for existing CVs
@@ -564,6 +551,29 @@ function ResumePageContent() {
       saveResumeData(history[newIndex])
     }
   }, [historyIndex, history, saveResumeData])
+
+  // Load layout preference from database on mount
+  useEffect(() => {
+    const loadLayoutPreference = async () => {
+      if (user) {
+        try {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('resume_layout_preference')
+            .eq('id', user.id)
+            .maybeSingle()
+          
+          if (profile?.resume_layout_preference) {
+            setLayoutMode(profile.resume_layout_preference as 'sidebar' | 'single-column')
+            console.log('✅ Layout preference loaded:', profile.resume_layout_preference)
+          }
+        } catch (error) {
+          console.error('❌ Failed to load layout preference:', error)
+        }
+      }
+    }
+    loadLayoutPreference()
+  }, [user])
 
   // Save layout preference to database when it changes
   useEffect(() => {
