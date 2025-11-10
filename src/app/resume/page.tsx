@@ -198,6 +198,19 @@ function ResumePageContent() {
           hasName: !!cvContent.full_name
         })
         
+        // Load user's layout preference
+        if (user) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('resume_layout_preference')
+            .eq('id', user.id)
+            .maybeSingle()
+          
+          if (profile?.resume_layout_preference) {
+            setLayoutMode(profile.resume_layout_preference as 'sidebar' | 'single-column')
+          }
+        }
+        
         // CRITICAL: CV already exists in database - DO NOT SHOW LOADING OVERLAY
         // Clear the parsing flag and return immediately without any loading state
         // This prevents the loading overlay from showing on page refresh for existing CVs
@@ -551,6 +564,24 @@ function ResumePageContent() {
       saveResumeData(history[newIndex])
     }
   }, [historyIndex, history, saveResumeData])
+
+  // Save layout preference to database when it changes
+  useEffect(() => {
+    const saveLayoutPreference = async () => {
+      if (user && layoutMode) {
+        try {
+          await supabase
+            .from('user_profiles')
+            .update({ resume_layout_preference: layoutMode })
+            .eq('id', user.id)
+          console.log('✅ Layout preference saved:', layoutMode)
+        } catch (error) {
+          console.error('❌ Failed to save layout preference:', error)
+        }
+      }
+    }
+    saveLayoutPreference()
+  }, [layoutMode, user])
 
   // Download CV as PDF using server-side Puppeteer
   const downloadPDF = async () => {
