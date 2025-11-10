@@ -29,10 +29,38 @@ export async function POST(request: NextRequest) {
 
     const openai = getOpenAIClient()
 
+    // Optimize resume data - only send essential fields to reduce tokens
+    const optimizedResumeData = {
+      personalInfo: {
+        name: resumeData?.personalInfo?.name,
+        title: resumeData?.personalInfo?.title,
+        email: resumeData?.personalInfo?.email,
+        phone: resumeData?.personalInfo?.phone,
+        address: resumeData?.personalInfo?.address,
+        summary: resumeData?.personalInfo?.summary,
+        linkedin: resumeData?.personalInfo?.linkedin,
+        website: resumeData?.personalInfo?.website
+      },
+      experience: resumeData?.experience?.map((exp: any) => ({
+        position: exp.position,
+        company: exp.company,
+        duration: exp.duration,
+        description: exp.description_items?.join('; ') || exp.description
+      })),
+      education: resumeData?.education?.map((edu: any) => ({
+        degree: edu.degree,
+        school: edu.school,
+        duration: edu.duration
+      })),
+      skills: resumeData?.skills?.map((s: any) => s.name).join(', '),
+      awards: resumeData?.awards?.length || 0,
+      languages: resumeData?.languages?.map((l: any) => l.name).join(', ')
+    }
+
     const systemPrompt = `You are a helpful CV/resume assistant with access to the user's resume data. You can answer questions, provide advice, and ${canUpdateCV ? 'UPDATE the CV directly when requested' : 'suggest improvements'}.
 
 Resume Data:
-${JSON.stringify(resumeData, null, 2)}
+${JSON.stringify(optimizedResumeData, null, 2)}
 
 IMPORTANT: The user's name is displayed at the TOP of the CV as a large heading. It's stored in personalInfo.name and is currently: "${resumeData?.personalInfo?.name || 'Not set'}"
 

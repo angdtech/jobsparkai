@@ -157,13 +157,16 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
     setIsLoading(true)
 
     try {
+      // Only send last 5 messages to avoid token limit (each message + resumeData can be large)
+      const recentMessages = [...messages, userMessage].slice(-5)
+      
       const response = await fetch('/api/cv/chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage],
+          messages: recentMessages,
           resumeData,
           canUpdateCV: !!onUpdateResume,
           userId: user?.id
