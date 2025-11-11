@@ -165,13 +165,22 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
             className="text-4xl font-bold text-gray-900"
           />
         </h1>
-        <p className="text-xl text-gray-600">
+        <div className="text-xl text-gray-600 relative group inline-block">
           <SimpleEditableText
             value={data.personalInfo.tagline || data.personalInfo.title}
             onChange={(value) => updatePersonalInfo(data.personalInfo.tagline ? 'tagline' : 'title', value)}
             className="text-xl text-gray-600"
           />
-        </p>
+          {(data.personalInfo.tagline || data.personalInfo.title) && (
+            <button
+              onClick={() => updatePersonalInfo(data.personalInfo.tagline ? 'tagline' : 'title', '')}
+              className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700"
+              title="Remove title"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Contact Details Inline */}

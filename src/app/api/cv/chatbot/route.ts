@@ -16,6 +16,20 @@ function getOpenAIClient() {
   return openaiClient
 }
 
+const LANGUAGE_NAMES: { [key: string]: string } = {
+  'en-US': 'American English',
+  'en-GB': 'British English',
+  'es-ES': 'Spanish',
+  'fr-FR': 'French',
+  'de-DE': 'German',
+  'it-IT': 'Italian',
+  'pt-BR': 'Brazilian Portuguese',
+  'nl-NL': 'Dutch',
+  'ja-JP': 'Japanese',
+  'zh-CN': 'Chinese',
+  'ar-SA': 'Arabic'
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, resumeData, canUpdateCV, userId } = await request.json()
@@ -25,6 +39,19 @@ export async function POST(request: NextRequest) {
         { error: 'Messages are required' },
         { status: 400 }
       )
+    }
+
+    let userLanguage = 'en-US'
+    if (userId) {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('language_preference')
+        .eq('id', userId)
+        .single()
+      
+      if (data?.language_preference) {
+        userLanguage = data.language_preference
+      }
     }
 
     const openai = getOpenAIClient()
@@ -57,7 +84,11 @@ export async function POST(request: NextRequest) {
       languages: resumeData?.languages?.map((l: any) => l.name).join(', ')
     }
 
-    const systemPrompt = `You are a helpful CV/resume assistant with access to the user's resume data. You can answer questions, provide advice, and ${canUpdateCV ? 'UPDATE the CV directly when requested' : 'suggest improvements'}.
+    const languageInstruction = userLanguage !== 'en-US' 
+      ? `IMPORTANT: Respond in ${LANGUAGE_NAMES[userLanguage] || userLanguage}. Use appropriate spelling, grammar, and conventions for this language/locale.\n\n`
+      : ''
+
+    const systemPrompt = `${languageInstruction}You are a helpful CV/resume assistant with access to the user's resume data. You can answer questions, provide advice, and ${canUpdateCV ? 'UPDATE the CV directly when requested' : 'suggest improvements'}.
 
 Resume Data:
 ${JSON.stringify(optimizedResumeData, null, 2)}

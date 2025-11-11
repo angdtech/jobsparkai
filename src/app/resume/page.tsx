@@ -380,6 +380,7 @@ function ResumePageContent() {
         session_id: sessionId,
         auth_user_id: user.id,
         full_name: data.personalInfo.name || '',
+        professional_title: data.personalInfo.tagline || data.personalInfo.title || '',
         email: data.personalInfo.email || '',
         phone: data.personalInfo.phone || '',
         location: data.personalInfo.address || '',
@@ -863,15 +864,26 @@ function ResumePageContent() {
         <div className="flex-1 overflow-y-auto py-8 px-4">
           <div className="max-w-5xl mx-auto">
             {/* Back to Dashboard */}
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
-            >
-              <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="font-medium">Dashboard</span>
-            </button>
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors group"
+              >
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-medium">Dashboard</span>
+              </button>
+              <button
+                onClick={() => router.push('/profile')}
+                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium">Profile</span>
+              </button>
+            </div>
 
             {/* Action buttons above CV */}
             <div className="flex items-center space-x-3 mb-6">

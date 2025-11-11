@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, X, Loader2, Save, Download, Check, XCircle, Lock } from 'lucide-react'
+import { Send, X, Loader2, Save, Download, Check, XCircle, Lock, Globe } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getChatUsage } from '@/lib/chat-usage'
+import { supabase } from '@/lib/supabase'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -23,21 +24,47 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hi! I'm your CV assistant. I can help you:\n\n• Answer questions about your resume\n• Suggest improvements to specific sections\n• Update your CV content directly\n• Compare your CV to a job description\n• Provide career advice\n\nJust ask me to update something like 'Change my job title to Senior Product Manager' or 'Make my summary more impactful'!"
+      content: "Hi! I'm your résumé assistant. I can help you:\n\n• Answer questions about your résumé\n• Suggest improvements to specific sections\n• Update your résumé content directly\n• Compare your résumé to a job description\n• Provide career advice\n\nJust ask me to update something like 'Change my job title to Senior Product Manager' or 'Make my summary more impactful'!"
     }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatUsage, setChatUsage] = useState<{ used: number; limit: number; hasAccess: boolean; hasSubscription: boolean } | null>(null)
   const [loadingUsage, setLoadingUsage] = useState(true)
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false)
+  const [currentLanguage, setCurrentLanguage] = useState('en-US')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const LANGUAGE_OPTIONS = [
+    { code: 'en-US', label: 'English (US)', flag: '🇺🇸' },
+    { code: 'en-GB', label: 'English (UK)', flag: '🇬🇧' },
+    { code: 'es-ES', label: 'Español', flag: '🇪🇸' },
+    { code: 'fr-FR', label: 'Français', flag: '🇫🇷' },
+    { code: 'de-DE', label: 'Deutsch', flag: '🇩🇪' },
+    { code: 'it-IT', label: 'Italiano', flag: '🇮🇹' },
+    { code: 'pt-BR', label: 'Português', flag: '🇧🇷' },
+    { code: 'nl-NL', label: 'Nederlands', flag: '🇳🇱' },
+    { code: 'ja-JP', label: '日本語', flag: '🇯🇵' },
+    { code: 'zh-CN', label: '中文', flag: '🇨🇳' },
+    { code: 'ar-SA', label: 'العربية', flag: '🇸🇦' }
+  ]
 
   useEffect(() => {
     async function fetchUsage() {
       if (user?.id) {
         const usage = await getChatUsage(user.id)
         setChatUsage(usage)
+        
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('language_preference')
+          .eq('id', user.id)
+          .single()
+        
+        if (data?.language_preference) {
+          setCurrentLanguage(data.language_preference)
+        }
       }
       setLoadingUsage(false)
     }
@@ -247,6 +274,45 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              className="text-white hover:bg-blue-800 rounded-full p-2 transition-colors"
+              title="Change AI language"
+            >
+              <Globe className="h-4 w-4" />
+            </button>
+            {showLanguageMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div className="py-1 max-h-64 overflow-y-auto">
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={async () => {
+                        setCurrentLanguage(lang.code)
+                        setShowLanguageMenu(false)
+                        if (user?.id) {
+                          await supabase
+                            .from('user_profiles')
+                            .update({ language_preference: lang.code })
+                            .eq('id', user.id)
+                        }
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2 ${
+                        currentLanguage === lang.code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                      }`}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.label}</span>
+                      {currentLanguage === lang.code && (
+                        <Check className="h-4 w-4 ml-auto" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={saveChat}
             className="text-white hover:bg-blue-800 rounded-full p-2 transition-colors"
