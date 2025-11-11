@@ -97,6 +97,7 @@ function ResumePageContent() {
   const [hideContactDetails, setHideContactDetails] = useState(false)
   const [hidePhoto, setHidePhoto] = useState(false)
   const [layoutMode, setLayoutMode] = useState<'sidebar' | 'single-column'>('sidebar')
+  const [layoutModeInitialized, setLayoutModeInitialized] = useState(false)
   const [sectionLayout, setSectionLayout] = useState({
     sidebar: ['photo', 'contact', 'skills', 'languages'],
     main: ['profile', 'achievements', 'experience', 'education']
@@ -555,7 +556,7 @@ function ResumePageContent() {
   // Load layout preference from database on mount
   useEffect(() => {
     const loadLayoutPreference = async () => {
-      if (user) {
+      if (user && !layoutModeInitialized) {
         try {
           const { data: profile } = await supabase
             .from('user_profiles')
@@ -567,18 +568,21 @@ function ResumePageContent() {
             setLayoutMode(profile.resume_layout_preference as 'sidebar' | 'single-column')
             console.log('✅ Layout preference loaded:', profile.resume_layout_preference)
           }
+          setLayoutModeInitialized(true)
         } catch (error) {
           console.error('❌ Failed to load layout preference:', error)
+          setLayoutModeInitialized(true)
         }
       }
     }
     loadLayoutPreference()
-  }, [user])
+  }, [user, layoutModeInitialized])
 
-  // Save layout preference to database when it changes
+  // Save layout preference to database when it changes (but not on initial load)
   useEffect(() => {
     const saveLayoutPreference = async () => {
-      if (user && layoutMode) {
+      // Only save if initialized (prevents saving default value on first load)
+      if (user && layoutMode && layoutModeInitialized) {
         try {
           const { data, error } = await supabase
             .from('user_profiles')
@@ -597,7 +601,7 @@ function ResumePageContent() {
       }
     }
     saveLayoutPreference()
-  }, [layoutMode, user])
+  }, [layoutMode, user, layoutModeInitialized])
 
   // Download CV as PDF using server-side Puppeteer
   const downloadPDF = async () => {

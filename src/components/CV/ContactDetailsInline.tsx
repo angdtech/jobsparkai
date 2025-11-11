@@ -51,9 +51,9 @@ export function ContactDetailsInline({ personalInfo, onUpdate }: ContactDetailsI
 
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
-      <div className="flex flex-wrap items-center justify-center gap-3 text-gray-700">
+      <div className="flex flex-wrap items-center justify-center gap-1 text-gray-700">
         {contactDetails.map((detail, index) => (
-          <div key={detail.type} className="flex items-center gap-3">
+          <div key={detail.type} className="flex items-center gap-1">
             {editingField === detail.type ? (
               <input
                 type="text"

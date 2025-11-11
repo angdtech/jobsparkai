@@ -496,6 +496,7 @@ export function ResumeTemplate2({
                     }}
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
                 </div>
               </div>
@@ -512,6 +513,7 @@ export function ResumeTemplate2({
                     }}
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
                 </div>
               </div>
@@ -528,6 +530,7 @@ export function ResumeTemplate2({
                     }}
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
                 </div>
               </div>
@@ -547,6 +550,7 @@ export function ResumeTemplate2({
                       }}
                       className="text-sm text-white"
                       hoverClassName="hover:bg-slate-700"
+                      inputClassName="bg-slate-700 text-white"
                     />
                   </div>
                 </div>
@@ -567,6 +571,7 @@ export function ResumeTemplate2({
                       }}
                       className="text-sm text-white"
                       hoverClassName="hover:bg-slate-700"
+                      inputClassName="bg-slate-700 text-white"
                     />
                   </div>
                 </div>

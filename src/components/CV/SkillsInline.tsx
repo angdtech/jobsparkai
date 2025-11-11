@@ -32,12 +32,12 @@ export function SkillsInline({ skills, onUpdate }: SkillsInlineProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <div className="bg-white mb-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills</h3>
 
-      <div className="flex flex-wrap items-center gap-3 text-gray-700">
+      <div className="flex flex-wrap items-center gap-1 text-gray-700">
         {skills.map((skill, index) => (
-          <div key={skill.id} className="flex items-center gap-3">
+          <div key={skill.id} className="flex items-center gap-1">
             {editingId === skill.id ? (
               <input
                 type="text"

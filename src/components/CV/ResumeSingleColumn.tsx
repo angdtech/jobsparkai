@@ -167,8 +167,8 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
         </h1>
         <p className="text-xl text-gray-600">
           <SimpleEditableText
-            value={data.personalInfo.title}
-            onChange={(value) => updatePersonalInfo('title', value)}
+            value={data.personalInfo.tagline || data.personalInfo.title}
+            onChange={(value) => updatePersonalInfo(data.personalInfo.tagline ? 'tagline' : 'title', value)}
             className="text-xl text-gray-600"
           />
         </p>
