@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { SmartText } from './SmartText'
 import { EditableText } from './EditableText'
 import { FeedbackType } from './CommentHighlight'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Upload } from 'lucide-react'
 
 interface CommentItem {
   type: FeedbackType
@@ -444,17 +444,25 @@ export function ResumeTemplate2({
               />
               <label
                 htmlFor="photo-upload"
-                className="cursor-pointer block"
+                className="cursor-pointer block relative group"
               >
                 {currentData.personalInfo.photoUrl ? (
-                  <img
-                    src={currentData.personalInfo.photoUrl}
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full mx-auto object-cover shadow-lg hover:opacity-80 transition-opacity"
-                  />
+                  <div className="relative w-32 h-32 mx-auto">
+                    <img
+                      src={currentData.personalInfo.photoUrl}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full object-cover shadow-lg group-hover:opacity-60 transition-opacity"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Upload className="w-8 h-8 text-white drop-shadow-lg" />
+                    </div>
+                  </div>
                 ) : (
                   <div className="w-32 h-32 bg-gray-400 rounded-full mx-auto flex items-center justify-center text-gray-600 text-sm hover:bg-gray-500 transition-colors">
-                    Click to upload photo
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="w-6 h-6" />
+                      <span className="text-xs">Upload photo</span>
+                    </div>
                   </div>
                 )}
               </label>
@@ -480,66 +488,74 @@ export function ResumeTemplate2({
             <div className="space-y-2">
               <div className="flex items-center">
                 <span className="w-16 text-xs text-gray-300 mr-2">Location:</span>
-                {isEditing ? (
-                  <textarea
-                    value={currentData.personalInfo.address}
-                    onChange={(e) => updateField('personalInfo.address', e.target.value)}
-                    className="text-sm bg-slate-700 text-white rounded px-2 py-1 w-full"
-                    rows={2}
-                    placeholder="Address"
+                <div className="text-sm flex-1">
+                  <EditableText
+                    text={currentData.personalInfo.address}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.address = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
-                ) : (
-                  <div className="text-sm">{currentData.personalInfo.address}</div>
-                )}
+                </div>
               </div>
               <div className="flex items-center">
                 <span className="w-16 text-xs text-gray-300 mr-2">Phone:</span>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={currentData.personalInfo.phone}
-                    onChange={(e) => updateField('personalInfo.phone', e.target.value)}
-                    className="text-sm bg-slate-700 text-white rounded px-2 py-1 w-full"
-                    placeholder="Phone"
+                <div className="text-sm flex-1">
+                  <EditableText
+                    text={currentData.personalInfo.phone}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.phone = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
-                ) : (
-                  <div className="text-sm">{currentData.personalInfo.phone}</div>
-                )}
+                </div>
               </div>
               <div className="flex items-center">
                 <span className="w-16 text-xs text-gray-300 mr-2">Email:</span>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={currentData.personalInfo.email}
-                    onChange={(e) => updateField('personalInfo.email', e.target.value)}
-                    className="text-sm bg-slate-700 text-white rounded px-2 py-1 w-full"
-                    placeholder="Email"
+                <div className="text-sm break-all flex-1">
+                  <EditableText
+                    text={currentData.personalInfo.email}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.email = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
                   />
-                ) : (
-                  <div className="text-sm break-all">{currentData.personalInfo.email}</div>
-                )}
+                </div>
               </div>
               
               {/* Website URL */}
               {currentData.personalInfo.website && (
                 <div className="flex items-center">
                   <span className="w-16 text-xs text-gray-300 mr-2">Website:</span>
-                  {isEditing ? (
-                    <input
-                      type="url"
-                      value={currentData.personalInfo.website}
-                      onChange={(e) => updateField('personalInfo.website', e.target.value)}
-                      className="text-sm bg-slate-700 text-white rounded px-2 py-1 w-full"
-                      placeholder="Website URL"
+                  <div className="text-sm flex-1">
+                    <EditableText
+                      text={currentData.personalInfo.website}
+                      comments={[]}
+                      onTextChange={(newText) => {
+                        const newData = JSON.parse(JSON.stringify(currentData))
+                        newData.personalInfo.website = newText
+                        onDataChange(newData)
+                      }}
+                      className="text-sm text-white"
+                      hoverClassName="hover:bg-slate-700"
+                      inputClassName="bg-slate-700 text-white"
                     />
-                  ) : (
-                    <div className="text-sm">
-                      <a href={currentData.personalInfo.website} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 break-all">
-                        {currentData.personalInfo.website}
-                      </a>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
               
@@ -547,21 +563,20 @@ export function ResumeTemplate2({
               {currentData.personalInfo.linkedin && (
                 <div className="flex items-center">
                   <span className="w-16 text-xs text-gray-300 mr-2">LinkedIn:</span>
-                  {isEditing ? (
-                    <input
-                      type="url"
-                      value={currentData.personalInfo.linkedin}
-                      onChange={(e) => updateField('personalInfo.linkedin', e.target.value)}
-                      className="text-sm bg-slate-700 text-white rounded px-2 py-1 w-full"
-                      placeholder="LinkedIn URL"
+                  <div className="text-sm flex-1">
+                    <EditableText
+                      text={currentData.personalInfo.linkedin}
+                      comments={[]}
+                      onTextChange={(newText) => {
+                        const newData = JSON.parse(JSON.stringify(currentData))
+                        newData.personalInfo.linkedin = newText
+                        onDataChange(newData)
+                      }}
+                      className="text-sm text-white"
+                      hoverClassName="hover:bg-slate-700"
+                      inputClassName="bg-slate-700 text-white"
                     />
-                  ) : (
-                    <div className="text-sm">
-                      <a href={currentData.personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 break-all">
-                        {currentData.personalInfo.linkedin}
-                      </a>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>

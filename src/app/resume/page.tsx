@@ -11,8 +11,11 @@ import { ResumeTemplate2 } from '@/components/CV/ResumeTemplate2'
 import { FeedbackType } from '@/components/CV/CommentHighlight'
 import { CommentPanel } from '@/components/CV/CommentPanel'
 import { CVChatbot } from '@/components/CV/CVChatbot'
+import { ContactDetailsInline } from '@/components/CV/ContactDetailsInline'
+import { SkillsInline } from '@/components/CV/SkillsInline'
+import { ResumeSingleColumn } from '@/components/CV/ResumeSingleColumn'
 import { trackUserInteraction } from '@/lib/analytics'
-import { MessageCircle, Download } from 'lucide-react'
+import { MessageCircle, Download, LayoutGrid, Sidebar } from 'lucide-react'
 
 interface ResumeData {
   personalInfo: {
@@ -93,6 +96,8 @@ function ResumePageContent() {
   const [showChatbot, setShowChatbot] = useState(true)
   const [hideContactDetails, setHideContactDetails] = useState(false)
   const [hidePhoto, setHidePhoto] = useState(false)
+  const [layoutMode, setLayoutMode] = useState<'sidebar' | 'single-column'>('sidebar')
+  const [layoutModeInitialized, setLayoutModeInitialized] = useState(false)
   const [sectionLayout, setSectionLayout] = useState({
     sidebar: ['photo', 'contact', 'skills', 'languages'],
     main: ['profile', 'achievements', 'experience', 'education']
@@ -382,6 +387,7 @@ function ResumePageContent() {
         session_id: sessionId,
         auth_user_id: user.id,
         full_name: data.personalInfo.name || '',
+        professional_title: data.personalInfo.tagline || data.personalInfo.title || '',
         email: data.personalInfo.email || '',
         phone: data.personalInfo.phone || '',
         location: data.personalInfo.address || '',
@@ -558,6 +564,56 @@ function ResumePageContent() {
       saveResumeData(history[newIndex])
     }
   }, [historyIndex, history, saveResumeData])
+
+  // Load layout preference from database on mount
+  useEffect(() => {
+    const loadLayoutPreference = async () => {
+      if (user && !layoutModeInitialized) {
+        try {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('resume_layout_preference')
+            .eq('id', user.id)
+            .maybeSingle()
+          
+          if (profile?.resume_layout_preference) {
+            setLayoutMode(profile.resume_layout_preference as 'sidebar' | 'single-column')
+            console.log('✅ Layout preference loaded:', profile.resume_layout_preference)
+          }
+          setLayoutModeInitialized(true)
+        } catch (error) {
+          console.error('❌ Failed to load layout preference:', error)
+          setLayoutModeInitialized(true)
+        }
+      }
+    }
+    loadLayoutPreference()
+  }, [user, layoutModeInitialized])
+
+  // Save layout preference to database when it changes (but not on initial load)
+  useEffect(() => {
+    const saveLayoutPreference = async () => {
+      // Only save if initialized (prevents saving default value on first load)
+      if (user && layoutMode && layoutModeInitialized) {
+        try {
+          const { data, error } = await supabase
+            .from('user_profiles')
+            .update({ resume_layout_preference: layoutMode })
+            .eq('id', user.id)
+            .select()
+          
+          if (error) {
+            console.error('❌ Failed to save layout preference:', error)
+          } else {
+            console.log('✅ Layout preference saved:', layoutMode, 'Response:', data)
+          }
+        } catch (error) {
+          console.error('❌ Exception saving layout preference:', error)
+        }
+      }
+    }
+    saveLayoutPreference()
+  }, [layoutMode, user, layoutModeInitialized])
 
   // Download CV as PDF using server-side Puppeteer
   const downloadPDF = async () => {
@@ -821,31 +877,72 @@ function ResumePageContent() {
         <div className="flex-1 overflow-y-auto py-8 px-4">
           <div className="max-w-5xl mx-auto">
             {/* Back to Dashboard */}
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
-            >
-              <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="font-medium">Dashboard</span>
-            </button>
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors group"
+              >
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-medium">Dashboard</span>
+              </button>
+              <button
+                onClick={() => router.push('/profile')}
+                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium">Profile</span>
+              </button>
+            </div>
 
             {/* Action buttons above CV */}
             <div className="flex items-center space-x-3 mb-6">
-              <button
-                onClick={() => setHideContactDetails(!hideContactDetails)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
-              >
-                {hideContactDetails ? 'Show Contact Details' : 'Hide Contact Details'}
-              </button>
+              {/* Layout Toggle */}
+              <div className="flex items-center bg-gray-100 rounded-full p-1">
+                <button
+                  onClick={() => setLayoutMode('sidebar')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    layoutMode === 'sidebar'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Sidebar className="h-4 w-4" />
+                  Sidebar Layout
+                </button>
+                <button
+                  onClick={() => setLayoutMode('single-column')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    layoutMode === 'single-column'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Single Column
+                </button>
+              </div>
 
-              <button
-                onClick={() => setHidePhoto(!hidePhoto)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
-              >
-                {hidePhoto ? 'Show Photo' : 'Hide Photo'}
-              </button>
+              {layoutMode === 'sidebar' && (
+                <>
+                  <button
+                    onClick={() => setHideContactDetails(!hideContactDetails)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+                  >
+                    {hideContactDetails ? 'Show Contact Details' : 'Hide Contact Details'}
+                  </button>
+
+                  <button
+                    onClick={() => setHidePhoto(!hidePhoto)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-medium"
+                  >
+                    {hidePhoto ? 'Show Photo' : 'Hide Photo'}
+                  </button>
+                </>
+              )}
 
               <button
                 onClick={downloadPDF}
@@ -868,19 +965,26 @@ function ResumePageContent() {
 
             {/* CV */}
             <div ref={resumeRef} className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <ResumeTemplate2
-              data={resumeData}
-              onDataChange={updateResumeData}
-              isEditable={true}
-              getCommentsForText={getCommentsForText}
-              onShowComments={handleShowComments}
-              editModeText={editModeText}
-              onEditModeTextChange={setEditModeText}
-              hideContactDetails={hideContactDetails}
-              hidePhoto={hidePhoto}
-              sectionLayout={sectionLayout}
-              onSectionLayoutChange={setSectionLayout}
-            />
+              {layoutMode === 'single-column' ? (
+                <ResumeSingleColumn
+                  data={resumeData}
+                  onDataChange={updateResumeData}
+                />
+              ) : (
+                <ResumeTemplate2
+                  data={resumeData}
+                  onDataChange={updateResumeData}
+                  isEditable={true}
+                  getCommentsForText={getCommentsForText}
+                  onShowComments={handleShowComments}
+                  editModeText={editModeText}
+                  onEditModeTextChange={setEditModeText}
+                  hideContactDetails={hideContactDetails}
+                  hidePhoto={hidePhoto}
+                  sectionLayout={sectionLayout}
+                  onSectionLayoutChange={setSectionLayout}
+                />
+              )}
             </div>
           </div>
         </div>

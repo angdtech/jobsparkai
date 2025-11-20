@@ -252,10 +252,10 @@ export default function Dashboard() {
                 </button>
               )}
               <button
-                onClick={signOut}
+                onClick={() => router.push('/profile')}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                Logout
+                Profile
               </button>
             </div>
           </div>

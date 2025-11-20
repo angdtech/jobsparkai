@@ -24,6 +24,8 @@ interface EditableTextProps {
   onEditModeChange?: (isEditing: boolean) => void
   multiline?: boolean
   placeholder?: string
+  hoverClassName?: string
+  inputClassName?: string
 }
 
 export function EditableText({ 
@@ -35,7 +37,9 @@ export function EditableText({
   isEditMode = false,
   onEditModeChange,
   multiline = false,
-  placeholder = ''
+  placeholder = '',
+  hoverClassName = 'hover:bg-blue-50',
+  inputClassName = 'bg-blue-50 text-gray-900'
 }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(isEditMode)
   const [editValue, setEditValue] = useState(text)
@@ -107,7 +111,7 @@ export function EditableText({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            className={`${className} border-2 border-blue-400 rounded px-2 py-1 w-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50`}
+            className={`border-2 border-blue-400 rounded px-2 py-1 w-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputClassName}`}
             placeholder={placeholder}
             rows={3}
           />
@@ -119,7 +123,7 @@ export function EditableText({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            className={`${className} border-2 border-blue-400 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50`}
+            className={`border-2 border-blue-400 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputClassName}`}
             placeholder={placeholder}
           />
         )}
@@ -130,7 +134,7 @@ export function EditableText({
   return (
     <div 
       onClick={handleClick}
-      className={`${onTextChange ? 'cursor-text hover:bg-blue-50 rounded px-1 transition-colors' : ''} ${className}`}
+      className={`${onTextChange ? `cursor-text ${hoverClassName} rounded px-1 transition-colors` : ''} ${className}`}
       title={onTextChange ? 'Click to edit' : ''}
     >
       {text ? (
