@@ -43,3 +43,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tailwind logs
+tailwindcss-*.log
+
+# CV parsing debug files
+/public/raw-cv-text-*.txt
+/public/ai-parsed-cv-*.txt
+/public/ai-page-*.txt
+/public/stage1-headings-*.json
+/public/stage2-raw-sections-*.json
+/public/section-map-*.json
+/public/headings-*.json
+/public/fallback-*.json
+
+# Test PDFs
+*.pdf
+!public/sample-*.pdf
