@@ -1,0 +1,106 @@
+
+> jobspark-app@0.1.0 build
+> next build
+
+ ⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'eslint'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/angelinadyer/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/angelinadyer/Development/jobsparkai-main/package-lock.json
+
+   ▲ Next.js 16.0.3 (Turbopack)
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+[2m[DEBUG][22m Writing debug info to: [2m[34m`[39m[22m[34m/Users/angelinadyer/Development/jobsparkai-main/tailwindcss-79789.log[39m[2m[34m`[39m[22m
+
+
+[2m[111.00ms][22m [@tailwindcss/postcss] src/app/globals.css
+[2m[  0.03ms][22m  [2m ↳ [22mQuick bail check
+[2m[ 13.27ms][22m  [2m ↳ [22mSetup compiler
+[2m[  0.15ms][22m    [2m ↳ [22mPostCSS AST -> Tailwind CSS AST
+[2m[ 13.11ms][22m    [2m ↳ [22mCreate compiler
+[2m[  0.04ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[  4.93ms][22m  [2m ↳ [22mSetup scanner
+[2m[ 24.13ms][22m  [2m ↳ [22mScan for candidates
+[2m[ 19.94ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[ 25.49ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 20.30ms][22m  [2m ↳ [22mOptimization
+[2m[  1.02ms][22m    [2m ↳ [22mAST -> CSS
+[2m[ 11.18ms][22m    [2m ↳ [22mLightning CSS
+[2m[  8.08ms][22m    [2m ↳ [22mCSS -> PostCSS AST
+[2m[  2.62ms][22m  [2m ↳ [22mUpdate PostCSS AST
+
+ ✓ Compiled successfully in 7.8s
+   Skipping validation of types
+   Collecting page data using 7 workers ...
+   Generating static pages using 7 workers (0/50) ...
+   Generating static pages using 7 workers (12/50) 
+   Generating static pages using 7 workers (24/50) 
+   Generating static pages using 7 workers (37/50) 
+ ✓ Generating static pages using 7 workers (50/50) in 793.9ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ○ /admin/content
+├ ○ /admin/error-logs
+├ ○ /admin/messages
+├ ƒ /api/admin/error-logs
+├ ƒ /api/admin/send-reply
+├ ƒ /api/admin/update-content
+├ ƒ /api/cv/analyze
+├ ƒ /api/cv/analyze-full
+├ ƒ /api/cv/analyze-parallel
+├ ƒ /api/cv/analyze-summary
+├ ƒ /api/cv/analyze-test
+├ ƒ /api/cv/chatbot
+├ ƒ /api/cv/debug-upload
+├ ƒ /api/cv/delete
+├ ƒ /api/cv/download-pdf
+├ ƒ /api/cv/extract
+├ ƒ /api/cv/extract-data
+├ ƒ /api/cv/extract-real
+├ ƒ /api/cv/extract-test
+├ ƒ /api/cv/format-experience
+├ ƒ /api/cv/generate
+├ ƒ /api/cv/improve-section
+├ ƒ /api/cv/raw-text
+├ ƒ /api/cv/review-experience
+├ ƒ /api/cv/review-experience-parallel
+├ ƒ /api/cv/session
+├ ƒ /api/cv/sessions
+├ ƒ /api/cv/test-extraction
+├ ƒ /api/cv/upload
+├ ƒ /api/cv/upload-analyze-parallel
+├ ƒ /api/cv/upload-parallel
+├ ƒ /api/cv/upload-progressive
+├ ƒ /api/cv/upload-simple
+├ ƒ /api/debug/analysis
+├ ƒ /api/debug/session/[sessionId]
+├ ƒ /api/payments/create-checkout
+├ ƒ /api/payments/webhook
+├ ○ /contact
+├ ƒ /cv/[sessionId]
+├ ○ /dashboard
+├ ○ /forgot-password
+├ ○ /pricing
+├ ○ /privacy-policy
+├ ○ /reset-password
+├ ○ /resume
+├ ○ /templates
+└ ○ /terms-of-service
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
