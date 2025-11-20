@@ -6,8 +6,33 @@ on:
       - main
 
 jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run build test
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+      
+      - name: Build successful
+        run: echo "✅ Build test passed! Safe to deploy."
+  
   deploy:
     runs-on: ubuntu-latest
+    needs: build-check
     
     steps:
       - name: Deploy to Lightsail
@@ -31,10 +56,21 @@ jobs:
             npm install
             
             echo "🔨 Building application..."
-            npm run build
+            if ! npm run build; then
+              echo "❌ Build failed! Check logs above for errors."
+              echo "📋 Last 50 lines of build output:"
+              npm run build 2>&1 | tail -50
+              exit 1
+            fi
+            
+            echo "✅ Build successful!"
             
             echo "🔄 Restarting PM2 process..."
             pm2 restart jobsparkai
+            
+            echo "📋 Checking PM2 logs for errors..."
+            sleep 3
+            pm2 logs jobsparkai --lines 20 --nostream
             
             echo "✅ Checking PM2 status..."
             pm2 status
