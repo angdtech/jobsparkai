@@ -111,21 +111,35 @@ export default function Dashboard() {
   }
 
   const onDrop = async (acceptedFiles: File[]) => {
+    console.log('\n📤 [DASHBOARD] ========== FILE DROP STARTED ==========')
     const file = acceptedFiles[0]
-    if (!file || !user) return
+    if (!file || !user) {
+      console.log('❌ [DASHBOARD] No file or user')
+      return
+    }
+
+    console.log('📁 [DASHBOARD] File received:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    })
 
     setIsUploading(true)
     setUploadStep(1)
 
     try {
       // Create a session and process the file
+      console.log('🔑 [DASHBOARD] Creating CV session...')
       const { CVSessionManager } = await import('@/lib/database')
       const session = await CVSessionManager.createSession(user.id)
       if (!session) {
+        console.log('❌ [DASHBOARD] Failed to create session')
         throw new Error('Failed to create session')
       }
+      console.log('✅ [DASHBOARD] Session created:', session.session_id)
 
       // Create form data with correct field names
+      console.log('📦 [DASHBOARD] Creating form data...')
       const formData = new FormData()
       formData.append('cv_file', file)
       formData.append('session_id', session.session_id)
@@ -133,6 +147,7 @@ export default function Dashboard() {
       const sessionId = session.session_id
 
       // Close modal and redirect IMMEDIATELY - parsing happens in background
+      console.log('🔄 [DASHBOARD] Closing modal and redirecting to resume page...')
       setShowUploadModal(false)
       setIsUploading(false)
       setUploadStep(0)
@@ -140,20 +155,27 @@ export default function Dashboard() {
       // Set flag for fresh upload to trigger onboarding
       sessionStorage.setItem('fresh_upload', 'true')
       sessionStorage.setItem('parsing_in_progress', sessionId)
+      console.log('✅ [DASHBOARD] Session flags set in sessionStorage')
       
       // Redirect to resume page immediately - it will show loading state
+      console.log('➡️ [DASHBOARD] Redirecting to /resume?session=' + sessionId)
       router.push(`/resume?session=${sessionId}`)
       
-      // Upload and parse in background with PROGRESSIVE parsing (don't await)
-      fetch('/api/cv/upload-progressive', {
+      // Upload and parse in background with original working parser (don't await)
+      console.log('🚀 [DASHBOARD] Starting background upload to /api/cv/upload...')
+      fetch('/api/cv/upload', {
         method: 'POST',
         body: formData
+      }).then(() => {
+        console.log('✅ [DASHBOARD] Background upload request sent successfully')
       }).catch(error => {
-        console.error('Background upload failed:', error)
+        console.error('❌ [DASHBOARD] Background upload failed:', error)
       })
       
+      console.log('✅ [DASHBOARD] ========== DASHBOARD UPLOAD FLOW COMPLETE ==========')
+      
     } catch (error) {
-      console.error('Upload failed:', error)
+      console.error('❌ [DASHBOARD] Upload failed:', error)
       setIsUploading(false)
       setUploadStep(0)
       alert('Upload failed. Please try again.')

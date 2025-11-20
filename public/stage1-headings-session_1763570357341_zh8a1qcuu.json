@@ -1,0 +1,36 @@
+{
+  "headings": [
+    {
+      "type": "personal_info",
+      "heading": "ANGELINA MENCHON DYER, MSC Product Leader | Driving Innovation, Amazing Customer   Experiences, AI & Cutting-Edge Technology Porfolio"
+    },
+    {
+      "type": "summary",
+      "heading": "SUMMARY"
+    },
+    {
+      "type": "achievements",
+      "heading": "KEY ACHIEVEMENTS"
+    },
+    {
+      "type": "experience",
+      "heading": "EXPERIENCE"
+    },
+    {
+      "type": "education",
+      "heading": "EDUCATION"
+    },
+    {
+      "type": "skills",
+      "heading": "SKILLS"
+    },
+    {
+      "type": "applications_tools_technologies",
+      "heading": "APPLICATIONS, TOOLS &   TECHNOLOGIES"
+    },
+    {
+      "type": "interests",
+      "heading": "INTERESTS"
+    }
+  ]
+}

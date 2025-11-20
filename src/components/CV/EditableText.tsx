@@ -133,11 +133,15 @@ export function EditableText({
       className={`${onTextChange ? 'cursor-text hover:bg-blue-50 rounded px-1 transition-colors' : ''} ${className}`}
       title={onTextChange ? 'Click to edit' : ''}
     >
-      <SmartText 
-        text={text}
-        comments={comments}
-        onShowComments={onShowComments}
-      />
+      {text ? (
+        <SmartText 
+          text={text}
+          comments={comments}
+          onShowComments={onShowComments}
+        />
+      ) : (
+        <span className="opacity-50">{placeholder}</span>
+      )}
     </div>
   )
 }

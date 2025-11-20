@@ -41,7 +41,7 @@ export default function Header({ onLogin, onSignUp }: HeaderProps) {
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="p-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl">
               <Zap className="h-6 w-6 text-white" />
             </div>
@@ -52,13 +52,13 @@ export default function Header({ onLogin, onSignUp }: HeaderProps) {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center justify-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className={`font-medium transition-colors hover:text-orange-500 ${
+                className={`font-medium transition-colors hover:text-orange-500 whitespace-nowrap ${
                   isScrolled ? 'text-gray-700' : 'text-white/90'
                 }`}
               >
@@ -68,7 +68,7 @@ export default function Header({ onLogin, onSignUp }: HeaderProps) {
           </div>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
             {user ? (
               <Link
                 href="/dashboard"

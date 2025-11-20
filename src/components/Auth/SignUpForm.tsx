@@ -13,7 +13,6 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -26,12 +25,6 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
     setLoading(true)
     setError('')
     setSuccess('')
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      setLoading(false)
-      return
-    }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long')
@@ -155,27 +148,6 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
               <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
             )}
           </button>
-        </div>
-      </div>
-
-      {/* Confirm Password */}
-      <div>
-        <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
-          Confirm Password
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            id="confirm-password"
-            type={showPassword ? 'text' : 'password'}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            placeholder="Confirm your password"
-            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
         </div>
       </div>
 

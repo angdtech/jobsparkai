@@ -189,17 +189,22 @@ function ResumePageContent() {
         .maybeSingle()
 
       if (!contentError && cvContent) {
-        console.log('Loading existing CV content for session:', sessionId, {
+        console.log('✅ [RESUME PAGE] Loading existing CV content for session:', sessionId, {
           hasContent: !!cvContent,
-          hasName: !!cvContent.full_name
+          hasName: !!cvContent.full_name,
+          timestamp: new Date().toISOString()
         })
         
         // CRITICAL: CV already exists in database - DO NOT SHOW LOADING OVERLAY
         // Clear the parsing flag and return immediately without any loading state
         // This prevents the loading overlay from showing on page refresh for existing CVs
         if (parsingInProgress) {
+          console.log('🔄 [RESUME PAGE] Clearing parsing_in_progress flag')
           sessionStorage.removeItem('parsing_in_progress')
         }
+        
+        // CRITICAL FIX: Set isLoading to false when data is found
+        setIsLoading(false)
         
         // Format data from cv_content table
         const formattedData: ResumeData = {
@@ -212,7 +217,8 @@ function ResumePageContent() {
             summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.',
             website: cvContent.website_url || undefined,
             linkedin: cvContent.linkedin_url || undefined,
-            photoUrl: cvContent.photo_url || undefined
+            photoUrl: cvContent.photo_url || undefined,
+            tagline: cvContent.tagline || ''
           },
           experience: Array.isArray(cvContent.work_experience) 
             ? cvContent.work_experience.map((exp: any, index: number) => {
@@ -350,10 +356,11 @@ function ResumePageContent() {
       // CRITICAL: Only show loading overlay if CV doesn't exist AND parsing is in progress
       // This should only happen during initial upload, never on page refresh for existing CVs
       if (parsingInProgress) {
-        console.log('Session exists but no CV content found - parsing in progress')
+        console.log('⏳ [RESUME PAGE] Session exists but no CV content found - parsing in progress, showing loading overlay')
         setIsLoading(true)
       } else {
-        console.log('Session exists but no CV content found - parsing may have failed')
+        console.log('❌ [RESUME PAGE] Session exists but no CV content found - parsing may have failed')
+        setIsLoading(false)
       }
 
     } catch (error) {
@@ -380,6 +387,7 @@ function ResumePageContent() {
         location: data.personalInfo.address || '',
         linkedin_url: data.personalInfo.linkedin || null,
         website_url: data.personalInfo.website || null,
+        tagline: data.personalInfo.tagline || null,
         professional_summary: data.personalInfo.summary || '',
         work_experience: data.experience?.map(exp => {
           const normalizedItems = Array.isArray(exp.description_items)
@@ -428,7 +436,9 @@ function ResumePageContent() {
       console.log('📝 Attempting to save resume data:', { 
         sessionId, 
         userId: user.id, 
-        dataKeys: Object.keys(contentData) 
+        dataKeys: Object.keys(contentData),
+        tagline: contentData.tagline,
+        fullName: contentData.full_name
       })
 
       // Check if record exists first
@@ -501,6 +511,7 @@ function ResumePageContent() {
 
   // Update resume data with history tracking
   const updateResumeData = useCallback((newData: ResumeData) => {
+    console.log('🔄 updateResumeData called with tagline:', newData.personalInfo?.tagline)
     setResumeData(newData)
     
     // Add to history using functional updates to avoid stale closures
@@ -685,8 +696,10 @@ function ResumePageContent() {
         
         if (data) {
           // Parsing complete! Reload data and stop polling
+          console.log('✅ [RESUME PAGE] Parsing complete! CV content found in database')
           sessionStorage.removeItem('parsing_in_progress')
           clearInterval(pollInterval)
+          setIsLoading(false)
           loadResumeData()
         }
       }, 2000) // Check every 2 seconds

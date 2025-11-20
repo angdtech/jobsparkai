@@ -16,8 +16,8 @@ function getOpenAIClient() {
   })
 }
 
-// Enhanced text extraction function
-async function extractTextFromFile(filePath: string, fileName: string): Promise<string> {
+// Enhanced text extraction function - returns array of page texts for parallel processing
+async function extractTextFromFile(filePath: string, fileName: string): Promise<{fullText: string, pages: string[]}> {
   const fileExtension = path.extname(fileName).toLowerCase()
   
   try {
@@ -35,7 +35,17 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
         // Disable max pages limit to ensure all pages are processed
         max: 0,
         // Include more verbose parsing
-        version: 'v1.10.1'
+        version: 'v1.10.1',
+        // Get page text separately for parallel processing
+        pagerender: async (pageData) => {
+          const renderOptions = {
+            normalizeWhitespace: false,
+            disableCombineTextItems: false
+          }
+          return pageData.getTextContent(renderOptions).then((textContent) => {
+            return textContent.items.map((item: any) => item.str).join(' ')
+          })
+        }
       }
       
       const pdfData = await pdfParse(dataBuffer, options)
@@ -52,7 +62,12 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
         console.warn('⚠️ PDF extraction resulted in very short text, may be incomplete')
       }
       
-      return pdfData.text
+      // Split full text by page breaks (pdf-parse uses form feed character)
+      const pages = pdfData.text.split('\f').filter(p => p.trim().length > 0)
+      
+      console.log('📄 Extracted', pages.length, 'pages from PDF')
+      
+      return { fullText: pdfData.text, pages }
     } 
     else if (fileExtension === '.docx') {
       // Enhanced DOCX extraction
@@ -74,7 +89,15 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
         console.log('DOCX extraction warnings:', htmlResult.messages)
       }
       
-      return rawResult.value
+      const text = rawResult.value
+      // Split into "pages" - roughly 2000 chars per page
+      const pages = []
+      const charsPerPage = 2000
+      for (let i = 0; i < text.length; i += charsPerPage) {
+        pages.push(text.substring(i, i + charsPerPage))
+      }
+      
+      return { fullText: text, pages }
     }
     else if (fileExtension === '.txt') {
       const fsPromises = require('fs').promises
@@ -85,7 +108,14 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
         sample: content.substring(0, 200) + '...'
       })
       
-      return content
+      // Split into "pages" - roughly 2000 chars per page
+      const pages = []
+      const charsPerPage = 2000
+      for (let i = 0; i < content.length; i += charsPerPage) {
+        pages.push(content.substring(i, i + charsPerPage))
+      }
+      
+      return { fullText: content, pages }
     }
     else {
       throw new Error(`Unsupported file type: ${fileExtension}`)
@@ -96,17 +126,515 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
   }
 }
 
-// Simple AI-based parsing using GPT-4o-mini
-async function parseCV(extractedText: string, sessionId: string) {
-  console.log('🤖 Starting simple AI parsing with gpt-4o-mini, text length:', extractedText.length)
+// NEW 3-Stage Chained Prompt AI parsing
+async function parseCV(extractedText: string, pages: string[], sessionId: string) {
+  console.log('🤖 Starting NEW 3-STAGE CHAINED PROMPT AI parsing')
   
-  // Save raw text to file for debugging with session ID
   const path = await import('path')
   const { writeFile } = await import('fs/promises')
   const outputPath = path.join(process.cwd(), 'public', `raw-cv-text-${sessionId}.txt`)
   await writeFile(outputPath, extractedText, 'utf-8')
   console.log('📝 Raw CV text saved to:', outputPath)
   
+  const openai = getOpenAIClient()
+  const totalStart = Date.now()
+  
+  try {
+    // STAGE 1: Extract exact section headings
+    console.log('⚡ Stage 1: Extracting exact section headings...')
+    const stage1Start = Date.now()
+    
+    const stage1Response = await openai.chat.completions.create({
+      model: 'gpt-4.1-mini',
+      messages: [
+        { role: 'system', content: 'You are a CV expert. Extract section headings exactly as they appear in the CV.' },
+        { role: 'user', content: `Scan this CV and extract the EXACT section headings as they appear.
+
+CV Text:
+${extractedText}
+
+Return the headings EXACTLY as written (preserve caps, spacing, punctuation).
+
+Return ONLY valid JSON:
+{
+  "headings": [
+    {"type": "personal_info", "heading": "name from top of CV"},
+    {"type": "summary", "heading": "SUMMARY or PROFILE heading"},
+    {"type": "achievements", "heading": "KEY ACHIEVEMENTS heading"},
+    {"type": "experience", "heading": "PROFESSIONAL EXPERIENCE heading"},
+    {"type": "education", "heading": "EDUCATION heading"},
+    {"type": "skills", "heading": "SKILLS heading"}
+  ]
+}` }
+      ],
+      temperature: 0,
+      response_format: { type: 'json_object' },
+      service_tier: 'default'
+    })
+    
+    const stage1Time = Date.now() - stage1Start
+    const headingsData = JSON.parse(stage1Response.choices[0].message.content || '{}')
+    console.log(`✅ Stage 1 completed in ${stage1Time}ms`)
+    console.log(`📊 Found headings:`, headingsData.headings?.map((h: any) => h.heading))
+    
+    // Save headings
+    await writeFile(
+      path.join(process.cwd(), 'public', `stage1-headings-${sessionId}.json`),
+      JSON.stringify(headingsData, null, 2),
+      'utf-8'
+    )
+    
+    // STAGE 2: Extract raw text for each section (parallel)
+    console.log('⚡ Stage 2: Extracting raw text for each section in parallel...')
+    const stage2Start = Date.now()
+    
+    const stage2Promises = (headingsData.headings || []).map((heading: any) => {
+      return openai.chat.completions.create({
+        model: 'gpt-4.1-mini',
+        messages: [
+          { role: 'system', content: 'Extract exact text under the specified heading.' },
+          { role: 'user', content: `Extract ALL text under the heading "${heading.heading}" in this CV.
+
+CV Text:
+${extractedText}
+
+Return ONLY the exact text under this heading, up to the next heading. Do not summarize.
+
+Return ONLY valid JSON:
+{
+  "section_type": "${heading.type}",
+  "heading": "${heading.heading}",
+  "raw_text": "exact text here"
+}` }
+        ],
+        temperature: 0,
+        response_format: { type: 'json_object' },
+        service_tier: 'default'
+      }).then(response => JSON.parse(response.choices[0].message.content || '{}'))
+    })
+    
+    const stage2Results = await Promise.allSettled(stage2Promises)
+    const stage2Time = Date.now() - stage2Start
+    console.log(`✅ Stage 2 completed in ${stage2Time}ms`)
+    
+    // Collect raw text sections
+    const rawSections: any[] = []
+    for (const result of stage2Results) {
+      if (result.status === 'fulfilled') {
+        rawSections.push(result.value)
+        const textLength = result.value.raw_text?.length || 0
+        console.log(`✅ Extracted raw text for: ${result.value.heading} (${textLength} chars)`)
+        if (result.value.section_type === 'experience') {
+          console.log(`📝 EXPERIENCE RAW TEXT PREVIEW (first 500 chars):`, result.value.raw_text?.substring(0, 500))
+        }
+      }
+    }
+    
+    // Save raw sections
+    await writeFile(
+      path.join(process.cwd(), 'public', `stage2-raw-sections-${sessionId}.json`),
+      JSON.stringify(rawSections, null, 2),
+      'utf-8'
+    )
+    
+    // STAGE 3: Parse raw text into structured format (parallel)
+    console.log('⚡ Stage 3: Parsing raw text into structured format in parallel...')
+    const stage3Start = Date.now()
+    
+    const stage3Promises = rawSections.map((section) => {
+      let parsePrompt = ''
+      
+      if (section.section_type === 'personal_info') {
+        parsePrompt = `Parse personal information from this heading and text:
+
+Heading: ${section.heading}
+Text: ${section.raw_text}
+
+Extract the name from the heading. The heading often contains "NAME, CREDENTIALS | Tagline".
+Extract the tagline (professional title) from after the "|" symbol in the heading if present.
+Extract contact details (email, phone, linkedin, etc.) from the text.
+
+Return ONLY valid JSON:
+{"name": "", "email": "", "phone": "", "address": "", "linkedin": "", "website": "", "tagline": ""}`
+      } else if (section.section_type === 'summary') {
+        parsePrompt = `Parse this summary text:
+
+${section.raw_text}
+
+Return ONLY valid JSON:
+{"professional_summary": "text here"}`
+      } else if (section.section_type === 'achievements') {
+        parsePrompt = `Parse ALL achievements from this text into an array. Each achievement is a separate statement.
+
+Text:
+${section.raw_text}
+
+Split this into individual achievements. Look for natural sentence boundaries or topic changes.
+
+Return ONLY valid JSON:
+{"key_achievements": ["achievement 1", "achievement 2", "achievement 3", "achievement 4"]}`
+      } else if (section.section_type === 'experience') {
+        parsePrompt = `Parse EVERY SINGLE job/position from this work experience section. DO NOT SKIP ANY JOBS, even brief ones.
+
+Text:
+${section.raw_text}
+
+Extract ALL jobs chronologically. Each job should have:
+- title (job position)
+- company (company/organization name)
+- start_date and end_date (dates as written)
+- description_items (array of responsibilities/achievements for that role)
+
+IMPORTANT: Return ALL jobs found, not just recent ones. Include every position mentioned.
+
+Return ONLY valid JSON:
+{"work_experience": [{"title": "", "company": "", "start_date": "", "end_date": "", "description_items": []}]}`
+      } else if (section.section_type === 'education') {
+        parsePrompt = `Parse ALL education from this text:
+
+${section.raw_text}
+
+Return ONLY valid JSON:
+{"education": [{"degree": "", "institution": "", "start_date": "", "end_date": "", "description": ""}]}`
+      } else if (section.section_type === 'skills') {
+        parsePrompt = `Parse ONLY skills explicitly listed (DO NOT invent):
+
+${section.raw_text}
+
+Return ONLY valid JSON:
+{"skills": [{"name": "", "level": 80}]}`
+      } else {
+        return Promise.resolve({ section_type: section.section_type, data: {} })
+      }
+      
+      return openai.chat.completions.create({
+        model: 'gpt-4.1-mini',
+        messages: [
+          { role: 'system', content: 'Parse CV section into structured JSON. Return only valid JSON.' },
+          { role: 'user', content: parsePrompt }
+        ],
+        temperature: 0,
+        response_format: { type: 'json_object' },
+        service_tier: 'default'
+      }).then(response => ({
+        section_type: section.section_type,
+        data: JSON.parse(response.choices[0].message.content || '{}')
+      }))
+    })
+    
+    const stage3Results = await Promise.allSettled(stage3Promises)
+    const stage3Time = Date.now() - stage3Start
+    console.log(`✅ Stage 3 completed in ${stage3Time}ms`)
+    
+    // Merge all parsed results
+    let mergedData: any = {
+      personal_info: {},
+      professional_summary: '',
+      key_achievements: [],
+      work_experience: [],
+      education: [],
+      skills: [],
+      extracted_text: extractedText
+    }
+    
+    for (const result of stage3Results) {
+      if (result.status === 'fulfilled') {
+        const { section_type, data } = result.value
+        console.log(`✅ Parsed section: ${section_type}`)
+        
+        if (section_type === 'personal_info') {
+          mergedData.personal_info = data
+        } else if (section_type === 'summary') {
+          mergedData.professional_summary = data.professional_summary || ''
+        } else if (section_type === 'achievements') {
+          mergedData.key_achievements = data.key_achievements || []
+        } else if (section_type === 'experience') {
+          mergedData.work_experience = data.work_experience || []
+        } else if (section_type === 'education') {
+          mergedData.education = data.education || []
+        } else if (section_type === 'skills') {
+          mergedData.skills = data.skills || []
+        }
+      }
+    }
+    
+    const totalTime = Date.now() - totalStart
+    console.log(`🎉 Total processing time: ${totalTime}ms (Stage 1: ${stage1Time}ms, Stage 2: ${stage2Time}ms, Stage 3: ${stage3Time}ms)`)
+    console.log(`📊 Final totals:`, {
+      name: mergedData.personal_info?.name || 'Unknown',
+      jobs: mergedData.work_experience?.length || 0,
+      skills: mergedData.skills?.length || 0,
+      achievements: mergedData.key_achievements?.length || 0,
+      education: mergedData.education?.length || 0
+    })
+    
+    console.log('📋 DETAILED EXTRACTION RESULTS:')
+    console.log('👤 Personal Info:', JSON.stringify(mergedData.personal_info, null, 2))
+    console.log('💼 Work Experience (count: ' + (mergedData.work_experience?.length || 0) + '):', JSON.stringify(mergedData.work_experience, null, 2))
+    console.log('🎓 Education:', JSON.stringify(mergedData.education, null, 2))
+    console.log('🏆 Achievements:', JSON.stringify(mergedData.key_achievements, null, 2))
+    console.log('🔧 Skills:', JSON.stringify(mergedData.skills, null, 2))
+    
+    return mergedData
+    
+  } catch (error) {
+    console.error('❌ 3-stage parsing failed:', error)
+    console.error('Falling back to gpt-4.1-mini single prompt...')
+    return await parseCVFallback(extractedText, sessionId)
+  }
+}
+
+/* OLD 3-Stage version (keeping for reference)
+async function parseCVOld(extractedText: string, pages: string[], sessionId: string) {
+  console.log('🤖 Starting 3-STAGE CHAINED PROMPT AI parsing')
+  console.log('⚡ Stage 1: Extracting exact section headings from CV...')
+  
+  const path = await import('path')
+  const { writeFile } = await import('fs/promises')
+  const outputPath = path.join(process.cwd(), 'public', `raw-cv-text-${sessionId}.txt`)
+  await writeFile(outputPath, extractedText, 'utf-8')
+  console.log('📝 Raw CV text saved to:', outputPath)
+  
+  const openai = getOpenAIClient()
+  const totalStart = Date.now()
+  const stage1Start = Date.now()
+  
+  // STAGE 1: Extract exact section headings as they appear in the CV
+  const headingsPrompt = `You are a CV/resume expert. Scan this CV and extract the EXACT section headings as they appear in the document.
+
+CV Text:
+${extractedText}
+
+Return the section headings EXACTLY as written in the CV (preserve capitalization, spacing, punctuation).
+
+Common sections to look for:
+- Name and contact details (top of CV)
+- Summary/Profile/About section
+- Key achievements/highlights/accomplishments
+- Professional experience/work history/employment
+- Education/qualifications
+- Skills/technical skills/competencies
+
+Return ONLY valid JSON:
+{
+  "headings": [
+    {"type": "personal_info", "heading": "ANGELINA MENCHON DYER, MSC"},
+    {"type": "summary", "heading": "SUMMARY"},
+    {"type": "achievements", "heading": "KEY ACHIEVEMENTS"},
+    {"type": "experience", "heading": "PROFESSIONAL EXPERIENCE"},
+    {"type": "education", "heading": "EDUCATION"},
+    {"type": "skills", "heading": "SKILLS"}
+  ]
+}`
+
+  try {
+    const headingsResponse = await openai.chat.completions.create({
+      model: 'gpt-4.1-mini',
+      messages: [
+        { role: 'system', content: 'You are a CV expert. Extract section headings exactly as they appear.' },
+        { role: 'user', content: headingsPrompt }
+      ],
+      temperature: 0,
+      response_format: { type: 'json_object' },
+      service_tier: 'default'
+    })
+    
+    const stage1Time = Date.now() - stage1Start
+    console.log(`✅ Stage 1 completed in ${stage1Time}ms`)
+    
+    let headingsContent = headingsResponse.choices[0].message.content?.trim() || '{}'
+    const headingsData = JSON.parse(headingsContent)
+    
+    console.log(`📊 Found ${headingsData.headings?.length || 0} section headings:`, headingsData.headings?.map((h: any) => h.heading))
+    
+    // Save headings for debugging
+    const headingsPath = path.join(process.cwd(), 'public', `headings-${sessionId}.json`)
+    await writeFile(headingsPath, JSON.stringify(headingsData, null, 2), 'utf-8')
+    
+    // STAGE 2: Extract raw text for each section in parallel
+    console.log('⚡ Stage 2: Extracting raw text for each section in parallel...')
+    const stage2Start = Date.now()
+    
+    const textExtractionPromises = (headingsData.headings || []).map((heading: any) => {
+      const extractPrompt = `Extract ALL text that appears under the heading "${heading.heading}" in this CV.
+
+CV Text:
+${extractedText}
+
+Return ONLY the exact text that appears under this heading, up until the next section heading starts. Include everything - do not summarize or skip any content.
+
+Return ONLY valid JSON:
+{
+  "section_type": "${heading.type}",
+  "heading": "${heading.heading}",
+  "raw_text": "...all text under this heading..."
+}`
+      
+      let extractPrompt = ''
+      
+      if (section.name === 'personal_info') {
+        extractPrompt = `Extract personal information from this CV section. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"name": "", "email": "", "phone": "", "address": "", "linkedin": "", "website": "", "tagline": ""}`
+      } else if (section.name === 'summary') {
+        extractPrompt = `Extract the professional summary from this CV section. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"professional_summary": ""}`
+      } else if (section.name === 'key_achievements') {
+        extractPrompt = `Extract ALL key achievements from this CV section. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"key_achievements": ["achievement 1", "achievement 2"]}`
+      } else if (section.name === 'work_experience') {
+        extractPrompt = `Extract ALL work experience from this CV section. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"work_experience": [{"title": "", "company": "", "start_date": "", "end_date": "", "description_items": []}]}`
+      } else if (section.name === 'education') {
+        extractPrompt = `Extract ALL education from this CV section. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"education": [{"degree": "", "institution": "", "start_date": "", "end_date": "", "description": ""}]}`
+      } else if (section.name === 'skills') {
+        extractPrompt = `Extract ONLY skills explicitly listed in this CV section. DO NOT invent skills. Return ONLY valid JSON:
+${sectionText}
+
+Format:
+{"skills": [{"name": "", "level": 80}]}`
+      } else {
+        return Promise.resolve({ section: section.name, data: {} })
+      }
+      
+      return openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'Extract data from CV section. Return only valid JSON.' },
+          { role: 'user', content: extractPrompt }
+        ],
+        temperature: 0,
+        response_format: { type: 'json_object' },
+        service_tier: 'priority'
+      }).then(response => ({
+        section: section.name,
+        data: JSON.parse(response.choices[0].message.content || '{}')
+      }))
+    })
+    
+    const extractionResults = await Promise.allSettled(extractionPromises)
+    const stage2Time = Date.now() - stage2Start
+    console.log(`✅ Stage 2 completed in ${stage2Time}ms`)
+    
+    // Merge all extraction results
+    let mergedData: any = {
+      personal_info: {},
+      professional_summary: '',
+      key_achievements: [],
+      work_experience: [],
+      education: [],
+      skills: [],
+      extracted_text: extractedText
+    }
+    
+    // Process each section extraction result
+    for (let i = 0; i < extractionResults.length; i++) {
+      const result = extractionResults[i]
+      
+      if (result.status === 'fulfilled') {
+        const { section, data } = result.value
+        console.log(`✅ Section '${section}' extracted successfully`)
+        
+        // Merge data based on section type
+        if (section === 'personal_info' && data.name) {
+          mergedData.personal_info = data
+        } else if (section === 'summary' && data.professional_summary) {
+          mergedData.professional_summary = data.professional_summary
+        } else if (section === 'key_achievements' && data.key_achievements) {
+          mergedData.key_achievements = data.key_achievements
+        } else if (section === 'work_experience' && data.work_experience) {
+          mergedData.work_experience = data.work_experience
+        } else if (section === 'education' && data.education) {
+          mergedData.education = data.education
+        } else if (section === 'skills' && data.skills) {
+          mergedData.skills = data.skills
+        }
+      } else {
+        console.error(`Section extraction failed:`, result.reason)
+      }
+    }
+    
+    const totalTime = Date.now() - totalStart
+    console.log(`🎉 Total processing time: ${totalTime}ms (Stage 1: ${stage1Time}ms, Stage 2: ${stage2Time}ms)`)
+    console.log(`📊 Final totals:`, {
+      name: mergedData.personal_info?.name || 'Unknown',
+      jobs: mergedData.work_experience?.length || 0,
+      skills: mergedData.skills?.length || 0,
+      achievements: mergedData.key_achievements?.length || 0,
+      education: mergedData.education?.length || 0
+    })
+    
+    return mergedData
+    
+  } catch (error) {
+    console.error('❌ 2-stage parsing failed:', error)
+    console.error('Falling back to gpt-4.1-mini...')
+    
+    // Fallback to gpt-4.1-mini if nano fails
+    return await parseCVFallback(extractedText, sessionId)
+  }
+}
+*/
+
+// Fallback function using gpt-4.1-mini for more reliable parsing
+async function parseCVFallback(extractedText: string, sessionId: string) {
+  console.log('🔄 Using fallback parser with gpt-4.1-mini')
+  const openai = getOpenAIClient()
+  const path = await import('path')
+  const { writeFile } = await import('fs/promises')
+  
+  const fallbackPrompt = `Extract ALL data from this CV. Return ONLY valid JSON:
+
+${extractedText}
+
+Format:
+{
+  "personal_info": {"name": "", "email": "", "phone": "", "address": "", "linkedin": "", "website": "", "tagline": ""},
+  "professional_summary": "",
+  "key_achievements": [],
+  "work_experience": [{"title": "", "company": "", "start_date": "", "end_date": "", "description_items": []}],
+  "education": [{"degree": "", "institution": "", "start_date": "", "end_date": "", "description": ""}],
+  "skills": [{"name": "", "level": 80}]
+}`
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4.1-mini',
+    messages: [
+      { role: 'system', content: 'Extract ALL CV data. DO NOT invent skills. Return only valid JSON.' },
+      { role: 'user', content: fallbackPrompt }
+    ],
+    temperature: 0,
+    response_format: { type: 'json_object' },
+    service_tier: 'default'
+  })
+  
+  const content = response.choices[0].message.content || '{}'
+  const data = JSON.parse(content)
+  
+  // Save fallback response
+  const fallbackPath = path.join(process.cwd(), 'public', `fallback-${sessionId}.json`)
+  await writeFile(fallbackPath, JSON.stringify(data, null, 2), 'utf-8')
+  
+  data.extracted_text = extractedText
+  return data
+}
+
+/* OLD SINGLE-REQUEST CODE - KEEPING FOR REFERENCE
   const prompt = `Extract data from this CV text and return JSON. CRITICAL: PRESERVE the original formatting exactly as it appears:
 
 - If the original has bullet points (•, -, *, etc.), extract each bullet as a separate item
@@ -287,7 +815,7 @@ Return JSON:
     // NO FALLBACK - throw the actual error
     throw new Error(`AI CV parsing failed: ${error.message}`)
   }
-}
+  */
 
 export async function POST(request: NextRequest) {
   // Enable detailed error reporting (like PHP error_reporting(E_ALL))
@@ -417,20 +945,23 @@ export async function POST(request: NextRequest) {
     try {
       // Step 1: Extract text from file
       console.log('📄 Extracting text from file...')
-      extractedText = await extractTextFromFile(filePath, file.name)
+      const extraction = await extractTextFromFile(filePath, file.name)
+      extractedText = extraction.fullText
+      const pages = extraction.pages
       
       if (!extractedText.trim()) {
         throw new Error('No text could be extracted from the file')
       }
       
-      console.log('✅ Text extracted successfully, length:', extractedText.length)
+      console.log('✅ Text extracted successfully, length:', extractedText.length, 'pages:', pages.length)
       
-      // Step 2: Parse extracted text with AI
-      console.log('🤖 Parsing CV data with AI...')
+      // Step 2: Parse extracted text with AI IN PARALLEL BY PAGE
+      console.log('🤖 Parsing CV data with AI in parallel...')
       console.log('📏 Input text length:', extractedText.length)
+      console.log('📄 Pages to process:', pages.length)
       console.log('📝 First 200 chars:', extractedText.substring(0, 200))
       
-      const extractionResult = await parseCV(extractedText, sessionId)
+      const extractionResult = await parseCV(extractedText, pages, sessionId)
       
       console.log('🔍 FULL Extraction result received:', {
         hasError: !!extractionResult.error,
@@ -503,6 +1034,7 @@ export async function POST(request: NextRequest) {
           location: extractionResult.personal_info?.address || null,
           linkedin_url: extractionResult.personal_info?.linkedin || null,
           website_url: extractionResult.personal_info?.website || null,
+          tagline: extractionResult.personal_info?.tagline || null,
           professional_summary: extractionResult.professional_summary || null,
           work_experience: extractionResult.work_experience || [],
           education: extractionResult.education || [],

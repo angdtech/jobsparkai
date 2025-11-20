@@ -1,0 +1,189 @@
+```json
+{
+  "personal_info": {
+    "name": "ANGELINA MENCHON DYER, MSC",
+    "email": "",
+    "phone": "",
+    "address": "",
+    "linkedin": "",
+    "tagline": "Product Leader | Driving Innovation, Amazing Customer Experiences, AI & Cutting-Edge Technology"
+  },
+  "professional_summary": "Experienced Product Manager with 11 years working in the tech industry, specialising in driving product vision and strategy within digital and innovation environments. Skilled at driving the launch of greenfield products to deliver IoT, cloud, and AI-powered solutions. Seeking product manager or product owner roles in startups or established companies focused on innovative technologies and revenue growth.",
+  "work_experience": [
+    {
+      "title": "Senior Product Manager (Contract)",
+      "company": "thebigword",
+      "start_date": "11/2025",
+      "end_date": "04/2025",
+      "description_items": [
+        "Thebigword is a global language technology company, providing translation and interpreting services across government and enterprise sectors. I managed their flagship interpreting product portfolio—a complex B2B2C marketplace platform that provided face-to-face and video remote services, matching interpreters with clients using advanced machine learning and algorithmic logic. High-profile users included the Ministry of Justice – MOJ.",
+        "Reprioritised the 2025 roadmap based on commercial impact—replacing a 3–6 month development initiatives with features expected to bring in significantly more value – £100K vs £10K to the business.",
+        "Partnered with compliance and legal teams to implement GDPR-aligned processes, including Right to be Forgotten, ensuring platform compliance across high-sensitivity use cases.",
+        "Led discovery initiatives to understand complex interpreter and client data such as qualifications, interpreter matching and rates to meet compliance standards and complex client-specific rate structures.",
+        "Defined and maintained the feature roadmap for multiple cross-functional business initiatives, aligning with strategic goals and stakeholder priorities.",
+        "Attended client sites and industry summits to gather insights and user feedback, using findings to guide product decisions.",
+        "Initiate and coordinate early-stage planning for a generative AI integration project with an LLM provider, including a proof of concept – POC.",
+        "Line management of a UX designer and Junior Product Manager.",
+        "Worked across multiple platforms (Mobile App & Web) and regions (UK and EU)."
+      ]
+    },
+    {
+      "title": "Senior Product Owner / Product Manager (Contract)",
+      "company": "Jet2 Holidays (Package Holiday Provider)",
+      "start_date": "01/2024",
+      "end_date": "11/2024",
+      "description_items": [
+        "Covered a maternity leave, led Jet2's Pre-Travel data workstream and contributing to the overall strategy and roadmap. Leading the first-ever use of Generative AI within the workstream to analyse data and generate insights for strategic decision-making, aimed at driving millions in cost savings.",
+        "Managed a cross-functional team of business analysts, data engineering, data scientists, data visualisation experts, project management, stakeholders, SMEs.",
+        "Collaborating with stakeholders to validate strategic direction and prioritise the data roadmap.",
+        "Worked within a complex digital (data & product) transformation environment.",
+        "Delivered initiatives supporting data quality and governance processes.",
+        "Conducted market research on AI LLM models, Generative AI, and machine learning to support product delivery.",
+        "Mentored product managers, both senior and junior product managers."
+      ]
+    },
+    {
+      "title": "Product Manager (Contract)",
+      "company": "PWC (Digital Consultancy)",
+      "start_date": "04/2023",
+      "end_date": "10/2023",
+      "description_items": [
+        "Helped secure proposals for a portfolio of internal projects valued at £100K, with potential cost savings in the millions. Led the launch of projects focused on the automation of processes to enhance data workflows and improve overall workforce productivity.",
+        "Led multiple compliance and risk assessments, particularly in highly regulated sectors (e.g. financial audits at PwC), ensuring secure and responsible product delivery.",
+        "Led product discovery sessions to understand business value of launching products by looking at pain points, possible gains and overall impact within the business.",
+        "Managed a cross-functional development team (developers, UI/UX designers, testers) to deliver low-code internal data products.",
+        "Collaborated with stakeholders to build strategic product roadmaps, introducing practices such as the RICE model.",
+        "Budget tracking across multiple product. Contributed as a member of the Product Management Community of Practice, supported colleagues with product knowledge."
+      ]
+    },
+    {
+      "title": "Senior Product Manager (Contract)",
+      "company": "BBC Bitesize (Broadcasting & Education)",
+      "start_date": "01/2023",
+      "end_date": "03/2023",
+      "description_items": [
+        "Delivered a strategic roadmap for the BBC to increase user engagement, aligned with business goals. Conducted extensive research, utilising external user research results and internal data analytics, to enhance customer journeys and optimise user experience.",
+        "Led a discovery project to enhance site engagement, working closely with stakeholders.",
+        "Utilised research and collaborated with data analysts to set up key insights and reporting.",
+        "Provided product strategy and roadmap recommendations.",
+        "Worked with stakeholders (Editorial, leads, product managers, UI/UX) to bring concepts to life.",
+        "Operated within a technology change and transformation environment."
+      ]
+    },
+    {
+      "title": "Director of Product",
+      "company": "H&C TV (Equestrian Video Subscription Service)",
+      "start_date": "12/2018",
+      "end_date": "07/2022",
+      "description_items": [
+        "Managed the Customer Experience and Product departments, delivering key roadmap initiatives aligned with business goals. These efforts contributed to a significant financial turnaround, increasing revenue from a negative position to £3M with strong year-on-year growth.",
+        "Promoted to Director within a year by aligning product delivery with commercial objectives, driving platform growth across mobile, web, and connected TV.",
+        "Partnered with marketing to develop CRM journeys across email, app, and push notifications, improving onboarding and increasing lifetime engagement.",
+        "Reported directly to the CEO & Chairman.",
+        "Management of the H&C TV website and apps (IOS, Android, Amazon Fire TV, Roku, Samsung, Comcast).",
+        "Managing a team of 20 with team 8 direct reports: Head of operations, Development teams (including external technology partners), UI/UX and Product Owner.",
+        "Created and delivered the digital product strategy and roadmap across all digital platforms.",
+        "Prioritised features based on commercial goals and development effort, ensuring the roadmap focused on high-value, strategically aligned work.",
+        "Launched a cloud-based video subscription service across a suite of website, mobile and TV applications globally.",
+        "Reviewed and negotiated contracts for all external technology partners.",
+        "Tracking of key KPIs: App downloads, acquisitions, engagement metrics, funnel, exit survey results, customer survey feedback and customer feedback via Facebook and the customer support team.",
+        "Utilised various methods to collect feedback and analytical data to identify user pain points to feed into the product roadmap.",
+        "Managed stakeholders at all levels, including the CEO, Co-Founder, Marketing Director, Director of Content, and Creative Director, ensuring alignment and successful delivery of initiatives.",
+        "Developed an MVP for a content recommendation engine that enhanced discovery through curated and related content."
+      ]
+    },
+    {
+      "title": "Senior Product Manager (Contract)",
+      "company": "Sero Life Ltd (IoT Energy Supplier)",
+      "start_date": "07/2022",
+      "end_date": "11/2022",
+      "description_items": [
+        "Led a portfolio of products, including an app that had been delayed for 9 months due to technical issues after £100K had been spent. Managed cross-functional teams (development, marketing, and customer service) to successfully release the app within 4 months, saving an additional £100K by utilising internal development teams. The timely release prevented customer complaints.",
+        "Managed a product portfolio of apps and internal platforms, leading a cross-functional team (internal & external).",
+        "Conducted B2B customer feedback meetings to improve internal products and services.",
+        "Led product planning and prioritisation sessions with stakeholders.",
+        "Implemented product launch plans and collected data insights for roadmap features.",
+        "Collaborated with the CEO and co-founder, marketing, development teams (internal & external), UI/UX, customer teams & PMO.",
+        "Managed the Integration of hardware with apps and web applications, processing complex data.",
+        "Utilised customer data to understand pain points through feedback and tested a legacy app to drive improvements."
+      ]
+    },
+    {
+      "title": "Product Manager",
+      "company": "ID Mobile (Carphone Warehouse)",
+      "start_date": "02/2018",
+      "end_date": "12/2018",
+      "description_items": [
+        "I led the creation and execution of the digital self-service roadmap for ID Mobile’s customer portal, collaborating with stakeholders, UI/UX teams, and external agencies. This initiative resulted in a revenue uplift of £250K–£500K and achieved £300K in cost savings for the call centre. I also used data analytics, customer feedback, and competitor analysis to shape the product strategy and introduced new service campaigns to enhance customer engagement across the app and web."
+      ]
+    },
+    {
+      "title": "Product Manager (Contract)",
+      "company": "Simply Be (N Brown Retail Group)",
+      "start_date": "09/2016",
+      "end_date": "07/2017",
+      "description_items": [
+        "I launched Simply Be’s first-ever app, taking it from concept to delivery, and worked directly with Simply Be's external development supplier and senior leadership (CEO/CTO) to ensure its success. In a start-up innovation environment, I communicated the product vision and led the roadmap planning. I also utilised customer feedback and Google Analytics data to help with decisions on the roadmap, enhancing the customer journey as part of the company’s broader digital transformation effort. Integration with app supplier APIs."
+      ]
+    },
+    {
+      "title": "Additional Product Roles",
+      "company": "",
+      "start_date": "01/2014",
+      "end_date": "01/2018",
+      "description_items": [
+        "Product Manager at HCL Technologies (Contract)",
+        "Product Owner at River Island (Contract)",
+        "Product Analyst at Aimia Data & Analytics",
+        "Restaurant Solutions Analyst at McDonalds"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "MSc in Computer Science",
+      "institution": "University of Kent",
+      "start_date": "01/2012",
+      "end_date": "01/2013",
+      "description": ""
+    },
+    {
+      "degree": "BA (Hons) International Business Management",
+      "institution": "London Metropolitan University",
+      "start_date": "01/2008",
+      "end_date": "01/2012",
+      "description": ""
+    }
+  ],
+  "skills": {
+    "programming_languages": [
+      {"name": "JavaScript", "level": 85},
+      {"name": "Python", "level": 80},
+      {"name": "Java", "level": 75},
+      {"name": "C#", "level": 70}
+    ],
+    "tools_software": [
+      {"name": "Photoshop", "level": 80},
+      {"name": "Microsoft Office", "level": 85},
+      {"name": "Jira", "level": 80},
+      {"name": "Confluence", "level": 75}
+    ],
+    "frameworks_libraries": [
+      {"name": "React", "level": 90},
+      {"name": "Angular", "level": 80},
+      {"name": "Laravel", "level": 75},
+      {"name": "Spring", "level": 70}
+    ],
+    "databases": [
+      {"name": "MySQL", "level": 75},
+      {"name": "PostgreSQL", "level": 70},
+      {"name": "MongoDB", "level": 65}
+    ],
+    "other": [
+      {"name": "Project Management", "level": 80},
+      {"name": "Agile", "level": 85},
+      {"name": "Leadership", "level": 80}
+    ]
+  }
+}
+```

@@ -23,11 +23,11 @@ export default function AboutUsSection() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 border border-white/20">
             <p className="text-lg text-white leading-relaxed mb-6">
-              The job industry is very bad at the moment, and we decided to shake up the industry by offering low-cost access to CV editing functionality, giving you the help you want.
+              The job industry is very bad at the moment, and we decided to shake up the industry by offering low-cost access to resume editing functionality, giving you the help you want.
             </p>
             
             <p className="text-lg text-white leading-relaxed mb-6">
-              We're a bespoke, family-run platform dedicated to helping job seekers stand out in a competitive market. Our mission is to make professional CV optimization accessible to everyone, not just those who can afford expensive career coaching services.
+              We're a bespoke, family-run platform dedicated to helping job seekers stand out in a competitive market. Our mission is to make professional resume optimization accessible to everyone, not just those who can afford expensive career coaching services.
             </p>
 
             <p className="text-lg text-white leading-relaxed">

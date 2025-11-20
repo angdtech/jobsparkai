@@ -288,16 +288,26 @@ ${cvText.substring(0, 3000)}` }
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
-  console.log('🚀 PROGRESSIVE Upload + Parsing started:', new Date().toISOString())
+  console.log('\n🚀 [UPLOAD API] ========== PROGRESSIVE UPLOAD STARTED ==========', new Date().toISOString())
   
   try {
+    console.log('📥 [UPLOAD API] Step 1: Receiving form data...', Date.now() - startTime, 'ms')
     const formData = await request.formData()
     const file = formData.get('cv_file') as File
     const sessionId = formData.get('session_id') as string
 
     if (!file || !sessionId) {
+      console.log('❌ [UPLOAD API] Missing file or session ID')
       return NextResponse.json({ error: 'File and session ID required' }, { status: 400 })
     }
+    
+    console.log('✅ [UPLOAD API] Form data received:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      sessionId,
+      elapsed: Date.now() - startTime + 'ms'
+    })
 
     const allowedTypes = [
       'application/pdf',
@@ -311,12 +321,15 @@ export async function POST(request: NextRequest) {
     }
 
     // STEP 1: Upload to Supabase Storage
+    console.log('\n📤 [UPLOAD API] Step 2: Preparing file upload to Supabase Storage...', Date.now() - startTime, 'ms')
     const timestamp = Date.now()
     const fileExtension = path.extname(file.name)
     const fileName = `${sessionId}-${timestamp}${fileExtension}`
 
+    console.log('🔄 [UPLOAD API] Converting file to buffer...', Date.now() - startTime, 'ms')
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    console.log('✅ [UPLOAD API] Buffer created, size:', buffer.length, 'bytes')
     
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
@@ -332,17 +345,26 @@ export async function POST(request: NextRequest) {
     }
     
     const filePath = uploadData.path
-    console.log('✅ File uploaded to Supabase:', Date.now() - startTime, 'ms')
+    console.log('✅ [UPLOAD API] File uploaded to Supabase Storage:', {
+      path: filePath,
+      elapsed: Date.now() - startTime + 'ms'
+    })
 
     // STEP 2: Extract text from buffer
+    console.log('\n📄 [UPLOAD API] Step 3: Extracting text from file...', Date.now() - startTime, 'ms')
     const extractedText = await extractTextFromBuffer(buffer, file.name)
-    console.log('✅ Text extracted:', Date.now() - startTime, 'ms, length:', extractedText.length)
+    console.log('✅ [UPLOAD API] Text extracted:', {
+      textLength: extractedText.length,
+      elapsed: Date.now() - startTime + 'ms',
+      preview: extractedText.substring(0, 100) + '...'
+    })
 
     if (!extractedText.trim() || extractedText.length < 50) {
       throw new Error('No text could be extracted from the file')
     }
 
     // STEP 3: Extract work experience section and split into individual jobs
+    console.log('\n🔍 [UPLOAD API] Step 4: Extracting work experience section...', Date.now() - startTime, 'ms')
     const workExpText = extractWorkExperienceText(extractedText)
     console.log('📄 Work experience section text length:', workExpText.length)
     console.log('📄 Work experience section preview (first 500 chars):', workExpText.substring(0, 500))
@@ -355,7 +377,8 @@ export async function POST(request: NextRequest) {
     })
 
     // STEP 4: PARALLEL PARSING - All sections + each job separately!
-    console.log(`🚀 Starting ${3 + jobTexts.length} parallel parsing calls...`)
+    console.log(`\n🤖 [UPLOAD API] Step 5: Starting ${3 + jobTexts.length} parallel AI parsing calls...`, Date.now() - startTime, 'ms')
+    const parseStartTime = Date.now()
     const openai = getOpenAIClient()
     
     const [
@@ -370,7 +393,11 @@ export async function POST(request: NextRequest) {
       ...jobTexts.map((jobText, index) => parseSingleWorkExperience(openai, jobText, index))
     ])
     
-    console.log(`✅ ${3 + jobTexts.length} parallel parsing calls completed:`, Date.now() - startTime, 'ms')
+    const parseEndTime = Date.now()
+    console.log(`✅ [UPLOAD API] ${3 + jobTexts.length} parallel parsing calls completed:`, {
+      totalElapsed: Date.now() - startTime + 'ms',
+      parseTime: (parseEndTime - parseStartTime) + 'ms'
+    })
 
     // STEP 5: Combine parsing results
     console.log('\n📊 Raw parsing results:')
@@ -413,6 +440,7 @@ export async function POST(request: NextRequest) {
     })
 
     // STEP 6: Save to database
+    console.log('\n💾 [UPLOAD API] Step 6: Saving to database...', Date.now() - startTime, 'ms')
     const { data: sessionData } = await supabaseAdmin
       .from('auth_cv_sessions')
       .select('auth_user_id')
@@ -469,8 +497,12 @@ export async function POST(request: NextRequest) {
     console.log('💾 Content insert result:', contentInsert.error || 'SUCCESS')
 
     const totalTime = Date.now() - startTime
-    console.log('\n🎉 CV PARSED PROGRESSIVELY in', totalTime, 'ms')
-    console.log('🎉 Total jobs saved to DB:', cvContentData.work_experience.length)
+    console.log('\n🎉 [UPLOAD API] ========== UPLOAD COMPLETE ==========', {
+      totalTime: totalTime + 'ms',
+      totalSeconds: Math.round(totalTime / 1000) + 's',
+      jobsSaved: cvContentData.work_experience.length,
+      timestamp: new Date().toISOString()
+    })
 
     return NextResponse.json({
       success: true,

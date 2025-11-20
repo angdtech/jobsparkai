@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="col-span-1">
             <h3 className="text-xl font-bold mb-4">JobSpark AI</h3>
             <p className="text-gray-400 text-sm">
-              Transform your CV with AI-powered insights and stand out from the crowd.
+              Transform your resume with AI-powered insights and stand out from the crowd.
             </p>
           </div>
 

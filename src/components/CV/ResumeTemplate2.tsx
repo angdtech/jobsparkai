@@ -182,6 +182,9 @@ export function ResumeTemplate2({
     current[pathArray[pathArray.length - 1]] = value
     
     setEditData(newData)
+    if (onDataChange) {
+      onDataChange(newData)
+    }
   }
 
   const updateArrayItem = (arrayName: string, index: number, field: string, value: any) => {
@@ -601,13 +604,15 @@ export function ResumeTemplate2({
                       <h4 className="text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
                         {categoryDisplayNames[category] || category.replace('_', ' ')}
                       </h4>
-                      <ul className="space-y-1 ml-2">
+                      <ul className="space-y-2">
                         {skillList.map((skill, index) => (
-                          <li key={`${category}-${index}`} className="text-sm text-white flex items-center group"
+                          <li 
+                            key={`${category}-${index}`}
+                            className="flex items-center group"
                             onMouseEnter={() => setHoveredSkillDelete(`${category}-${index}`)}
                             onMouseLeave={() => setHoveredSkillDelete(null)}
                           >
-                            <span className="mr-2">•</span>
+                            <span className="mr-2 text-white">•</span>
                             <input
                               type="text"
                               value={typeof skill === 'string' ? skill : skill.name}
@@ -622,12 +627,12 @@ export function ResumeTemplate2({
                                   onDataChange(newData)
                                 }
                               }}
-                              className="flex-1 text-sm text-white bg-transparent border-none outline-none hover:bg-gray-600 focus:bg-gray-600 focus:border focus:border-blue-300 rounded px-2 py-1 -mx-2 -my-1"
-                              placeholder="Skill name"
+                              className="flex-1 text-white bg-transparent border-none outline-none hover:bg-gray-600 focus:bg-gray-600 focus:border focus:border-blue-300 rounded px-2 py-1"
+                              placeholder="Skill"
                             />
                             {hoveredSkillDelete === `${category}-${index}` && (
                               <span 
-                                className="ml-2 text-blue-400 hover:text-blue-300 cursor-pointer transition-opacity"
+                                className="ml-2 text-blue-400 hover:text-blue-300 cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   const newData = { ...currentData }
@@ -648,95 +653,95 @@ export function ResumeTemplate2({
                             )}
                           </li>
                         ))}
-                        <li>
-                          <button
-                            onClick={() => {
-                              const newData = { ...currentData }
-                              if (typeof newData.skills === 'object' && !Array.isArray(newData.skills)) {
-                                if (Array.isArray(newData.skills[category])) {
-                                  newData.skills[category].push('New Skill')
-                                }
+                        </ul>
+                        <button
+                          onClick={() => {
+                            const newData = { ...currentData }
+                            if (typeof newData.skills === 'object' && !Array.isArray(newData.skills)) {
+                              if (Array.isArray(newData.skills[category])) {
+                                newData.skills[category].push('New Skill')
                               }
-                              if (onDataChange) {
-                                onDataChange(newData)
-                              }
-                            }}
-                            className="text-xs text-blue-300 hover:text-blue-200 ml-2"
-                          >
-                            + Add
-                          </button>
-                        </li>
-                      </ul>
+                            }
+                            if (onDataChange) {
+                              onDataChange(newData)
+                            }
+                          }}
+                          className="text-xs text-blue-300 hover:text-blue-200 mt-2"
+                        >
+                          + Add
+                        </button>
                     </div>
                   )
                 })}
               </div>
             ) : (
               // Old simple array format (fallback)
-              <ul className="space-y-2">
-                {(Array.isArray(currentData.skills) ? currentData.skills : []).map((skill, index) => (
-                  <li key={skill.id || index} className="flex items-center group"
-                    onMouseEnter={() => setHoveredSkillDelete(index)}
-                    onMouseLeave={() => setHoveredSkillDelete(null)}
-                  >
-                    <span className="mr-2 text-white">•</span>
-                    <input
-                      type="text"
-                      value={skill.name}
-                      onChange={(e) => {
-                        const newData = { ...currentData }
-                        if (Array.isArray(newData.skills)) {
-                          newData.skills[index].name = e.target.value
-                        }
-                        if (onDataChange) {
-                          onDataChange(newData)
-                        }
-                      }}
-                      className="flex-1 text-sm text-white bg-transparent border-none outline-none hover:bg-gray-600 focus:bg-gray-600 focus:border focus:border-blue-300 rounded px-2 py-1 -mx-2 -my-1"
-                      placeholder="Skill name"
-                    />
-                    {hoveredSkillDelete === index && (
-                      <span 
-                        className="ml-2 text-blue-400 hover:text-blue-300 cursor-pointer transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation()
+              <div>
+                <ul className="space-y-2">
+                  {(Array.isArray(currentData.skills) ? currentData.skills : []).map((skill, index) => (
+                    <li 
+                      key={skill.id || index}
+                      className="flex items-center group"
+                      onMouseEnter={() => setHoveredSkillDelete(index)}
+                      onMouseLeave={() => setHoveredSkillDelete(null)}
+                    >
+                      <span className="mr-2 text-white">•</span>
+                      <input
+                        type="text"
+                        value={skill.name}
+                        onChange={(e) => {
                           const newData = { ...currentData }
                           if (Array.isArray(newData.skills)) {
-                            newData.skills.splice(index, 1)
+                            newData.skills[index].name = e.target.value
                           }
                           if (onDataChange) {
                             onDataChange(newData)
                           }
-                          setHoveredSkillDelete(null)
                         }}
-                        title="Delete skill"
-                      >
-                        ×
-                      </span>
-                    )}
-                  </li>
-                ))}
-                <li>
-                  <button
-                    onClick={() => {
-                      const newData = { ...currentData }
-                      if (Array.isArray(newData.skills)) {
-                        newData.skills.push({
-                          id: `skill-${Date.now()}`,
-                          name: 'New Skill',
-                          level: 80
-                        })
-                      }
-                      if (onDataChange) {
-                        onDataChange(newData)
-                      }
-                    }}
-                    className="text-sm text-blue-300 hover:text-blue-200 mt-2"
-                  >
-                    + Add Skill
-                  </button>
-                </li>
-              </ul>
+                        className="flex-1 text-white bg-transparent border-none outline-none hover:bg-gray-600 focus:bg-gray-600 focus:border focus:border-blue-300 rounded px-2 py-1"
+                        placeholder="Skill"
+                      />
+                      {hoveredSkillDelete === index && (
+                        <span 
+                          className="ml-2 text-blue-400 hover:text-blue-300 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            const newData = { ...currentData }
+                            if (Array.isArray(newData.skills)) {
+                              newData.skills.splice(index, 1)
+                            }
+                            if (onDataChange) {
+                              onDataChange(newData)
+                            }
+                            setHoveredSkillDelete(null)
+                          }}
+                          title="Delete skill"
+                        >
+                          ×
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => {
+                    const newData = { ...currentData }
+                    if (Array.isArray(newData.skills)) {
+                      newData.skills.push({
+                        id: `skill-${Date.now()}`,
+                        name: 'New Skill',
+                        level: 80
+                      })
+                    }
+                    if (onDataChange) {
+                      onDataChange(newData)
+                    }
+                  }}
+                  className="text-xs text-blue-300 hover:text-blue-200 ml-2 mt-2"
+                >
+                  + Add
+                </button>
+              </div>
             )}
           </div>
 
@@ -768,6 +773,16 @@ export function ResumeTemplate2({
                 placeholder="Your Name"
               />
             </h1>
+            <div className="text-lg text-gray-700 mt-2">
+              <EditableText
+                text={currentData.personalInfo.tagline || ''}
+                comments={getCommentsForText?.(currentData.personalInfo.tagline || '') || []}
+                onShowComments={onShowComments}
+                onTextChange={(newText) => updateField('personalInfo.tagline', newText)}
+                className="text-lg text-gray-700"
+                placeholder="Add Professional Title or Tagline"
+              />
+            </div>
           </div>
 
           {/* Profile */}
@@ -786,388 +801,51 @@ export function ResumeTemplate2({
               />
             </h3>
             
-            {/* Summary Analysis Section - Show when tagline is complete and summary is the next task */}
-            {currentData.personalInfo.tagline && !isEditing && (
-              (() => {
-                const summary = currentData.personalInfo.summary || ''
-                const hasGoodLength = summary.length > 100 && summary.length < 600
-                const hasQuantifiedResults = /\d+[%$]|\d+\s*(years?|months?)|increased|improved|reduced|grew|achieved/i.test(summary)
-                const hasActionVerbs = /led|managed|developed|created|implemented|delivered|optimized|launched|spearheaded|established|recognized|driving|proven/i.test(summary)
-                const hasRelevantKeywords = /product\s*manager|digital|mobile|agile|strategy|roadmap|stakeholder|user\s*experience|data\s*driven|strategic|innovation|automation|engagement|leadership/i.test(summary)
-                const isWellStructured = summary.split('.').length >= 3
-                
-                const improvementNeeded = !hasGoodLength || !hasQuantifiedResults || !hasActionVerbs || !hasRelevantKeywords || !isWellStructured
-                
-                if (summary.length < 50) {
-                  // No summary or very short summary
-                  return (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-                      <div className="text-center mb-4">
-                        <h4 className="text-lg font-semibold text-gray-800 mb-1">Add Professional Summary</h4>
-                        <p className="text-sm text-gray-600">Recruiters read this first - make it count!</p>
-                      </div>
-                      
-                      {!showSummaryQuestions ? (
-                        <>
-                          {/* Options to get started */}
-                          <div className="space-y-3 mb-4">
-                            <button
-                              onClick={() => setShowSummaryQuestions(true)}
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              ✨ Create Personalized Summary (Recommended)
-                            </button>
-                            <p className="text-xs text-gray-600 text-center">Answer 6 quick questions for a tailored summary</p>
-                          </div>
-                          
-                          <div className="text-center text-xs text-gray-500 mb-3">or</div>
-                          
-                          {/* AI Suggested Summary */}
-                          <div className="bg-white rounded-lg border border-blue-200 p-4 mb-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">GENERIC AI SUGGESTION</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                              Experienced Digital Product Manager with 8+ years driving product strategy and delivery for mobile apps and web platforms. Successfully delivered £1M+ cost savings through strategic self-service initiatives at iD Mobile, while increasing customer engagement and CLV. Expert in stakeholder management, agile delivery, and data-driven decision making across telecommunications, e-commerce, and fintech industries.
-                            </p>
-                            <button
-                              onClick={() => {
-                                const newData = { ...currentData }
-                                newData.personalInfo.summary = 'Experienced Digital Product Manager with 8+ years driving product strategy and delivery for mobile apps and web platforms. Successfully delivered £1M+ cost savings through strategic self-service initiatives at iD Mobile, while increasing customer engagement and CLV. Expert in stakeholder management, agile delivery, and data-driven decision making across telecommunications, e-commerce, and fintech industries.'
-                                if (onDataChange) {
-                                  onDataChange(newData)
-                                }
-                              }}
-                              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              Use Generic Version
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        /* Interactive Questionnaire */
-                        <div className="space-y-4">
-                          <div className="text-center mb-4">
-                            <h5 className="text-md font-semibold text-gray-800 mb-1">Let's Create Your Perfect Summary</h5>
-                            <p className="text-xs text-gray-600">Answer these questions to get a personalized, compelling summary</p>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">What role are you targeting?</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., Senior Product Manager, Marketing Director"
-                                value={summaryAnswers.targetRole}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, targetRole: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">How many years of relevant experience?</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., 8+, 5-7, 3"
-                                value={summaryAnswers.yearsExperience}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, yearsExperience: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">What's your biggest professional achievement? (include numbers)</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., delivered £1M+ cost savings, increased conversion by 40%"
-                                value={summaryAnswers.keyAchievement}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, keyAchievement: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">What's your key specialization/expertise?</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., mobile app development, digital transformation, agile delivery"
-                                value={summaryAnswers.specialization}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, specialization: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">Which industry/sector?</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., telecommunications, e-commerce, fintech, healthcare"
-                                value={summaryAnswers.industryFocus}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, industryFocus: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs font-medium text-gray-700 block mb-1">What makes you unique? (skills, traits, approach)</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., data-driven decision making, stakeholder management, cross-functional leadership"
-                                value={summaryAnswers.uniqueValue}
-                                onChange={(e) => setSummaryAnswers({...summaryAnswers, uniqueValue: e.target.value})}
-                                className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="flex space-x-2 pt-3">
-                            <button
-                              onClick={() => {
-                                const personalizedSummary = generatePersonalizedSummary()
-                                const newData = { ...currentData }
-                                newData.personalInfo.summary = personalizedSummary
-                                if (onDataChange) {
-                                  onDataChange(newData)
-                                }
-                                setShowSummaryQuestions(false)
-                              }}
-                              disabled={!summaryAnswers.targetRole || !summaryAnswers.yearsExperience}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              Generate My Summary
-                            </button>
-                            <button
-                              onClick={() => setShowSummaryQuestions(false)}
-                              className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Why it matters */}
-                      <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 mt-4">
-                        <p className="text-xs text-blue-800">
-                          <strong>Why this matters:</strong> Your summary is the first substantial content recruiters read. It should immediately demonstrate your value, quantify your impact, and show relevant experience for the role.
-                        </p>
-                      </div>
-                    </div>
-                  )
-                } else if (improvementNeeded) {
-                  // Existing summary needs improvement
-                  return (
-                    <div className="space-y-4 mb-6">
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        <SmartText 
-                          text={currentData.personalInfo.summary}
-                          comments={getCommentsForText?.(currentData.personalInfo.summary) || []}
-                          onShowComments={onShowComments}
-                        />
-                      </p>
-                      
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-sm text-yellow-800 mb-3">
-                          💡 Your summary could be stronger. Here's what's missing:
-                        </p>
-                        <ul className="text-xs text-yellow-700 space-y-1 mb-4">
-                          {!hasGoodLength && <li>• Aim for 2-3 sentences (100-400 characters) for optimal impact</li>}
-                          {!hasQuantifiedResults && <li>• Add specific numbers, percentages, or measurable achievements</li>}
-                          {!hasActionVerbs && <li>• Use strong action verbs like "led," "delivered," "increased"</li>}
-                          {!hasRelevantKeywords && <li>• Include relevant role keywords that ATS systems scan for</li>}
-                          {!isWellStructured && <li>• Structure as: Role + Experience + Key Achievement + Value Proposition</li>}
-                        </ul>
-                        
-                        <div className="space-y-2">
-                          <div className="bg-white rounded-lg border border-yellow-300 p-3">
-                            <div className="text-xs font-medium text-yellow-700 mb-2">✨ IMPROVED VERSION:</div>
-                            <p className="text-sm text-gray-700 mb-3">
-                              Strategic Digital Product Manager with 8+ years of proven expertise driving mobile app and web platform innovation. Delivered £1M+ in measurable cost savings through self-service automation at iD Mobile while boosting customer engagement by 25% and CLV by 18%. Recognized leader in stakeholder alignment, agile delivery, and data-driven product decisions across telecommunications, e-commerce, and fintech sectors.
-                            </p>
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => {
-                                  console.log('🔄 Use Improved Version clicked')
-                                  const newData = { ...currentData }
-                                  const improvedSummary = 'Strategic Digital Product Manager with 8+ years of proven expertise driving mobile app and web platform innovation. Delivered £1M+ in measurable cost savings through self-service automation at iD Mobile while boosting customer engagement by 25% and CLV by 18%. Recognized leader in stakeholder alignment, agile delivery, and data-driven product decisions across telecommunications, e-commerce, and fintech sectors.'
-                                  newData.personalInfo.summary = improvedSummary
-                                  console.log('📝 Updated summary:', improvedSummary)
-                                  console.log('🔄 Calling onDataChange with:', newData)
-                                  if (onDataChange) {
-                                    onDataChange(newData)
-                                  }
-                                }}
-                                className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-xs font-medium"
-                              >
-                                Use Improved Version
-                              </button>
-                              <button
-                                onClick={() => setShowSummaryQuestions(true)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium"
-                              >
-                                ✨ Create Personal Version
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Show questionnaire if requested */}
-                        {showSummaryQuestions && (
-                          <div className="bg-blue-50 rounded-lg border border-blue-300 p-4 mt-3">
-                            <div className="text-center mb-4">
-                              <h5 className="text-md font-semibold text-gray-800 mb-1">Let's Create Your Perfect Summary</h5>
-                              <p className="text-xs text-gray-600">Answer these questions to get a personalized, compelling summary</p>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">What role are you targeting?</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., Senior Product Manager, Marketing Director"
-                                  value={summaryAnswers.targetRole}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, targetRole: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">How many years of relevant experience?</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., 8+, 5-7, 3"
-                                  value={summaryAnswers.yearsExperience}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, yearsExperience: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">What's your biggest professional achievement? (include numbers)</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., delivered £1M+ cost savings, increased conversion by 40%"
-                                  value={summaryAnswers.keyAchievement}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, keyAchievement: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">What's your key specialization/expertise?</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., mobile app development, digital transformation, agile delivery"
-                                  value={summaryAnswers.specialization}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, specialization: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">Which industry/sector?</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., telecommunications, e-commerce, fintech, healthcare"
-                                  value={summaryAnswers.industryFocus}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, industryFocus: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 block mb-1">What makes you unique? (skills, traits, approach)</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g., data-driven decision making, stakeholder management, cross-functional leadership"
-                                  value={summaryAnswers.uniqueValue}
-                                  onChange={(e) => setSummaryAnswers({...summaryAnswers, uniqueValue: e.target.value})}
-                                  className="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div className="flex space-x-2 pt-3">
-                              <button
-                                onClick={() => {
-                                  const personalizedSummary = generatePersonalizedSummary()
-                                  const newData = { ...currentData }
-                                  newData.personalInfo.summary = personalizedSummary
-                                  if (onDataChange) {
-                                    onDataChange(newData)
-                                  }
-                                  setShowSummaryQuestions(false)
-                                }}
-                                disabled={!summaryAnswers.targetRole || !summaryAnswers.yearsExperience}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                              >
-                                Generate My Summary
-                              </button>
-                              <button
-                                onClick={() => setShowSummaryQuestions(false)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                } else {
-                  // Summary is good
-                  return (
-                    <div className="space-y-4 mb-6">
-                      <textarea
-                        value={currentData.personalInfo.summary}
-                        onChange={(e) => {
-                          const newData = { ...currentData }
-                          newData.personalInfo.summary = e.target.value
-                          if (onDataChange) {
-                            onDataChange(newData)
-                          }
-                        }}
-                        className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none overflow-hidden"
-                        style={{ minHeight: '60px', height: 'auto' }}
-                        onInput={(e) => {
-                          const target = e.target as HTMLTextAreaElement
-                          target.style.height = 'auto'
-                          target.style.height = target.scrollHeight + 'px'
-                        }}
-                        placeholder="Professional summary describing your experience and expertise"
-                      />
-                      
-                      {showSummaryFeedback && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 transition-opacity duration-500 animate-fade-in">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm text-green-700">
-                              ✓ Excellent summary! Good length, quantified results, and strong action verbs.
-                            </p>
-                            <button
-                              onClick={() => setShowSummaryFeedback(false)}
-                              className="text-green-500 hover:text-green-700 text-xs ml-2"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                }
-              })()
+            {/* Simple summary display */}
+            {!isEditing && (
+              <div className="mb-6">
+                <textarea
+                  ref={(el) => {
+                    if (el) {
+                      el.style.height = 'auto'
+                      el.style.height = el.scrollHeight + 'px'
+                    }
+                  }}
+                  value={currentData.personalInfo.summary}
+                  onChange={(e) => {
+                    const newData = { ...currentData }
+                    newData.personalInfo.summary = e.target.value
+                    if (onDataChange) {
+                      onDataChange(newData)
+                    }
+                  }}
+                  className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none"
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement
+                    target.style.height = 'auto'
+                    target.style.height = target.scrollHeight + 'px'
+                  }}
+                  placeholder="Professional summary describing your experience and expertise"
+                />
+              </div>
             )}
+            
+            {/* Removed old analysis UI */}
             
             {/* Regular summary display when editing or tagline not complete */}
             {(isEditing || !currentData.personalInfo.tagline) && (
               <>
                 {isEditing ? (
                   <textarea
+                    ref={(el) => {
+                      if (el) {
+                        el.style.height = 'auto'
+                        el.style.height = el.scrollHeight + 'px'
+                      }
+                    }}
                     value={currentData.personalInfo.summary}
                     onChange={(e) => updateField('personalInfo.summary', e.target.value)}
-                    className="text-sm text-gray-700 leading-relaxed border border-gray-300 rounded px-3 py-2 w-full resize-none overflow-hidden"
-                    style={{ minHeight: '60px', height: 'auto' }}
+                    className="text-sm text-gray-700 leading-relaxed border border-gray-300 rounded px-3 py-2 w-full resize-none"
                     onInput={(e) => {
                       const target = e.target as HTMLTextAreaElement
                       target.style.height = 'auto'

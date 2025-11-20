@@ -70,9 +70,10 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
               onClick={onGetStarted}
               className="group bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-6 px-12 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-3"
             >
-              <span>Get Started</span>
+              <span>Start Free Trial</span>
               <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
             </button>
+            <p className="text-white/60 text-sm mt-2 sm:mt-0">No credit card required</p>
             
             <div className="text-center">
               <div className="flex items-center space-x-1 text-yellow-400 justify-center mb-2">
@@ -113,7 +114,7 @@ export default function CTASection({ onGetStarted }: CTASectionProps) {
           {/* Final Message */}
           <div className="mt-12 text-white/80 text-lg">
             <p className="mb-2">Ready to land your dream job?</p>
-            <p>Get started and receive instant AI-powered insights</p>
+            <p className="font-semibold text-green-400">Start your free trial now - no credit card required</p>
           </div>
         </div>
       </div>

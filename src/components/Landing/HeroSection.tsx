@@ -9,7 +9,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 md:pt-20">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
@@ -23,18 +23,18 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
 
       <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
         {/* Trust Indicators */}
-        <div className="flex items-center justify-center space-x-6 mb-8 text-white/80">
+        <div className="flex flex-col md:flex-row items-center justify-center md:space-x-6 space-y-2 md:space-y-0 mb-12 text-white/80">
           <div className="flex items-center space-x-1">
             <Users className="h-4 w-4" />
-            <span className="text-sm">Thousands of professionals</span>
+            <span className="text-xs md:text-sm">Thousands of professionals</span>
           </div>
           <div className="flex items-center space-x-1">
             <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm">AI-powered optimization</span>
+            <span className="text-xs md:text-sm">AI-powered optimization</span>
           </div>
           <div className="flex items-center space-x-1">
             <CheckCircle className="h-4 w-4 text-green-400" />
-            <span className="text-sm">Lightning-fast analysis</span>
+            <span className="text-xs md:text-sm">Lightning-fast analysis</span>
           </div>
         </div>
 
@@ -54,15 +54,15 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
             onClick={onGetStarted}
             className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-4 px-12 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
-            Get Started
+            Try Free - No Credit Card Required
           </button>
           <p className="text-white/60 text-sm mt-4">
-            Join thousands of professionals who've improved their resumes
+            ✓ Free trial • ✓ No payment needed • ✓ Cancel anytime
           </p>
         </div>
 
         {/* Quick Preview of Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-white/80">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-white/80 mb-16">
           <div className="text-center">
             <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-400" />
             <div className="font-semibold">Upload Resume</div>
@@ -77,6 +77,47 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
             <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-400" />
             <div className="font-semibold">Get Professional Resume</div>
             <div className="text-sm">Download improved version</div>
+          </div>
+        </div>
+
+        {/* Template Preview */}
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-2xl font-semibold text-white mb-8">Professional Templates</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-lg shadow-2xl p-8 transform hover:scale-105 transition-transform">
+              <div className="bg-gradient-to-br from-blue-50 to-gray-50 rounded p-6">
+                <div className="h-4 bg-gray-800 w-3/4 mb-4 rounded"></div>
+                <div className="h-2 bg-gray-400 w-1/2 mb-6 rounded"></div>
+                <div className="space-y-2 mb-6">
+                  <div className="h-2 bg-gray-300 w-full rounded"></div>
+                  <div className="h-2 bg-gray-300 w-5/6 rounded"></div>
+                  <div className="h-2 bg-gray-300 w-4/6 rounded"></div>
+                </div>
+                <div className="h-3 bg-blue-600 w-2/3 mb-4 rounded"></div>
+                <div className="space-y-2">
+                  <div className="h-2 bg-gray-300 w-full rounded"></div>
+                  <div className="h-2 bg-gray-300 w-3/4 rounded"></div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-2xl p-8 transform hover:scale-105 transition-transform">
+              <div className="bg-gradient-to-br from-slate-800 to-gray-800 rounded p-6 flex">
+                <div className="w-1/3 bg-slate-700 rounded-l p-4 mr-4">
+                  <div className="h-3 bg-gray-400 w-full mb-3 rounded"></div>
+                  <div className="h-2 bg-gray-500 w-full mb-2 rounded"></div>
+                  <div className="h-2 bg-gray-500 w-3/4 mb-4 rounded"></div>
+                  <div className="h-2 bg-gray-500 w-full mb-1 rounded"></div>
+                  <div className="h-2 bg-gray-500 w-2/3 rounded"></div>
+                </div>
+                <div className="flex-1">
+                  <div className="h-3 bg-white w-3/4 mb-3 rounded"></div>
+                  <div className="h-2 bg-gray-400 w-full mb-2 rounded"></div>
+                  <div className="h-2 bg-gray-400 w-5/6 mb-4 rounded"></div>
+                  <div className="h-2 bg-gray-400 w-full mb-1 rounded"></div>
+                  <div className="h-2 bg-gray-400 w-4/6 rounded"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

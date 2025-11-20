@@ -1,0 +1,34 @@
+{
+  "sections": [
+    {
+      "name": "personal_info",
+      "start": 0,
+      "end": 100
+    },
+    {
+      "name": "summary",
+      "start": 100,
+      "end": 400
+    },
+    {
+      "name": "key_achievements",
+      "start": 400,
+      "end": 700
+    },
+    {
+      "name": "work_experience",
+      "start": 700,
+      "end": 10200
+    },
+    {
+      "name": "education",
+      "start": 10200,
+      "end": 10450
+    },
+    {
+      "name": "skills",
+      "start": 10450,
+      "end": 10850
+    }
+  ]
+}
