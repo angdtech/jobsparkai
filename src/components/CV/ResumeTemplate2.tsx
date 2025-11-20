@@ -1331,9 +1331,11 @@ export function ResumeTemplate2({
                 const bYear = parseInt(b.duration.match(/\d{4}/)?.[0] || '0')
                 return bYear - aYear
               })
-              .map((exp, index) => (
+              .map((exp, sortedIndex) => {
+                const actualIndex = data.experience.findIndex(item => item.id === exp.id)
+                return (
               <div key={exp.id} className="relative group"
-                onMouseEnter={() => setHoveredExperienceDelete(index)}
+                onMouseEnter={() => setHoveredExperienceDelete(sortedIndex)}
                 onMouseLeave={() => setHoveredExperienceDelete(null)}
               >
                 {isEditing ? (
@@ -1341,33 +1343,33 @@ export function ResumeTemplate2({
                     <input
                       type="text"
                       value={exp.position}
-                      onChange={(e) => updateArrayItem('experience', index, 'position', e.target.value)}
+                      onChange={(e) => updateArrayItem('experience', actualIndex, 'position', e.target.value)}
                       className="text-lg font-bold text-gray-900 border-b border-gray-300 w-full bg-transparent"
                       placeholder="Position"
                     />
                     <input
                       type="text"
                       value={exp.company}
-                      onChange={(e) => updateArrayItem('experience', index, 'company', e.target.value)}
+                      onChange={(e) => updateArrayItem('experience', actualIndex, 'company', e.target.value)}
                       className="text-gray-600 border-b border-gray-300 w-full bg-transparent"
                       placeholder="Company"
                     />
                     <input
                       type="text"
                       value={exp.duration}
-                      onChange={(e) => updateArrayItem('experience', index, 'duration', e.target.value)}
+                      onChange={(e) => updateArrayItem('experience', actualIndex, 'duration', e.target.value)}
                       className="text-sm text-gray-500 border-b border-gray-300 w-full bg-transparent"
                       placeholder="Duration"
                     />
                     <textarea
                       value={exp.description}
-                      onChange={(e) => updateArrayItem('experience', index, 'description', e.target.value)}
+                      onChange={(e) => updateArrayItem('experience', actualIndex, 'description', e.target.value)}
                       className="text-gray-700 text-sm border border-gray-300 rounded px-3 py-2 w-full"
                       rows={3}
                       placeholder="Job description and achievements"
                     />
                     <button
-                      onClick={() => removeArrayItem('experience', index)}
+                      onClick={() => removeArrayItem('experience', actualIndex)}
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
                       × Remove Experience
@@ -1442,7 +1444,7 @@ export function ResumeTemplate2({
                         if (hasDescriptionItems) {
                           // New format: separate bullet points/paragraphs
                           return exp.description_items.map((item, itemIndex) => {
-                            const expKey = `exp-${index}`
+                            const expKey = `exp-${sortedIndex}`
                             const suggestions = improvementSuggestions[expKey] || []
                             const itemSuggestion = suggestions.find(s => s.original === item)
                             const isHighlighted = experienceImprovementMode && itemSuggestion
@@ -1465,7 +1467,7 @@ export function ResumeTemplate2({
                                         onBlur={() => {
                                           // Save changes when losing focus
                                           const newData = { ...currentData }
-                                          newData.experience[index].description_items[itemIndex] = editingItem.text
+                                          newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
                                           if (onDataChange) {
                                             onDataChange(newData)
                                           }
@@ -1475,7 +1477,7 @@ export function ResumeTemplate2({
                                           if (e.key === 'Enter' && e.ctrlKey) {
                                             // Save with Ctrl+Enter
                                             const newData = { ...currentData }
-                                            newData.experience[index].description_items[itemIndex] = editingItem.text
+                                            newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
                                             if (onDataChange) {
                                               onDataChange(newData)
                                             }
@@ -1506,13 +1508,13 @@ export function ResumeTemplate2({
                                       onMouseEnter={() => {
                                         if (isHighlighted) {
                                           setHoveredImprovement({
-                                            expIndex: index,
+                                            expIndex: actualIndex,
                                             itemIndex,
                                             suggestion: itemSuggestion.improved,
                                             original: itemSuggestion.original
                                           })
                                         }
-                                        setHoveredDeleteButton({ expIndex: index, itemIndex })
+                                        setHoveredDeleteButton({ expIndex: actualIndex, itemIndex })
                                       }}
                                       onMouseLeave={() => {
                                         setHoveredImprovement(null)
@@ -1524,10 +1526,10 @@ export function ResumeTemplate2({
                                           
                                           if (itemSuggestion.actionType === 'remove') {
                                             // Remove the item completely
-                                            newData.experience[index].description_items.splice(itemIndex, 1)
+                                            newData.experience[actualIndex].description_items.splice(itemIndex, 1)
                                           } else {
                                             // Apply improvement
-                                            newData.experience[index].description_items[itemIndex] = itemSuggestion.improved
+                                            newData.experience[actualIndex].description_items[itemIndex] = itemSuggestion.improved
                                           }
                                           
                                           if (onDataChange) {
@@ -1540,7 +1542,7 @@ export function ResumeTemplate2({
                                         } else {
                                           // Start inline editing
                                           setEditingItem({
-                                            expIndex: index,
+                                            expIndex: actualIndex,
                                             itemIndex,
                                             text: item
                                           })
@@ -1553,18 +1555,18 @@ export function ResumeTemplate2({
                                         comments={getCommentsForText?.(item) || []}
                                         onShowComments={onShowComments}
                                       />
-                                      {hoveredDeleteButton?.expIndex === index && hoveredDeleteButton?.itemIndex === itemIndex && (
+                                      {hoveredDeleteButton?.expIndex === actualIndex && hoveredDeleteButton?.itemIndex === itemIndex && (
                                         <span 
                                           className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
                                           onClick={(e) => {
                                             e.stopPropagation()
                                             const newData = { ...currentData }
-                                            newData.experience[index].description_items.splice(itemIndex, 1)
+                                            newData.experience[actualIndex].description_items.splice(itemIndex, 1)
                                             if (onDataChange) {
                                               onDataChange(newData)
                                             }
                                             // Also remove any suggestions for this item
-                                            const expKey = `exp-${index}`
+                                            const expKey = `exp-${sortedIndex}`
                                             const newSuggestions = { ...improvementSuggestions }
                                             if (newSuggestions[expKey]) {
                                               newSuggestions[expKey] = newSuggestions[expKey].filter(s => s.original !== item)
@@ -1582,7 +1584,7 @@ export function ResumeTemplate2({
                                   
                                   {/* Hover overlay */}
                                   {hoveredImprovement && 
-                                   hoveredImprovement.expIndex === index && 
+                                   hoveredImprovement.expIndex === actualIndex && 
                                    hoveredImprovement.itemIndex === itemIndex && (
                                     <div className="absolute z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 mt-1 w-80 left-0">
                                       {(() => {
@@ -1605,7 +1607,7 @@ export function ResumeTemplate2({
                                                 onClick={() => {
                                                   // Remove the item
                                                   const newData = { ...currentData }
-                                                  newData.experience[index].description_items.splice(itemIndex, 1)
+                                                  newData.experience[actualIndex].description_items.splice(itemIndex, 1)
                                                   if (onDataChange) {
                                                     onDataChange(newData)
                                                   }
@@ -1631,7 +1633,7 @@ export function ResumeTemplate2({
                                                 onClick={() => {
                                                   if (suggestion) {
                                                     const newData = { ...currentData }
-                                                    newData.experience[index].description_items[itemIndex] = suggestion.improved
+                                                    newData.experience[actualIndex].description_items[itemIndex] = suggestion.improved
                                                     if (onDataChange) {
                                                       onDataChange(newData)
                                                     }
@@ -1663,16 +1665,16 @@ export function ResumeTemplate2({
                                                 onClick={() => {
                                                   if (suggestion) {
                                                     const newData = { ...currentData }
-                                                    newData.experience[index].description_items[itemIndex] = suggestion.improved
+                                                    newData.experience[actualIndex].description_items[itemIndex] = suggestion.improved
                                                     if (onDataChange) {
                                                       onDataChange(newData)
                                                     }
                                                     // Remove the merged bullet points
                                                     if (suggestion.mergeWith) {
                                                       suggestion.mergeWith.forEach(mergeText => {
-                                                        const mergeIndex = newData.experience[index].description_items.findIndex(item => item === mergeText)
+                                                        const mergeIndex = newData.experience[actualIndex].description_items.findIndex(item => item === mergeText)
                                                         if (mergeIndex !== -1 && mergeIndex !== itemIndex) {
-                                                          newData.experience[index].description_items.splice(mergeIndex, 1)
+                                                          newData.experience[actualIndex].description_items.splice(mergeIndex, 1)
                                                         }
                                                       })
                                                     }
@@ -1710,7 +1712,7 @@ export function ResumeTemplate2({
                           // Old format: split description string by lines  
                           return exp.description.split('\n').filter(line => line.trim()).map((line, lineIndex) => {
                             const trimmedLine = line.trim()
-                            const expKey = `exp-${index}`
+                            const expKey = `exp-${sortedIndex}`
                             const suggestions = improvementSuggestions[expKey] || []
                             const lineSuggestion = suggestions.find(s => s.original === trimmedLine)
                             const isHighlighted = experienceImprovementMode && lineSuggestion
@@ -1728,13 +1730,13 @@ export function ResumeTemplate2({
                                     onMouseEnter={() => {
                                       if (isHighlighted) {
                                         setHoveredImprovement({
-                                          expIndex: index,
+                                          expIndex: actualIndex,
                                           itemIndex: lineIndex,
                                           suggestion: lineSuggestion.improved,
                                           original: lineSuggestion.original
                                         })
                                       }
-                                      setHoveredDeleteButton({ expIndex: index, itemIndex: lineIndex })
+                                      setHoveredDeleteButton({ expIndex: actualIndex, itemIndex: lineIndex })
                                     }}
                                     onMouseLeave={() => {
                                       setHoveredImprovement(null)
@@ -1746,7 +1748,7 @@ export function ResumeTemplate2({
                                       comments={getCommentsForText?.(trimmedLine) || []}
                                       onShowComments={onShowComments}
                                     />
-                                    {hoveredDeleteButton?.expIndex === index && hoveredDeleteButton?.itemIndex === lineIndex && (
+                                    {hoveredDeleteButton?.expIndex === actualIndex && hoveredDeleteButton?.itemIndex === lineIndex && (
                                       <span 
                                         className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
                                         onClick={(e) => {
@@ -1755,8 +1757,8 @@ export function ResumeTemplate2({
                                           // Convert to description_items format and remove the line
                                           const lines = exp.description.split('\n').filter(line => line.trim())
                                           lines.splice(lineIndex, 1)
-                                          newData.experience[index].description_items = lines
-                                          delete newData.experience[index].description // Remove old format
+                                          newData.experience[actualIndex].description_items = lines
+                                          delete newData.experience[actualIndex].description // Remove old format
                                           if (onDataChange) {
                                             onDataChange(newData)
                                           }
@@ -1788,11 +1790,12 @@ export function ResumeTemplate2({
                     {/* Add more experience details button */}
                     <button
                       onClick={() => {
-                        const newData = { ...currentData }
-                        if (!newData.experience[index].description_items) {
-                          newData.experience[index].description_items = []
+                        const newData = JSON.parse(JSON.stringify(data))
+                        const actualIndex = data.experience.findIndex(item => item.id === exp.id)
+                        if (!newData.experience[actualIndex].description_items) {
+                          newData.experience[actualIndex].description_items = []
                         }
-                        newData.experience[index].description_items.push('New responsibility or achievement')
+                        newData.experience[actualIndex].description_items.push('New responsibility or achievement')
                         if (onDataChange) {
                           onDataChange(newData)
                         }
@@ -1805,7 +1808,8 @@ export function ResumeTemplate2({
                   </>
                 )}
               </div>
-            ))}
+            )
+              })}
             </div>
           </div>
 
