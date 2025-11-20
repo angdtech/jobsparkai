@@ -287,12 +287,12 @@ export default function Dashboard() {
                       </div>
                       
                       <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        Extracting & Analyzing Your CV
+                        Extracting & Analyzing Your Resume
                       </h2>
                       
                       <div className="space-y-3 max-w-md mx-auto">
                         <p className="text-lg text-gray-700 font-medium">
-                          Reading your CV and finding critical issues
+                          Reading your resume and finding critical issues
                         </p>
                         <p className="text-sm text-gray-600">
                           Our AI is extracting your data and checking for problems that cost interviews

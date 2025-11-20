@@ -765,11 +765,11 @@ function ResumePageContent() {
           </div>
           
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Analyzing Your CV
+            Analyzing Your Resume
           </h2>
           
           <p className="text-gray-600 mb-6">
-            Our AI is reading your CV and extracting your experience, skills, and achievements.
+            Our AI is reading your resume and extracting your experience, skills, and achievements.
           </p>
           
           {/* Animated Progress Dots */}
