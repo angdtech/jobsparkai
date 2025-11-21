@@ -22,11 +22,12 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
   
   try {
     if (fileExtension === '.pdf') {
-      // Use pdf-parse with enhanced options for better extraction
-      const pdfParse = (await import('pdf-parse')).default
-      const fs = await import('fs')
-      
-      const dataBuffer = await fs.promises.readFile(filePath)
+      // Use pdf-parse with dynamic import and error handling for Turbopack
+      try {
+        const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default
+        const fs = await import('fs')
+        
+        const dataBuffer = await fs.promises.readFile(filePath)
       
       // Enhanced PDF parsing options
       const options = {
@@ -67,7 +68,12 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
       
       console.log('📄 Extracted', pages.length, 'pages from PDF')
       
-      return { fullText: pdfData.text, pages }
+        return { fullText: pdfData.text, pages }
+      } catch (pdfError) {
+        console.error('pdf-parse failed, trying fallback extraction:', pdfError)
+        // Fallback: Just return file name and indicate manual processing needed
+        throw new Error('PDF parsing library not available in production. Please contact support.')
+      }
     } 
     else if (fileExtension === '.docx') {
       // Enhanced DOCX extraction
