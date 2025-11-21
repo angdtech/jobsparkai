@@ -837,8 +837,18 @@ export async function POST(request: NextRequest) {
   // Enable detailed error reporting (like PHP error_reporting(E_ALL))
   const DEBUG_MODE = true
   const startTime = Date.now()
+  const userEmail = request.headers.get('x-user-email') || 'unknown'
+  const shouldLog = userEmail === 'angelinadyer@icloud.com'
+  
+  const log = (action: string, details?: any) => {
+    if (shouldLog) {
+      const elapsed = Date.now() - startTime
+      console.log(`[UPLOAD LOG - ${userEmail}] [${elapsed}ms] ${action}`, details ? JSON.stringify(details) : '')
+    }
+  }
   
   try {
+    log('Upload started')
     console.log('🚀 Upload API called at:', new Date().toISOString())
     console.log('📊 Request details:', {
       method: request.method,
@@ -847,6 +857,13 @@ export async function POST(request: NextRequest) {
     })
     const formData = await request.formData()
     const file = formData.get('cv_file') as File
+    
+    if (!file) {
+      log('Error: No file provided')
+      throw new Error('No file provided')
+    }
+    
+    log('File received', { fileName: file.name, fileSize: file.size })
     const sessionId = formData.get('session_id') as string
 
     console.log('File:', file?.name, 'Session:', sessionId)
@@ -960,12 +977,15 @@ export async function POST(request: NextRequest) {
     
     try {
       // Step 1: Extract text from file
+      log('Starting text extraction from file')
       console.log('📄 Extracting text from file...')
       const extraction = await extractTextFromFile(filePath, file.name)
       extractedText = extraction.fullText
       const pages = extraction.pages
+      log('Text extraction completed', { textLength: extractedText.length, pageCount: pages.length })
       
       if (!extractedText.trim()) {
+        log('Error: No text extracted from file')
         throw new Error('No text could be extracted from the file')
       }
       
