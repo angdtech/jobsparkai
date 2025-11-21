@@ -992,12 +992,19 @@ export async function POST(request: NextRequest) {
       console.log('✅ Text extracted successfully, length:', extractedText.length, 'pages:', pages.length)
       
       // Step 2: Parse extracted text with AI IN PARALLEL BY PAGE
+      log('Starting AI parsing', { textLength: extractedText.length, pageCount: pages.length })
       console.log('🤖 Parsing CV data with AI in parallel...')
       console.log('📏 Input text length:', extractedText.length)
       console.log('📄 Pages to process:', pages.length)
       console.log('📝 First 200 chars:', extractedText.substring(0, 200))
       
       const extractionResult = await parseCV(extractedText, pages, sessionId)
+      log('AI parsing completed', { 
+        name: extractionResult.personal_info?.name,
+        jobs: extractionResult.work_experience?.length,
+        skills: extractionResult.skills?.length,
+        hasError: !!extractionResult.error
+      })
       
       console.log('🔍 FULL Extraction result received:', {
         hasError: !!extractionResult.error,
@@ -1032,14 +1039,17 @@ export async function POST(request: NextRequest) {
       })
       
       if (!extractionResult.error && extractionResult.personal_info) {
+        log('Starting database save')
         console.log('✅ CONDITION MET - Saving extracted CV content to database...')
         
         // Get the session owner to set auth_user_id properly
+        log('Fetching session owner')
         const { data: sessionData, error: sessionError } = await supabaseAdmin
           .from('auth_cv_sessions')
           .select('auth_user_id')
           .eq('session_id', sessionId)
           .maybeSingle()
+        log('Session owner fetched', { hasOwner: !!sessionData?.auth_user_id })
         
         if (sessionError) {
           console.error('❌ Failed to get session owner:', sessionError)
@@ -1096,10 +1106,13 @@ export async function POST(request: NextRequest) {
         console.log('📊 Sample work experience:', cvContentData.work_experience?.[0])
 
         // Simple INSERT - one CV per session
+        log('Inserting CV data into database')
         console.log('💾 Attempting database INSERT...')
         const { data: savedData, error: cvError } = await supabaseAdmin
           .from('cv_content')
           .insert(cvContentData)
+        
+        log('Database insert completed', { success: !cvError, hasData: !!savedData })
           
         console.log('🔍 Database INSERT result:')
         console.log('   - Error:', cvError)
@@ -1108,9 +1121,11 @@ export async function POST(request: NextRequest) {
         console.log('   - Saved record count:', savedData?.length || 0)
 
         if (cvError) {
+          log('Database save failed', { error: cvError.message })
           console.error('❌ Failed to save CV content to database:', cvError)
           console.error('Error details:', JSON.stringify(cvError, null, 2))
         } else {
+          log('Database save successful')
           console.log('✅ Successfully saved CV content to database')
           console.log('Saved data:', savedData)
         }
@@ -1124,6 +1139,9 @@ export async function POST(request: NextRequest) {
         })
       }
 
+      const totalTime = Date.now() - startTime
+      log('Upload completed successfully', { totalTime })
+      
       return NextResponse.json({
         success: true,
         file_name: fileName,
@@ -1136,6 +1154,7 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (extractError) {
+      log('Upload failed', { error: extractError.message })
       console.error('❌ FATAL: CV extraction/parsing failed')
       console.error('❌ Error type:', extractError.constructor.name)
       console.error('❌ Error message:', extractError.message)
