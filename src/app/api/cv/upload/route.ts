@@ -36,7 +36,7 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
         // Disable max pages limit to ensure all pages are processed
         max: 0,
         // Include more verbose parsing
-        version: 'v1.10.1',
+        version: 'v1.10.100',
         // Get page text separately for parallel processing
         pagerender: async (pageData) => {
           const renderOptions = {
