@@ -1479,8 +1479,8 @@ export function ResumeTemplate2({
                             const isHighlighted = experienceImprovementMode && itemSuggestion
                             
                             return (
-                              <li key={itemIndex} className="text-gray-700 text-sm flex relative">
-                                <span className="mr-2">•</span>
+                              <li key={itemIndex} className="text-gray-700 text-sm flex items-start relative">
+                                <span className="mr-2 flex-shrink-0 mt-0.5">•</span>
                                 <div className="flex-1 relative group">
                                   
                                   {editingItem && editingItem.expIndex === actualIndex && editingItem.itemIndex === itemIndex ? (
