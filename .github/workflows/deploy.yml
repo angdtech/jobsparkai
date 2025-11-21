@@ -26,6 +26,7 @@ jobs:
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: true
+          NEXT_DISABLE_TURBOPACK: 1
       
       - name: Build successful
         run: echo "✅ Build test passed! Safe to deploy."
