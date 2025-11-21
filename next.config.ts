@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Disable Turbopack - it breaks pdf-parse in production
+  turbopack: false,
+  
   // Production-ready configuration
   poweredByHeader: false,
   compress: true,
