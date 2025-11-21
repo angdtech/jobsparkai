@@ -26,7 +26,6 @@ jobs:
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: true
-          NEXT_DISABLE_TURBOPACK: 1
       
       - name: Build successful
         run: echo "✅ Build test passed! Safe to deploy."
@@ -57,10 +56,10 @@ jobs:
             npm install
             
             echo "🔨 Building application..."
-            if ! NEXT_DISABLE_TURBOPACK=1 npm run build; then
+            if ! npm run build; then
               echo "❌ Build failed! Check logs above for errors."
               echo "📋 Last 50 lines of build output:"
-              NEXT_DISABLE_TURBOPACK=1 npm run build 2>&1 | tail -50
+              npm run build 2>&1 | tail -50
               exit 1
             fi
             
