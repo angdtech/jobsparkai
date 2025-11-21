@@ -69,10 +69,11 @@ export async function POST(request: NextRequest) {
         website: resumeData?.personalInfo?.website
       },
       experience: resumeData?.experience?.map((exp: any) => ({
+        id: exp.id,
         position: exp.position,
         company: exp.company,
         duration: exp.duration,
-        description: exp.description_items?.join('; ') || exp.description
+        description_items: exp.description_items || []
       })),
       education: resumeData?.education?.map((edu: any) => ({
         degree: edu.degree,
@@ -80,7 +81,10 @@ export async function POST(request: NextRequest) {
         duration: edu.duration
       })),
       skills: resumeData?.skills?.map((s: any) => s.name).join(', '),
-      awards: resumeData?.awards?.length || 0,
+      awards: resumeData?.awards?.map((a: any) => ({
+        id: a.id,
+        title: a.title
+      })) || [],
       languages: resumeData?.languages?.map((l: any) => l.name).join(', ')
     }
 
@@ -93,7 +97,14 @@ export async function POST(request: NextRequest) {
 Resume Data:
 ${JSON.stringify(optimizedResumeData, null, 2)}
 
-IMPORTANT: The user's name is displayed at the TOP of the CV as a large heading. It's stored in personalInfo.name and is currently: "${resumeData?.personalInfo?.name || 'Not set'}"
+IMPORTANT FIELD LOCATIONS:
+- User's name: Top of CV as large heading (personalInfo.name)
+- Job title/tagline: Below name (personalInfo.title)
+- Professional summary: In sidebar (personalInfo.summary)
+- Work experience: Main content area (experience array with description_items as bullet points)
+- Achievements: Separate section in sidebar (awards array with title field)
+- Skills: Sidebar (skills array)
+- Education: Main content area (education array)
 
 Guidelines:
 - Be concise and helpful
@@ -105,6 +116,7 @@ Guidelines:
 - Provide metrics and quantifiable improvements when possible
 - NEVER ask "Would you like me to update this?" or "Should I apply these changes?" - just provide the improved version
 - Accept/Reject buttons will automatically appear for the user
+- NEVER use emojis in your responses - keep it professional and emoji-free
 
 SECTION-BY-SECTION REVIEW:
 When providing multiple updates or comprehensive reviews:
@@ -131,23 +143,39 @@ CRITICAL RULES - MUST FOLLOW:
 5. Example response: "Here's an improved version:\n\n<CV_UPDATE>{\"personalInfo\":{\"summary\":\"New text\"}}</CV_UPDATE>"
 
 Format for CV updates - ONLY include what changed:
+
+CRITICAL: When adding to ACHIEVEMENTS (awards section), use this format:
 <CV_UPDATE>
 {
-  "skills": [
-    {"id": "skill-new", "name": "TypeScript", "level": 85}
+  "awards": [
+    {"id": "award-${Date.now()}", "title": "Your achievement text here"}
   ]
 }
 </CV_UPDATE>
 
+When adding to WORK EXPERIENCE bullet points, use ONLY STRINGS in description_items array:
+<CV_UPDATE>
+{
+  "experience": [
+    {
+      "company": "Company Name",
+      "description_items": ["New bullet point as a STRING"]
+    }
+  ]
+}
+</CV_UPDATE>
+
+CRITICAL: description_items MUST be an array of STRINGS, NOT objects. WRONG: [{"text": "...", "type": "..."}]. CORRECT: ["First bullet", "Second bullet"]
+
 Examples:
+- User: "Add an achievement about competitive analysis"
+  Response: I've added a competitive analysis achievement! <CV_UPDATE>{"awards": [{"id": "award-${Date.now()}", "title": "Conducted competitive analysis that identified key market trends and opportunities"}]}</CV_UPDATE>
+  
 - User: "Add TypeScript to my skills"
-  Response: I'll add TypeScript to your skills list! <CV_UPDATE>{"skills": [{"id": "skill-${Date.now()}", "name": "TypeScript", "level": 85}]}</CV_UPDATE>
+  Response: I've added TypeScript to your skills list! <CV_UPDATE>{"skills": [{"id": "skill-${Date.now()}", "name": "TypeScript", "level": 85}]}</CV_UPDATE>
   
 - User: "Change my job title to Senior Product Manager"
   Response: I've updated your job title! <CV_UPDATE>{"personalInfo": {"title": "Senior Product Manager"}}</CV_UPDATE>
-
-- User: "Change my name to John Smith"
-  Response: I've updated your name! <CV_UPDATE>{"personalInfo": {"name": "John Smith"}}</CV_UPDATE>
   
 - User: "Scan my CV" or "Improve my CV"
   Response: Let me review your CV. I'll start with your Professional Summary:

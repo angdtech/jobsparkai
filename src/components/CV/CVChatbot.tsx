@@ -117,12 +117,37 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
           if (Array.isArray(mergedData[key]) && mergedData[key].length > 0 && mergedData[key][0]?.id) {
             const updateArray = [...mergedData[key]]
             message.cvUpdate[key].forEach((newItem: any) => {
-              const existingIndex = updateArray.findIndex((item: any) => item.id === newItem.id)
-              if (existingIndex >= 0) {
-                // Update existing item
-                updateArray[existingIndex] = { ...updateArray[existingIndex], ...newItem }
+              // For experience, try to match by ID, company+position, or company alone
+              let existingIndex = -1
+              if (key === 'experience') {
+                existingIndex = updateArray.findIndex((item: any) => 
+                  item.id === newItem.id || 
+                  (item.company === newItem.company && item.position === newItem.position) ||
+                  item.company === newItem.company
+                )
               } else {
-                // Append new item
+                existingIndex = updateArray.findIndex((item: any) => item.id === newItem.id)
+              }
+              
+              if (existingIndex >= 0) {
+                // Update existing item - merge description_items if both exist
+                const existingItem = updateArray[existingIndex]
+                if (key === 'experience' && newItem.description_items && existingItem.description_items) {
+                  // Merge description items intelligently - ensure all are strings
+                  const mergedItems = [...existingItem.description_items]
+                  newItem.description_items.forEach((newDesc: any) => {
+                    // Convert to string if it's an object
+                    const descText = typeof newDesc === 'string' ? newDesc : (newDesc?.text || String(newDesc))
+                    if (!mergedItems.includes(descText)) {
+                      mergedItems.push(descText)
+                    }
+                  })
+                  updateArray[existingIndex] = { ...existingItem, ...newItem, description_items: mergedItems }
+                } else {
+                  updateArray[existingIndex] = { ...existingItem, ...newItem }
+                }
+              } else {
+                // Append new item only if it's truly new
                 updateArray.push(newItem)
               }
             })

@@ -516,6 +516,8 @@ function ResumePageContent() {
   }, [sessionId, user, isSaving])
 
   // Update resume data with history tracking
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  
   const updateResumeData = useCallback((newData: ResumeData) => {
     console.log('🔄 updateResumeData called with tagline:', newData.personalInfo?.tagline)
     setResumeData(newData)
@@ -541,8 +543,11 @@ function ResumePageContent() {
       }
     })
     
-    // Auto-save after a short delay
-    setTimeout(() => saveResumeData(newData), 1000)
+    // Debounced auto-save - clear previous timer
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+    }
+    saveTimerRef.current = setTimeout(() => saveResumeData(newData), 1500)
   }, [saveResumeData, sessionId])
 
   // Undo function

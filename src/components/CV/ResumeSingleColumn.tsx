@@ -103,7 +103,7 @@ interface ResumeData {
     company: string
     duration: string
     description: string
-    description_items?: string[] | null
+    description_items?: Array<string | { text: string; type?: string }> | null
   }>
   education: Array<{
     id: string
@@ -208,7 +208,20 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
       {data.experience && data.experience.length > 0 && (
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Experience</h3>
-          {data.experience.map((exp, index) => (
+          {data.experience
+            .slice()
+            .sort((a, b) => {
+              const aHasPresent = a.duration.toLowerCase().includes('present')
+              const bHasPresent = b.duration.toLowerCase().includes('present')
+              if (aHasPresent && !bHasPresent) return -1
+              if (!aHasPresent && bHasPresent) return 1
+              const aYear = parseInt(a.duration.match(/\d{4}/)?.[0] || '0')
+              const bYear = parseInt(b.duration.match(/\d{4}/)?.[0] || '0')
+              return bYear - aYear
+            })
+            .map((exp) => {
+              const actualIndex = data.experience.findIndex(e => e.id === exp.id)
+              return (
             <div key={exp.id} className="mb-6">
               <div className="flex justify-between items-start mb-2">
                 <div>
@@ -217,7 +230,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                       value={exp.position}
                       onChange={(value) => {
                         const newExp = [...data.experience]
-                        newExp[index] = { ...exp, position: value }
+                        newExp[actualIndex] = { ...exp, position: value }
                         onDataChange({ ...data, experience: newExp })
                       }}
                       className="font-semibold text-gray-900"
@@ -228,7 +241,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                       value={exp.company}
                       onChange={(value) => {
                         const newExp = [...data.experience]
-                        newExp[index] = { ...exp, company: value }
+                        newExp[actualIndex] = { ...exp, company: value }
                         onDataChange({ ...data, experience: newExp })
                       }}
                       className="text-gray-600"
@@ -240,7 +253,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                     value={exp.duration}
                     onChange={(value) => {
                       const newExp = [...data.experience]
-                      newExp[index] = { ...exp, duration: value }
+                      newExp[actualIndex] = { ...exp, duration: value }
                       onDataChange({ ...data, experience: newExp })
                     }}
                     className="text-sm text-gray-500"
@@ -249,22 +262,29 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
               </div>
               {exp.description_items && exp.description_items.length > 0 ? (
                 <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                  {exp.description_items.map((item, itemIdx) => (
-                    <li key={itemIdx} className="pl-2">
-                      <SimpleEditableText
-                        value={item}
-                        onChange={(value) => {
-                          const newExp = [...data.experience]
-                          const newItems = [...(exp.description_items || [])]
-                          newItems[itemIdx] = value
-                          newExp[index] = { ...exp, description_items: newItems }
-                          onDataChange({ ...data, experience: newExp })
-                        }}
-                        className="text-gray-700"
-                        fullWidth
-                      />
-                    </li>
-                  ))}
+                  {exp.description_items.map((item, itemIdx) => {
+                    // Convert to string format only
+                    const itemText = typeof item === 'string' ? item : (item?.text || JSON.stringify(item) || 'Invalid item')
+                    
+                    return (
+                      <li key={itemIdx} className="pl-2 relative">
+                        <div className="group relative">
+                          <SimpleEditableText
+                            value={itemText}
+                            onChange={(value) => {
+                              const newExp = [...data.experience]
+                              const newItems = [...(exp.description_items || [])]
+                              newItems[itemIdx] = typeof value === 'string' ? value : String(value)
+                              newExp[actualIndex] = { ...exp, description_items: newItems }
+                              onDataChange({ ...data, experience: newExp })
+                            }}
+                            className="text-gray-700"
+                            fullWidth
+                          />
+                        </div>
+                      </li>
+                    )
+                  })}
                 </ul>
               ) : exp.description ? (
                 <p className="text-gray-700">
@@ -272,7 +292,7 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                     value={exp.description}
                     onChange={(value) => {
                       const newExp = [...data.experience]
-                      newExp[index] = { ...exp, description: value }
+                      newExp[actualIndex] = { ...exp, description: value }
                       onDataChange({ ...data, experience: newExp })
                     }}
                     multiline
@@ -281,7 +301,8 @@ export function ResumeSingleColumn({ data, onDataChange }: ResumeSingleColumnPro
                 </p>
               ) : null}
             </div>
-          ))}
+          )
+            })}
         </div>
       )}
 

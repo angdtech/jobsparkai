@@ -126,9 +126,23 @@ async function extractTextFromFile(filePath: string, fileName: string): Promise<
   }
 }
 
-// NEW 3-Stage Chained Prompt AI parsing
+// Fast single-prompt AI parsing (use 3-stage for better accuracy if needed)
 async function parseCV(extractedText: string, pages: string[], sessionId: string) {
-  console.log('🤖 Starting NEW 3-STAGE CHAINED PROMPT AI parsing')
+  console.log('🤖 Starting FAST single-prompt AI parsing for speed')
+  
+  const path = await import('path')
+  const { writeFile } = await import('fs/promises')
+  const outputPath = path.join(process.cwd(), 'public', `raw-cv-text-${sessionId}.txt`)
+  await writeFile(outputPath, extractedText, 'utf-8')
+  console.log('📝 Raw CV text saved to:', outputPath)
+  
+  // Use fast fallback parser for speed (3-stage commented out below)
+  return await parseCVFallback(extractedText, sessionId)
+}
+
+// 3-STAGE VERSION (commented out for speed - uncomment if you need better accuracy)
+async function parseCV_3Stage(extractedText: string, pages: string[], sessionId: string) {
+  console.log('🤖 Starting 3-STAGE CHAINED PROMPT AI parsing')
   
   const path = await import('path')
   const { writeFile } = await import('fs/promises')
@@ -570,14 +584,16 @@ Format:
     }
     
     const totalTime = Date.now() - totalStart
-    console.log(`🎉 Total processing time: ${totalTime}ms (Stage 1: ${stage1Time}ms, Stage 2: ${stage2Time}ms)`)
-    console.log(`📊 Final totals:`, {
+    const stats = {
       name: mergedData.personal_info?.name || 'Unknown',
       jobs: mergedData.work_experience?.length || 0,
       skills: mergedData.skills?.length || 0,
       achievements: mergedData.key_achievements?.length || 0,
       education: mergedData.education?.length || 0
-    })
+    }
+    log('AI parsing completed', { totalTime, stage1Time, stage2Time, ...stats })
+    console.log(`🎉 Total processing time: ${totalTime}ms (Stage 1: ${stage1Time}ms, Stage 2: ${stage2Time}ms)`)
+    console.log(`📊 Final totals:`, stats)
     
     return mergedData
     

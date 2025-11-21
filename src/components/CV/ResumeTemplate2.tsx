@@ -44,7 +44,7 @@ interface ResumeData {
     company: string
     duration: string
     description: string
-    description_items?: string[] | null
+    description_items?: Array<string | { text: string; type?: string }> | null
   }>
   education: Array<{
     id: string
@@ -314,7 +314,8 @@ export function ResumeTemplate2({
         const items = exp.description_items || (exp.description ? exp.description.split('\n').filter(line => line.trim()) : [])
         
         items.forEach(item => {
-          const trimmedItem = item.trim()
+          const itemText = typeof item === 'string' ? item : (item?.text || '')
+          const trimmedItem = itemText.trim()
           if (trimmedItem && trimmedItem.toLowerCase().includes('responsible for')) {
             suggestions[key].push({
               original: trimmedItem,
@@ -930,10 +931,9 @@ export function ResumeTemplate2({
                     onMouseEnter={() => setHoveredAchievementDelete(index)}
                     onMouseLeave={() => setHoveredAchievementDelete(null)}
                   >
-                    <span className="mr-2">•</span>
-                    <div className="flex-1 flex items-center">
-                      <input
-                        type="text"
+                    <span className="mr-2 flex-shrink-0">•</span>
+                    <div className="flex-1 flex items-start">
+                      <textarea
                         value={award.title}
                         onChange={(e) => {
                           const newData = { ...currentData }
@@ -942,8 +942,14 @@ export function ResumeTemplate2({
                             onDataChange(newData)
                           }
                         }}
-                        className="flex-1 text-sm text-gray-700 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1"
+                        onInput={(e) => {
+                          const target = e.target as HTMLTextAreaElement
+                          target.style.height = 'auto'
+                          target.style.height = target.scrollHeight + 'px'
+                        }}
+                        className="flex-1 text-sm text-gray-700 bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none overflow-hidden"
                         placeholder="Your achievement with specific metrics"
+                        rows={1}
                       />
                       {hoveredAchievementDelete === index && (
                         <span 
@@ -1349,10 +1355,10 @@ export function ResumeTemplate2({
               .map((exp, sortedIndex) => {
                 const actualIndex = data.experience.findIndex(item => item.id === exp.id)
                 return (
-              <div key={exp.id} className="relative group"
-                onMouseEnter={() => setHoveredExperienceDelete(sortedIndex)}
-                onMouseLeave={() => setHoveredExperienceDelete(null)}
-              >
+                  <div key={`exp-${exp.id}-${sortedIndex}`} className="relative group"
+                    onMouseEnter={() => setHoveredExperienceDelete(sortedIndex)}
+                    onMouseLeave={() => setHoveredExperienceDelete(null)}
+                  >
                 {isEditing ? (
                   <div className="space-y-2 p-3 border border-gray-300 rounded">
                     <input
@@ -1408,9 +1414,8 @@ export function ResumeTemplate2({
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
-                      <div className="flex-1 mr-4">
-                        <input
-                          type="text"
+                      <div className="flex-1 mr-4 min-w-0">
+                        <textarea
                           value={exp.position}
                           onChange={(e) => {
                             const newData = JSON.parse(JSON.stringify(data))
@@ -1419,8 +1424,14 @@ export function ResumeTemplate2({
                             newData.experience[actualIndex].position = e.target.value
                             onDataChange(newData)
                           }}
-                          className="text-lg font-bold text-gray-900 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all"
+                          onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.style.height = 'auto'
+                            target.style.height = target.scrollHeight + 'px'
+                          }}
+                          className="text-lg font-bold text-gray-900 bg-transparent border border-transparent outline-none hover:bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-blue-400 rounded px-2 py-1 -mx-2 -my-1 w-full cursor-text transition-all resize-none overflow-hidden"
                           placeholder="Job Title"
+                          rows={1}
                         />
                         <input
                           type="text"
@@ -1459,16 +1470,20 @@ export function ResumeTemplate2({
                         if (hasDescriptionItems) {
                           // New format: separate bullet points/paragraphs
                           return exp.description_items.map((item, itemIndex) => {
+                            // Convert to string format only
+                            const itemText = typeof item === 'string' ? item : (item?.text || JSON.stringify(item) || 'Invalid item')
+                            
                             const expKey = `exp-${sortedIndex}`
                             const suggestions = improvementSuggestions[expKey] || []
-                            const itemSuggestion = suggestions.find(s => s.original === item)
+                            const itemSuggestion = suggestions.find(s => s.original === itemText)
                             const isHighlighted = experienceImprovementMode && itemSuggestion
                             
                             return (
                               <li key={itemIndex} className="text-gray-700 text-sm flex relative">
                                 <span className="mr-2">•</span>
-                                <div className="flex-1 relative">
-                                  {editingItem && editingItem.expIndex === index && editingItem.itemIndex === itemIndex ? (
+                                <div className="flex-1 relative group">
+                                  
+                                  {editingItem && editingItem.expIndex === actualIndex && editingItem.itemIndex === itemIndex ? (
                                     <div className="w-full">
                                       <textarea
                                         value={editingItem.text}
@@ -1482,7 +1497,16 @@ export function ResumeTemplate2({
                                         onBlur={() => {
                                           // Save changes when losing focus
                                           const newData = { ...currentData }
-                                          newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
+                                          const currentItem = newData.experience[actualIndex].description_items[itemIndex]
+                                          // Preserve type when saving
+                                          if (typeof currentItem === 'object') {
+                                            newData.experience[actualIndex].description_items[itemIndex] = {
+                                              ...currentItem,
+                                              text: editingItem.text
+                                            }
+                                          } else {
+                                            newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
+                                          }
                                           if (onDataChange) {
                                             onDataChange(newData)
                                           }
@@ -1492,7 +1516,16 @@ export function ResumeTemplate2({
                                           if (e.key === 'Enter' && e.ctrlKey) {
                                             // Save with Ctrl+Enter
                                             const newData = { ...currentData }
-                                            newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
+                                            const currentItem = newData.experience[actualIndex].description_items[itemIndex]
+                                            // Preserve type when saving
+                                            if (typeof currentItem === 'object') {
+                                              newData.experience[actualIndex].description_items[itemIndex] = {
+                                                ...currentItem,
+                                                text: editingItem.text
+                                              }
+                                            } else {
+                                              newData.experience[actualIndex].description_items[itemIndex] = editingItem.text
+                                            }
                                             if (onDataChange) {
                                               onDataChange(newData)
                                             }
@@ -1520,6 +1553,7 @@ export function ResumeTemplate2({
                                           ? 'bg-red-100 border-b-2 border-red-400 cursor-pointer' 
                                           : 'bg-yellow-100 border-b-2 border-yellow-400 cursor-pointer'
                                         : 'cursor-pointer hover:bg-gray-50 rounded px-1'}`}
+                                      title="Click to edit"
                                       onMouseEnter={() => {
                                         if (isHighlighted) {
                                           setHoveredImprovement({
@@ -1559,15 +1593,15 @@ export function ResumeTemplate2({
                                           setEditingItem({
                                             expIndex: actualIndex,
                                             itemIndex,
-                                            text: item
+                                            text: itemText
                                           })
                                         }
                                       }}
                                       title="Click to edit"
                                     >
                                       <SmartText 
-                                        text={item}
-                                        comments={getCommentsForText?.(item) || []}
+                                        text={itemText}
+                                        comments={getCommentsForText?.(itemText) || []}
                                         onShowComments={onShowComments}
                                       />
                                       {hoveredDeleteButton?.expIndex === actualIndex && hoveredDeleteButton?.itemIndex === itemIndex && (
@@ -1584,7 +1618,7 @@ export function ResumeTemplate2({
                                             const expKey = `exp-${sortedIndex}`
                                             const newSuggestions = { ...improvementSuggestions }
                                             if (newSuggestions[expKey]) {
-                                              newSuggestions[expKey] = newSuggestions[expKey].filter(s => s.original !== item)
+                                              newSuggestions[expKey] = newSuggestions[expKey].filter(s => s.original !== itemText)
                                               setImprovementSuggestions(newSuggestions)
                                             }
                                             setHoveredDeleteButton(null)
@@ -1817,13 +1851,13 @@ export function ResumeTemplate2({
                       }}
                       className="text-sm text-blue-600 hover:text-blue-800 ml-4 mt-3 mb-2 flex items-center"
                     >
-                      + Add more {exp.position || 'experience'}
+                      + Add
                     </button>
                     
                   </>
                 )}
-              </div>
-            )
+                  </div>
+                )
               })}
             </div>
           </div>
