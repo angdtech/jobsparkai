@@ -105,7 +105,7 @@ ${cvText}`
       { role: 'user', content: prompt }
     ],
     temperature: 0,
-    max_tokens: 8000
+    max_tokens: 16000
   })
   
   let content = response.choices[0].message.content || '[]'
