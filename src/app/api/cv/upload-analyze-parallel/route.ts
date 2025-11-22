@@ -81,18 +81,19 @@ ${cvText.substring(0, 2000)}`
 }
 
 async function parseWorkExperience(openai: OpenAI, cvText: string) {
-  const prompt = `Extract ONLY work experience from this CV. Return SIMPLIFIED JSON array with just basic info:
+  const prompt = `Extract ONLY work experience from this CV. Return JSON array with ALL bullet points EXACTLY as written:
 [
   {
     "title": "Job Title",
     "company": "Company Name", 
     "start_date": "Start Date",
     "end_date": "End Date",
-    "description_items": ["Main responsibility 1", "Main responsibility 2", "Main achievement"]
+    "description_items": ["Bullet point 1 EXACTLY as written", "Bullet point 2 EXACTLY as written"]
   }
 ]
 
-IMPORTANT: Keep description_items SHORT - max 3-5 items per job. Summarize if needed.
+CRITICAL: Extract ALL bullet points EXACTLY as they appear in the CV. Do NOT summarize, do NOT paraphrase, do NOT make up content.
+Copy the exact wording from the CV text.
 
 CV Text:
 ${cvText}`
@@ -100,11 +101,11 @@ ${cvText}`
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      { role: 'system', content: 'Extract work experience. Keep descriptions brief. Return valid JSON array only.' },
+      { role: 'system', content: 'Extract work experience EXACTLY as written. Do NOT summarize or paraphrase. Return valid JSON array only.' },
       { role: 'user', content: prompt }
     ],
     temperature: 0,
-    max_tokens: 2000  // Reduced since we're asking for summaries
+    max_tokens: 4000
   })
   
   let content = response.choices[0].message.content || '[]'
