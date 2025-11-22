@@ -7,9 +7,10 @@ import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
 interface CVUploadProps {
   onFileUploaded: (file: File, extractedData: any) => void
   sessionId: string
+  userEmail?: string
 }
 
-export default function CVUpload({ onFileUploaded, sessionId }: CVUploadProps) {
+export default function CVUpload({ onFileUploaded, sessionId, userEmail }: CVUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -29,8 +30,14 @@ export default function CVUpload({ onFileUploaded, sessionId }: CVUploadProps) {
       formData.append('session_id', sessionId)
 
       // Upload file to our PARALLEL API (includes extraction + analysis)
+      const headers: HeadersInit = {}
+      if (userEmail) {
+        headers['x-user-email'] = userEmail
+      }
+      
       const uploadResponse = await fetch('/api/cv/upload-analyze-parallel', {
         method: 'POST',
+        headers,
         body: formData,
       })
 

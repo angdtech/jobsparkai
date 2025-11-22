@@ -75,13 +75,13 @@ export function SubscriptionGate({ children, fallback }: SubscriptionGateProps) 
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md p-8 bg-white rounded-xl shadow-lg">
           <Lock className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Subscription Required</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Premium Access Required</h2>
           <p className="text-gray-600 mb-4">
-            Subscribe for just £5/month to unlock unlimited AI responses and advanced features.
+            Get unlimited AI Resume Assistant access with fast CV analysis and updates for just £5/month.
           </p>
           <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 mb-6">
             <div className="text-3xl font-bold text-gray-900 mb-1">£5/month</div>
-            <div className="text-sm text-gray-600">Unlimited AI assistance</div>
+            <div className="text-sm text-gray-600">Unlimited chat + fast analysis</div>
           </div>
           <button
             onClick={() => router.push('/pricing')}

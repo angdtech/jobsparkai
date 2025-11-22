@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { CVSessionManager, CVSession } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { Check, MessageCircle } from 'lucide-react'
-import CVUpload from '@/components/CV/CVUpload'
 import CVAnalysis from '@/components/CV/CVAnalysis'
 import FreemiumAnalysis from '@/components/CV/FreemiumAnalysis'
 import CVViewer from '@/components/CV/CVViewer'
@@ -471,14 +470,11 @@ export default function CVSessionPage() {
         </header>
 
         <div className="space-y-8">
-          {/* File Upload Section - only show if no analysis and no file */}
+          {/* Waiting for upload from dashboard */}
           {!session.file_name && !analysis ? (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">Upload Your CV</h2>
-              <CVUpload 
-                onFileUploaded={handleFileUploaded}
-                sessionId={sessionId}
-              />
+              <h2 className="text-xl font-semibold text-gray-800 mb-6">Waiting for CV Upload</h2>
+              <p className="text-gray-600">Please upload your CV from the dashboard to get started.</p>
             </div>
           ) : session.file_name && !analysis ? (
             <div className="bg-white rounded-lg shadow-md p-6">

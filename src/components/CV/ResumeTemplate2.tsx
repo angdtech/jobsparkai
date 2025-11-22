@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { SmartText } from './SmartText'
 import { EditableText } from './EditableText'
 import { FeedbackType } from './CommentHighlight'
-import { Trash2, Upload } from 'lucide-react'
+import { Trash2, Upload, Eye, EyeOff } from 'lucide-react'
 
 interface CommentItem {
   type: FeedbackType
@@ -82,6 +82,14 @@ interface ResumeTemplate2Props {
   onEditModeTextChange?: (text: string | null) => void
   hideContactDetails?: boolean
   hidePhoto?: boolean
+  hiddenContactFields?: {
+    phone?: boolean
+    email?: boolean
+    address?: boolean
+    linkedin?: boolean
+    website?: boolean
+  }
+  onHiddenContactFieldsChange?: (fields: any) => void
   sectionLayout?: any
   onSectionLayoutChange?: (layout: any) => void
 }
@@ -96,6 +104,8 @@ export function ResumeTemplate2({
   onEditModeTextChange,
   hideContactDetails = false,
   hidePhoto = false,
+  hiddenContactFields = {},
+  onHiddenContactFieldsChange,
   sectionLayout,
   onSectionLayoutChange
 }: ResumeTemplate2Props) {

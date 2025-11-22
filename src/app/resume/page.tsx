@@ -98,6 +98,13 @@ function ResumePageContent() {
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [hideContactDetails, setHideContactDetails] = useState(false)
   const [hidePhoto, setHidePhoto] = useState(false)
+  const [hiddenContactFields, setHiddenContactFields] = useState<{
+    phone?: boolean
+    email?: boolean
+    address?: boolean
+    linkedin?: boolean
+    website?: boolean
+  }>({})
   const [layoutMode, setLayoutMode] = useState<'sidebar' | 'single-column'>('sidebar')
   const [layoutModeInitialized, setLayoutModeInitialized] = useState(false)
   const [sectionLayout, setSectionLayout] = useState({
@@ -218,12 +225,12 @@ function ResumePageContent() {
           personalInfo: {
             name: cvContent.full_name || 'Your Name',
             title: 'Professional Title',
-            email: cvContent.email || 'your.email@example.com',
-            phone: cvContent.phone || '+1 (555) 123-4567',
-            address: cvContent.location || 'Your City, Country',
+            email: cvContent.email || '',
+            phone: cvContent.phone || '',
+            address: cvContent.location || '',
             summary: cvContent.professional_summary || 'Professional summary describing your experience and expertise.',
-            website: cvContent.website_url || undefined,
-            linkedin: cvContent.linkedin_url || undefined,
+            website: cvContent.website_url || '',
+            linkedin: cvContent.linkedin_url || '',
             photoUrl: cvContent.photo_url || undefined,
             tagline: cvContent.tagline || ''
           },
@@ -666,6 +673,29 @@ function ResumePageContent() {
         if (hobbiesSection) hobbiesSection.remove()
       }
       
+      // Hide empty or hidden contact fields from PDF
+      const contactFields = [
+        { name: 'phone', selectors: ['input[placeholder="Phone"]', 'input[placeholder="+1 234 567 8900"]'], value: resumeData?.personalInfo?.phone, hidden: hiddenContactFields.phone },
+        { name: 'email', selectors: ['input[placeholder="Email"]', 'input[placeholder="you@example.com"]'], value: resumeData?.personalInfo?.email, hidden: hiddenContactFields.email },
+        { name: 'address', selectors: ['textarea[placeholder="Address"]', 'input[placeholder="City, Country"]'], value: resumeData?.personalInfo?.address, hidden: hiddenContactFields.address },
+        { name: 'linkedin', selectors: ['input[placeholder="LinkedIn URL"]', 'input[placeholder="linkedin.com/in/yourprofile"]'], value: resumeData?.personalInfo?.linkedin, hidden: hiddenContactFields.linkedin },
+        { name: 'website', selectors: ['input[placeholder="Website URL"]', 'input[placeholder="yourwebsite.com"]'], value: resumeData?.personalInfo?.website, hidden: hiddenContactFields.website }
+      ]
+      
+      contactFields.forEach(({ selectors, value, hidden }) => {
+        // Remove if empty OR if user has hidden it
+        if (!value || value.trim() === '' || hidden) {
+          selectors.forEach(selector => {
+            const elements = clonedElement.querySelectorAll(selector)
+            elements.forEach(el => {
+              // Remove the parent container (the flex div with label)
+              const parent = el.closest('.flex.items-center, .flex.items-start, .group')
+              if (parent) parent.remove()
+            })
+          })
+        }
+      })
+      
       // Create full HTML document
       const html = `
         <!DOCTYPE html>
@@ -948,6 +978,62 @@ function ResumePageContent() {
                   >
                     {hidePhoto ? 'Show Photo' : 'Hide Photo'}
                   </button>
+                  
+                  {/* Hide individual contact fields */}
+                  <div className="relative group">
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-full text-sm font-medium">
+                      Hide Fields from PDF ▼
+                    </button>
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 hidden group-hover:block z-10">
+                      <div className="p-3 space-y-2">
+                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={hiddenContactFields.phone || false}
+                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, phone: e.target.checked }))}
+                            className="mr-3"
+                          />
+                          Hide Phone
+                        </label>
+                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={hiddenContactFields.email || false}
+                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, email: e.target.checked }))}
+                            className="mr-3"
+                          />
+                          Hide Email
+                        </label>
+                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={hiddenContactFields.address || false}
+                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, address: e.target.checked }))}
+                            className="mr-3"
+                          />
+                          Hide Address
+                        </label>
+                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={hiddenContactFields.linkedin || false}
+                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, linkedin: e.target.checked }))}
+                            className="mr-3"
+                          />
+                          Hide LinkedIn
+                        </label>
+                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={hiddenContactFields.website || false}
+                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, website: e.target.checked }))}
+                            className="mr-3"
+                          />
+                          Hide Website
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -988,6 +1074,8 @@ function ResumePageContent() {
                   onEditModeTextChange={setEditModeText}
                   hideContactDetails={hideContactDetails}
                   hidePhoto={hidePhoto}
+                  hiddenContactFields={hiddenContactFields}
+                  onHiddenContactFieldsChange={setHiddenContactFields}
                   sectionLayout={sectionLayout}
                   onSectionLayoutChange={setSectionLayout}
                 />
