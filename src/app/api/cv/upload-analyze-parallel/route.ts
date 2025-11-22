@@ -104,8 +104,7 @@ ${cvText}`
       { role: 'system', content: 'Extract work experience EXACTLY as written. Do NOT summarize or paraphrase. Return valid JSON array only.' },
       { role: 'user', content: prompt }
     ],
-    temperature: 0,
-    max_tokens: 16000
+    temperature: 0
   })
   
   let content = response.choices[0].message.content || '[]'
