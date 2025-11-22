@@ -147,6 +147,7 @@ export function ResumeTemplate2({
   const [hoveredSkillDelete, setHoveredSkillDelete] = useState<string | number | null>(null)
   const [hoveredLanguageDelete, setHoveredLanguageDelete] = useState<number | null>(null)
   const [hoveredExperienceDelete, setHoveredExperienceDelete] = useState<number | null>(null)
+  const [hoveredContactDelete, setHoveredContactDelete] = useState<string | null>(null)
   const [showSummaryFeedback, setShowSummaryFeedback] = useState(true)
   const summaryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const summaryChangeTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -487,11 +488,14 @@ export function ResumeTemplate2({
                 />
               </h3>
             <div className="space-y-2">
-              <div className="flex items-center">
+              <div className="flex items-center group"
+                onMouseEnter={() => setHoveredContactDelete('location')}
+                onMouseLeave={() => setHoveredContactDelete(null)}
+              >
                 <span className="w-16 text-xs text-gray-300 mr-2">Location:</span>
                 <div className="text-sm flex-1">
                   <EditableText
-                    text={currentData.personalInfo.address}
+                    text={currentData.personalInfo.address || ''}
                     comments={[]}
                     onTextChange={(newText) => {
                       const newData = JSON.parse(JSON.stringify(currentData))
@@ -501,14 +505,33 @@ export function ResumeTemplate2({
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
                     inputClassName="bg-slate-700 text-white"
+                    placeholder="City, Country"
                   />
                 </div>
+                {hoveredContactDelete === 'location' && (
+                  <span
+                    className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.address = ''
+                      onDataChange(newData)
+                      setHoveredContactDelete(null)
+                    }}
+                    title="Delete location"
+                  >
+                    ×
+                  </span>
+                )}
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center group"
+                onMouseEnter={() => setHoveredContactDelete('phone')}
+                onMouseLeave={() => setHoveredContactDelete(null)}
+              >
                 <span className="w-16 text-xs text-gray-300 mr-2">Phone:</span>
                 <div className="text-sm flex-1">
                   <EditableText
-                    text={currentData.personalInfo.phone}
+                    text={currentData.personalInfo.phone || ''}
                     comments={[]}
                     onTextChange={(newText) => {
                       const newData = JSON.parse(JSON.stringify(currentData))
@@ -518,14 +541,33 @@ export function ResumeTemplate2({
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
                     inputClassName="bg-slate-700 text-white"
+                    placeholder="+1 234 567 8900"
                   />
                 </div>
+                {hoveredContactDelete === 'phone' && (
+                  <span
+                    className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.phone = ''
+                      onDataChange(newData)
+                      setHoveredContactDelete(null)
+                    }}
+                    title="Delete phone"
+                  >
+                    ×
+                  </span>
+                )}
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center group"
+                onMouseEnter={() => setHoveredContactDelete('email')}
+                onMouseLeave={() => setHoveredContactDelete(null)}
+              >
                 <span className="w-16 text-xs text-gray-300 mr-2">Email:</span>
                 <div className="text-sm break-all flex-1">
                   <EditableText
-                    text={currentData.personalInfo.email}
+                    text={currentData.personalInfo.email || ''}
                     comments={[]}
                     onTextChange={(newText) => {
                       const newData = JSON.parse(JSON.stringify(currentData))
@@ -535,51 +577,102 @@ export function ResumeTemplate2({
                     className="text-sm text-white"
                     hoverClassName="hover:bg-slate-700"
                     inputClassName="bg-slate-700 text-white"
+                    placeholder="you@example.com"
                   />
                 </div>
+                {hoveredContactDelete === 'email' && (
+                  <span
+                    className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.email = ''
+                      onDataChange(newData)
+                      setHoveredContactDelete(null)
+                    }}
+                    title="Delete email"
+                  >
+                    ×
+                  </span>
+                )}
+              </div>
+              
+              
+              {/* LinkedIn URL */}
+              <div className="flex items-center group"
+                onMouseEnter={() => setHoveredContactDelete('linkedin')}
+                onMouseLeave={() => setHoveredContactDelete(null)}
+              >
+                <span className="w-16 text-xs text-gray-300 mr-2">LinkedIn:</span>
+                <div className="text-sm flex-1">
+                  <EditableText
+                    text={currentData.personalInfo.linkedin || ''}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.linkedin = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
+                    placeholder="linkedin.com/in/yourprofile"
+                  />
+                </div>
+                {hoveredContactDelete === 'linkedin' && (
+                  <span
+                    className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.linkedin = ''
+                      onDataChange(newData)
+                      setHoveredContactDelete(null)
+                    }}
+                    title="Delete LinkedIn"
+                  >
+                    ×
+                  </span>
+                )}
               </div>
               
               {/* Website URL */}
-              {currentData.personalInfo.website && (
-                <div className="flex items-center">
-                  <span className="w-16 text-xs text-gray-300 mr-2">Website:</span>
-                  <div className="text-sm flex-1">
-                    <EditableText
-                      text={currentData.personalInfo.website}
-                      comments={[]}
-                      onTextChange={(newText) => {
-                        const newData = JSON.parse(JSON.stringify(currentData))
-                        newData.personalInfo.website = newText
-                        onDataChange(newData)
-                      }}
-                      className="text-sm text-white"
-                      hoverClassName="hover:bg-slate-700"
-                      inputClassName="bg-slate-700 text-white"
-                    />
-                  </div>
+              <div className="flex items-center group"
+                onMouseEnter={() => setHoveredContactDelete('website')}
+                onMouseLeave={() => setHoveredContactDelete(null)}
+              >
+                <span className="w-16 text-xs text-gray-300 mr-2">Website:</span>
+                <div className="text-sm flex-1">
+                  <EditableText
+                    text={currentData.personalInfo.website || ''}
+                    comments={[]}
+                    onTextChange={(newText) => {
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.website = newText
+                      onDataChange(newData)
+                    }}
+                    className="text-sm text-white"
+                    hoverClassName="hover:bg-slate-700"
+                    inputClassName="bg-slate-700 text-white"
+                    placeholder="yourwebsite.com"
+                  />
                 </div>
-              )}
-              
-              {/* LinkedIn URL */}
-              {currentData.personalInfo.linkedin && (
-                <div className="flex items-center">
-                  <span className="w-16 text-xs text-gray-300 mr-2">LinkedIn:</span>
-                  <div className="text-sm flex-1">
-                    <EditableText
-                      text={currentData.personalInfo.linkedin}
-                      comments={[]}
-                      onTextChange={(newText) => {
-                        const newData = JSON.parse(JSON.stringify(currentData))
-                        newData.personalInfo.linkedin = newText
-                        onDataChange(newData)
-                      }}
-                      className="text-sm text-white"
-                      hoverClassName="hover:bg-slate-700"
-                      inputClassName="bg-slate-700 text-white"
-                    />
-                  </div>
-                </div>
-              )}
+                {hoveredContactDelete === 'website' && (
+                  <span
+                    className="ml-2 text-blue-400 hover:text-blue-600 cursor-pointer transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const newData = JSON.parse(JSON.stringify(currentData))
+                      newData.personalInfo.website = ''
+                      onDataChange(newData)
+                      setHoveredContactDelete(null)
+                    }}
+                    title="Delete website"
+                  >
+                    ×
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           )}
@@ -846,65 +939,6 @@ export function ResumeTemplate2({
               </div>
             )}
             
-            {/* Removed old analysis UI */}
-            
-            {/* Regular summary display when editing or tagline not complete */}
-            {(isEditing || !currentData.personalInfo.tagline) && (
-              <>
-                {isEditing ? (
-                  <textarea
-                    ref={(el) => {
-                      if (el) {
-                        el.style.height = 'auto'
-                        el.style.height = el.scrollHeight + 'px'
-                      }
-                    }}
-                    value={currentData.personalInfo.summary}
-                    onChange={(e) => updateField('personalInfo.summary', e.target.value)}
-                    className="text-sm text-gray-700 leading-relaxed border border-gray-300 rounded px-3 py-2 w-full resize-none"
-                    onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement
-                      target.style.height = 'auto'
-                      target.style.height = target.scrollHeight + 'px'
-                    }}
-                    placeholder="Professional summary"
-                  />
-                ) : (
-                  <>
-                    <textarea
-                      ref={summaryTextareaRef}
-                      value={currentData.personalInfo.summary}
-                      onChange={(e) => {
-                        const newValue = e.target.value
-                        const newData = { ...currentData }
-                        newData.personalInfo.summary = newValue
-                        
-                        // Update immediately for responsive UI
-                        setEditData(newData)
-                        
-                        // Auto-resize on change
-                        e.target.style.height = 'auto'
-                        e.target.style.height = e.target.scrollHeight + 'px'
-                        
-                        // Debounce the history update to avoid flooding
-                        if (summaryChangeTimerRef.current) {
-                          clearTimeout(summaryChangeTimerRef.current)
-                        }
-                        summaryChangeTimerRef.current = setTimeout(() => {
-                          if (onDataChange) {
-                            onDataChange(newData)
-                          }
-                        }, 500) // Save to history after 500ms of no typing
-                      }}
-                      className="w-full text-sm text-gray-700 leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-white focus:border focus:border-blue-200 rounded px-2 py-1 -mx-2 -my-1 resize-none"
-                      style={{ minHeight: '60px' }}
-                      placeholder="Professional summary describing your experience and expertise"
-                    />
-                    
-                  </>
-                )}
-              </>
-            )}
           </div>
 
           {/* Achievements Section */}

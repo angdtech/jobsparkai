@@ -319,9 +319,9 @@ function ResumePageContent() {
           awards: Array.isArray(cvContent.achievements)
             ? cvContent.achievements.map((award: any, index: number) => ({
                 id: `award-${index}`,
-                title: award.title || award.name || '',
-                year: award.year || award.date || '',
-                description: award.description || ''
+                title: typeof award === 'string' ? award : (award.title || award.name || ''),
+                year: typeof award === 'string' ? '' : (award.year || award.date || ''),
+                description: typeof award === 'string' ? '' : (award.description || '')
               }))
             : [],
           languages: Array.isArray(cvContent.languages)

@@ -10,6 +10,8 @@ interface ResumeData {
     phone: string
     address: string
     summary: string
+    linkedin?: string
+    website?: string
   }
   experience: Array<{
     id: string
@@ -52,6 +54,7 @@ interface ResumeTemplate1Props {
 export function ResumeTemplate1({ data, onDataChange, isEditable = false }: ResumeTemplate1Props) {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(data)
+  const [hoveredContactDelete, setHoveredContactDelete] = useState<string | null>(null)
 
   const handleSave = () => {
     onDataChange(editData)
@@ -302,37 +305,130 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
             {/* Contact Info */}
             <div className="border-t pt-4">
               <div className="space-y-2 text-xs">
-                {isEditing ? (
-                  <>
+                {/* Phone */}
+                <div className="flex items-center group"
+                  onMouseEnter={() => setHoveredContactDelete('phone')}
+                  onMouseLeave={() => setHoveredContactDelete(null)}
+                >
+                  <div className="flex-1">
                     <input
                       type="text"
-                      value={currentData.personalInfo.phone}
+                      value={currentData.personalInfo.phone || ''}
                       onChange={(e) => updateField('personalInfo.phone', e.target.value)}
-                      className="text-black bg-transparent border-b border-gray-400 w-full"
+                      className="text-black bg-transparent border-b border-gray-400 w-full hover:bg-gray-50 focus:bg-white"
                       placeholder="Phone"
                     />
+                  </div>
+                  {hoveredContactDelete === 'phone' && (
+                    <span
+                      className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
+                      onClick={() => updateField('personalInfo.phone', '')}
+                      title="Delete phone"
+                    >
+                      ×
+                    </span>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div className="flex items-center group"
+                  onMouseEnter={() => setHoveredContactDelete('email')}
+                  onMouseLeave={() => setHoveredContactDelete(null)}
+                >
+                  <div className="flex-1">
                     <input
                       type="email"
-                      value={currentData.personalInfo.email}
+                      value={currentData.personalInfo.email || ''}
                       onChange={(e) => updateField('personalInfo.email', e.target.value)}
-                      className="text-black bg-transparent border-b border-gray-400 w-full"
+                      className="text-black bg-transparent border-b border-gray-400 w-full hover:bg-gray-50 focus:bg-white break-all"
                       placeholder="Email"
                     />
+                  </div>
+                  {hoveredContactDelete === 'email' && (
+                    <span
+                      className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
+                      onClick={() => updateField('personalInfo.email', '')}
+                      title="Delete email"
+                    >
+                      ×
+                    </span>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div className="flex items-start group"
+                  onMouseEnter={() => setHoveredContactDelete('address')}
+                  onMouseLeave={() => setHoveredContactDelete(null)}
+                >
+                  <div className="flex-1">
                     <textarea
-                      value={currentData.personalInfo.address}
+                      value={currentData.personalInfo.address || ''}
                       onChange={(e) => updateField('personalInfo.address', e.target.value)}
-                      className="text-black bg-transparent border border-gray-400 rounded w-full"
+                      className="text-black bg-transparent border border-gray-400 rounded w-full hover:bg-gray-50 focus:bg-white"
                       rows={2}
                       placeholder="Address"
                     />
-                  </>
-                ) : (
-                  <>
-                    <div className="text-black">{currentData.personalInfo.phone}</div>
-                    <div className="text-black break-all">{currentData.personalInfo.email}</div>
-                    <div className="text-black">{currentData.personalInfo.address}</div>
-                  </>
-                )}
+                  </div>
+                  {hoveredContactDelete === 'address' && (
+                    <span
+                      className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
+                      onClick={() => updateField('personalInfo.address', '')}
+                      title="Delete address"
+                    >
+                      ×
+                    </span>
+                  )}
+                </div>
+
+                {/* LinkedIn */}
+                <div className="flex items-center group"
+                  onMouseEnter={() => setHoveredContactDelete('linkedin')}
+                  onMouseLeave={() => setHoveredContactDelete(null)}
+                >
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={currentData.personalInfo.linkedin || ''}
+                      onChange={(e) => updateField('personalInfo.linkedin', e.target.value)}
+                      className="text-black bg-transparent border-b border-gray-400 w-full hover:bg-gray-50 focus:bg-white break-all"
+                      placeholder="LinkedIn URL"
+                    />
+                  </div>
+                  {hoveredContactDelete === 'linkedin' && (
+                    <span
+                      className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
+                      onClick={() => updateField('personalInfo.linkedin', '')}
+                      title="Delete LinkedIn"
+                    >
+                      ×
+                    </span>
+                  )}
+                </div>
+
+                {/* Website */}
+                <div className="flex items-center group"
+                  onMouseEnter={() => setHoveredContactDelete('website')}
+                  onMouseLeave={() => setHoveredContactDelete(null)}
+                >
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={currentData.personalInfo.website || ''}
+                      onChange={(e) => updateField('personalInfo.website', e.target.value)}
+                      className="text-black bg-transparent border-b border-gray-400 w-full hover:bg-gray-50 focus:bg-white break-all"
+                      placeholder="Website URL"
+                    />
+                  </div>
+                  {hoveredContactDelete === 'website' && (
+                    <span
+                      className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
+                      onClick={() => updateField('personalInfo.website', '')}
+                      title="Delete website"
+                    >
+                      ×
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
