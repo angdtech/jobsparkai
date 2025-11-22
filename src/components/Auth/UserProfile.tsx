@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { X } from 'lucide-react'
+import FeedbackModal from '@/components/Feedback/FeedbackModal'
 
 const LANGUAGE_OPTIONS = [
   { code: 'en-US', label: 'English (US)' },
@@ -18,11 +20,16 @@ const LANGUAGE_OPTIONS = [
   { code: 'ar-SA', label: 'العربية' }
 ]
 
-export default function UserProfile() {
+interface UserProfileProps {
+  onClose?: () => void
+}
+
+export default function UserProfile({ onClose }: UserProfileProps) {
   const { user, signOut, loading } = useAuth()
   const [languagePreference, setLanguagePreference] = useState('en-US')
   const [saving, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
+  const [showFeedbackModal, setShowFeedbackModal] = useState<'improvement' | 'bug' | null>(null)
 
   useEffect(() => {
     if (user) {
@@ -78,8 +85,17 @@ export default function UserProfile() {
     await signOut()
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+  const content = (
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md relative">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      )}
+      
       <h2 className="text-2xl font-bold mb-6 text-center">Profile</h2>
       
       <div className="space-y-4">
@@ -125,13 +141,60 @@ export default function UserProfile() {
           )}
         </div>
 
+        <div className="pt-4 border-t border-gray-200 space-y-2">
+          <button
+            onClick={() => setShowFeedbackModal('improvement')}
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Suggest an Improvement
+          </button>
+          <button
+            onClick={() => setShowFeedbackModal('bug')}
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Report a Bug
+          </button>
+        </div>
+
         <button
           onClick={handleSignOut}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 mt-4"
         >
           Sign Out
         </button>
       </div>
     </div>
+  )
+
+  // If onClose is provided, render as modal
+  if (onClose) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          {content}
+        </div>
+        {showFeedbackModal && (
+          <FeedbackModal
+            type={showFeedbackModal}
+            onClose={() => setShowFeedbackModal(null)}
+          />
+        )}
+      </>
+    )
+  }
+
+  // Otherwise render as page (for backward compatibility)
+  return (
+    <>
+      <div className="mt-8">
+        {content}
+      </div>
+      {showFeedbackModal && (
+        <FeedbackModal
+          type={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(null)}
+        />
+      )}
+    </>
   )
 }

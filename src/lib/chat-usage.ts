@@ -15,12 +15,12 @@ export async function getChatUsage(userId: string): Promise<{
   // If error or no data, give them access (new user)
   if (error || !data) {
     console.log('No user profile found or error, granting access:', error?.message)
-    return { used: 0, limit: 1, hasAccess: true, hasSubscription: false }
+    return { used: 0, limit: 2, hasAccess: true, hasSubscription: false }
   }
 
   const hasSubscription = data.subscription_status === 'active'
   const used = data.chat_responses_used || 0
-  const limit = data.free_chat_limit || 1
+  const limit = data.free_chat_limit || 2
 
   console.log('Chat usage check:', { used, limit, hasSubscription, hasAccess: hasSubscription || used < limit })
 

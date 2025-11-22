@@ -16,6 +16,7 @@ import { SkillsInline } from '@/components/CV/SkillsInline'
 import { ResumeSingleColumn } from '@/components/CV/ResumeSingleColumn'
 import { trackUserInteraction } from '@/lib/analytics'
 import { MessageCircle, Download, LayoutGrid, Sidebar } from 'lucide-react'
+import UserProfile from '@/components/Auth/UserProfile'
 
 interface ResumeData {
   personalInfo: {
@@ -94,6 +95,7 @@ function ResumePageContent() {
   } | null>(null)
   const [editModeText, setEditModeText] = useState<string | null>(null)
   const [showChatbot, setShowChatbot] = useState(true)
+  const [showProfileModal, setShowProfileModal] = useState(false)
   const [hideContactDetails, setHideContactDetails] = useState(false)
   const [hidePhoto, setHidePhoto] = useState(false)
   const [layoutMode, setLayoutMode] = useState<'sidebar' | 'single-column'>('sidebar')
@@ -301,13 +303,13 @@ function ResumePageContent() {
             ? (typeof cvContent.skills === 'object' && !Array.isArray(cvContent.skills)
                 ? // Complex categorized format - convert to flat array for template
                   Object.values(cvContent.skills).flat().map((skill: any, index: number) => ({
-                    id: `skill-${index}`,
+                    id: skill.id || `skill-${Date.now()}-${index}`,
                     name: typeof skill === 'string' ? skill : skill.name || '',
                     level: skill.level || 80
                   }))
                 : Array.isArray(cvContent.skills) 
                   ? cvContent.skills.map((skill: any, index: number) => ({ // Old array format
-                      id: `skill-${index}`,
+                      id: skill.id || `skill-${Date.now()}-${index}`,
                       name: typeof skill === 'string' ? skill : skill.name || '',
                       level: skill.level || 80
                     }))
@@ -893,7 +895,7 @@ function ResumePageContent() {
                 <span className="font-medium">Dashboard</span>
               </button>
               <button
-                onClick={() => router.push('/profile')}
+                onClick={() => setShowProfileModal(true)}
                 className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1001,6 +1003,7 @@ function ResumePageContent() {
               resumeData={resumeData}
               onClose={() => setShowChatbot(false)}
               onUpdateResume={updateResumeData}
+              onSaveResume={saveResumeData}
             />
           </div>
         )}
@@ -1049,6 +1052,11 @@ function ResumePageContent() {
             console.log('Generate more suggestions for:', text)
           }}
         />
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <UserProfile onClose={() => setShowProfileModal(false)} />
       )}
 
     </div>

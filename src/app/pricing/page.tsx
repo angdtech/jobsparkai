@@ -58,16 +58,16 @@ export default function PricingPage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-6">
-            Simple, Transparent Pricing
+            Get Fast, AI-Powered CV Analysis
           </h1>
           <p className="text-xl text-white/80">
-            Choose the plan that works best for you
+            Premium gives you unlimited access to our AI Resume Assistant
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Free</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Free Trial</h3>
             <div className="mb-6">
               <span className="text-5xl font-bold text-gray-900">£0</span>
               <span className="text-gray-600">/month</span>
@@ -75,19 +75,19 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">Upload and analyze your CV</span>
+                <span className="text-gray-700">Upload and analyze your CV instantly</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">5 AI chat messages per month</span>
+                <span className="text-gray-700"><strong>2 AI chat messages</strong> to trial the Resume Assistant</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">Basic CV templates</span>
+                <span className="text-gray-700">See instant CV improvements and ATS feedback</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">PDF export</span>
+                <span className="text-gray-700">Export to PDF</span>
               </li>
             </ul>
             <button
@@ -100,7 +100,7 @@ export default function PricingPage() {
 
           <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-xl p-8 text-white relative">
             <div className="absolute top-4 right-4 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full">
-              POPULAR
+              BEST VALUE
             </div>
             <h3 className="text-2xl font-bold mb-4">Premium</h3>
             <div className="mb-6">
@@ -110,23 +110,23 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Everything in Free</span>
+                <span><strong>Unlimited AI Resume Assistant</strong> - chat as much as you need</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Unlimited AI chat messages</span>
+                <span><strong>Fast CV analysis and updates</strong> with priority processing</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Advanced CV suggestions</span>
+                <span>AI-powered improvements and suggestions</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Job description matching</span>
+                <span>Compare your CV to job descriptions</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Priority support</span>
+                <span>All templates and export options</span>
               </li>
             </ul>
             <button

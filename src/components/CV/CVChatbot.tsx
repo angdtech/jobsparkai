@@ -17,9 +17,10 @@ interface CVChatbotProps {
   resumeData: any
   onClose: () => void
   onUpdateResume?: (data: any) => void
+  onSaveResume?: (data: any) => Promise<void>
 }
 
-export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProps) {
+export function CVChatbot({ resumeData, onClose, onUpdateResume, onSaveResume }: CVChatbotProps) {
   const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -35,6 +36,14 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
   const [currentLanguage, setCurrentLanguage] = useState('en-US')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  
+  // Track the latest resume data internally so AI always sees current state
+  const latestResumeDataRef = useRef(resumeData)
+  
+  // Update ref whenever resumeData prop changes
+  useEffect(() => {
+    latestResumeDataRef.current = resumeData
+  }, [resumeData])
 
   const LANGUAGE_OPTIONS = [
     { code: 'en-US', label: 'English (US)', flag: '🇺🇸' },
@@ -102,7 +111,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
     URL.revokeObjectURL(url)
   }
 
-  const applyUpdate = (messageIndex: number) => {
+  const applyUpdate = async (messageIndex: number) => {
     const message = messages[messageIndex]
     if (message.cvUpdate && onUpdateResume && resumeData) {
       console.log('📝 Applying CV update:', message.cvUpdate)
@@ -110,33 +119,44 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       // Deep merge the update with existing resume data
       const mergedData = JSON.parse(JSON.stringify(resumeData)) // Deep clone
       
+      console.log('🔍 BEFORE MERGE - Existing skills:', mergedData.skills)
+      console.log('🔍 CV Update to apply:', message.cvUpdate)
+      
       // Merge each top-level key
       Object.keys(message.cvUpdate).forEach(key => {
         if (Array.isArray(message.cvUpdate[key])) {
-          // For arrays with items that have IDs, update by ID or append new ones
-          if (Array.isArray(mergedData[key]) && mergedData[key].length > 0 && mergedData[key][0]?.id) {
+          // CRITICAL: Always append to existing arrays for skills, experience, awards, etc.
+          // Never replace the entire array
+          if (Array.isArray(mergedData[key])) {
+            console.log(`📋 Merging array for ${key}. Existing count: ${mergedData[key].length}`)
             const updateArray = [...mergedData[key]]
+            
             message.cvUpdate[key].forEach((newItem: any) => {
-              // For experience, try to match by ID, company+position, or company alone
+              // Check if item already exists
               let existingIndex = -1
+              
               if (key === 'experience') {
                 existingIndex = updateArray.findIndex((item: any) => 
                   item.id === newItem.id || 
                   (item.company === newItem.company && item.position === newItem.position) ||
                   item.company === newItem.company
                 )
-              } else {
+              } else if (key === 'skills') {
+                // For skills, match by name (case-insensitive)
+                existingIndex = updateArray.findIndex((item: any) => 
+                  item.id === newItem.id || 
+                  item.name?.toLowerCase() === newItem.name?.toLowerCase()
+                )
+              } else if (newItem.id) {
                 existingIndex = updateArray.findIndex((item: any) => item.id === newItem.id)
               }
               
               if (existingIndex >= 0) {
-                // Update existing item - merge description_items if both exist
+                console.log(`♻️ Updating existing item in ${key} at index ${existingIndex}`)
                 const existingItem = updateArray[existingIndex]
                 if (key === 'experience' && newItem.description_items && existingItem.description_items) {
-                  // Merge description items intelligently - ensure all are strings
                   const mergedItems = [...existingItem.description_items]
                   newItem.description_items.forEach((newDesc: any) => {
-                    // Convert to string if it's an object
                     const descText = typeof newDesc === 'string' ? newDesc : (newDesc?.text || String(newDesc))
                     if (!mergedItems.includes(descText)) {
                       mergedItems.push(descText)
@@ -147,13 +167,16 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
                   updateArray[existingIndex] = { ...existingItem, ...newItem }
                 }
               } else {
-                // Append new item only if it's truly new
+                console.log(`➕ Appending new item to ${key}:`, newItem)
                 updateArray.push(newItem)
               }
             })
+            
             mergedData[key] = updateArray
+            console.log(`✅ AFTER MERGE - ${key} count: ${mergedData[key].length}`)
           } else {
-            // Replace the entire array if no IDs present
+            // No existing array, just use the new one
+            console.log(`🆕 Creating new array for ${key}`)
             mergedData[key] = message.cvUpdate[key]
           }
         } else if (typeof message.cvUpdate[key] === 'object' && message.cvUpdate[key] !== null) {
@@ -165,21 +188,153 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
         }
       })
       
+      console.log('🔍 AFTER MERGE - Final skills:', mergedData.skills)
+      console.log('🔍 AFTER MERGE - Final skills count:', mergedData.skills?.length)
+      
+      if (message.cvUpdate.skills) {
+        console.log('⚠️ Skills being added:', message.cvUpdate.skills)
+        console.log('⚠️ Original skills count:', resumeData.skills?.length)
+        console.log('⚠️ Merged skills count:', mergedData.skills?.length)
+        
+        // Check if any are truly new (not duplicates)
+        const newSkills = message.cvUpdate.skills.filter((newSkill: any) => 
+          !resumeData.skills?.some((existing: any) => 
+            existing.name?.toLowerCase() === newSkill.name?.toLowerCase()
+          )
+        )
+        console.log('⚠️ Truly new skills (not duplicates):', newSkills.length)
+      }
+      
       console.log('📝 Merged resume data:', mergedData)
       console.log('📝 Original resume data:', resumeData)
+      
+      // Update the latest resume data ref so next AI call sees the changes
+      latestResumeDataRef.current = mergedData
+      
       onUpdateResume(mergedData)
+      
+      // Immediately save to database to prevent data loss
+      if (onSaveResume) {
+        console.log('💾 Immediately saving to database...')
+        await onSaveResume(mergedData)
+      }
       
       // Mark as applied
       const updatedMessages = [...messages]
       updatedMessages[messageIndex] = { ...message, updateApplied: true }
       setMessages(updatedMessages)
+      
+      // Ask user if they want the next fix
+      const askForNext: Message = {
+        role: 'assistant',
+        content: 'Great! Ready for the next fix?'
+      }
+      setMessages([...updatedMessages, askForNext])
+      
+      // Wait for user to say "yes", "next", "continue", etc. - no automatic API call
+      // The handleSend will trigger when user responds
+      
+      /*
+      setTimeout(async () => {
+        const followUpMessage: Message = { role: 'user', content: 'Applied! What\'s next?' }
+        const newMessages = [...updatedMessages, followUpMessage]
+        // Don't add the follow-up message to visible messages - just use it for context
+        setIsLoading(true)
+        
+        try {
+          const recentMessages = newMessages.slice(-5)
+          
+          const response = await fetch('/api/cv/chatbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: recentMessages,
+              resumeData: mergedData,
+              canUpdateCV: !!onUpdateResume,
+              userId: user?.id
+            }),
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            // Add only the AI response to visible messages, not the hidden "Applied! What's next?"
+            setMessages(updatedMessages => [...updatedMessages, {
+              role: 'assistant',
+              content: data.message,
+              cvUpdate: data.cvUpdate
+            }])
+            
+            if (user?.id && chatUsage && !chatUsage.hasSubscription) {
+              const newUsed = chatUsage.used + 1
+              setChatUsage({
+                ...chatUsage,
+                used: newUsed,
+                hasAccess: newUsed < chatUsage.limit
+              })
+            }
+          }
+        } catch (error) {
+          console.error('Error getting follow-up:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }, 500)
+      */
     }
   }
 
-  const rejectUpdate = (messageIndex: number) => {
+  const rejectUpdate = async (messageIndex: number) => {
     const updatedMessages = [...messages]
     updatedMessages[messageIndex] = { ...updatedMessages[messageIndex], cvUpdate: undefined }
     setMessages(updatedMessages)
+    
+    // DISABLED: No automatic alternative - user can manually ask if they want a different approach
+    /*
+    setTimeout(async () => {
+      const followUpMessage: Message = { role: 'user', content: 'I don\'t like that change. Can you suggest a different approach?' }
+      const newMessages = [...updatedMessages, followUpMessage]
+      // Don't add the follow-up message to visible messages - just use it for context
+      setIsLoading(true)
+      
+      try {
+        const recentMessages = newMessages.slice(-5)
+        
+        const response = await fetch('/api/cv/chatbot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: recentMessages,
+            resumeData,
+            canUpdateCV: !!onUpdateResume,
+            userId: user?.id
+          }),
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          // Add only the AI response to visible messages, not the hidden rejection message
+          setMessages(updatedMessages => [...updatedMessages, {
+            role: 'assistant',
+            content: data.message,
+            cvUpdate: data.cvUpdate
+          }])
+          
+          if (user?.id && chatUsage && !chatUsage.hasSubscription) {
+            const newUsed = chatUsage.used + 1
+            setChatUsage({
+              ...chatUsage,
+              used: newUsed,
+              hasAccess: newUsed < chatUsage.limit
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error getting alternative:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }, 500)
+    */
   }
 
   const handleSend = async () => {
@@ -197,7 +352,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
         content: input
       }, {
         role: 'assistant',
-        content: 'Subscribe for £5/month to continue using the AI chat assistant with unlimited access!'
+        content: 'You\'ve used your 2 free trial messages. Subscribe for £5/month to get unlimited AI Resume Assistant access with fast analysis and updates!'
       }])
       setInput('')
       return
@@ -212,6 +367,9 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
       // Only send last 5 messages to avoid token limit (each message + resumeData can be large)
       const recentMessages = [...messages, userMessage].slice(-5)
       
+      console.log('🚀 SENDING TO AI - Skills count:', latestResumeDataRef.current?.skills?.length)
+      console.log('🚀 SENDING TO AI - Skills:', latestResumeDataRef.current?.skills?.map((s: any) => s.name))
+      
       const response = await fetch('/api/cv/chatbot', {
         method: 'POST',
         headers: {
@@ -219,7 +377,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
         },
         body: JSON.stringify({
           messages: recentMessages,
-          resumeData,
+          resumeData: latestResumeDataRef.current,
           canUpdateCV: !!onUpdateResume,
           userId: user?.id
         }),
@@ -394,7 +552,7 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
 
               {message.updateApplied && (
                 <div className="mt-2 pt-2 border-t border-green-200 bg-green-50 rounded p-2">
-                  <p className="text-xs text-green-700 font-medium">Changes Applied to CV</p>
+                  <p className="text-xs text-green-700 font-medium">✓ Changes Applied to CV</p>
                 </div>
               )}
             </div>
@@ -417,8 +575,8 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
           <div className="mb-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">Unlock Unlimited AI Chat</p>
-                <p className="text-xs text-gray-600">Subscribe for £5/month for unlimited AI assistance</p>
+                <p className="text-sm font-semibold text-gray-900">Unlock Unlimited AI Resume Assistant</p>
+                <p className="text-xs text-gray-600">Get fast CV analysis and unlimited chat for £5/month</p>
               </div>
               <button
                 onClick={() => window.location.href = '/pricing'}
@@ -432,14 +590,14 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume }: CVChatbotProp
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap gap-2 mb-3">
           <button
-            onClick={() => setInput('Scan my CV and give me a comprehensive analysis')}
+            onClick={() => setInput('Scan my resume and give me a comprehensive analysis')}
             className="text-xs px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full border border-blue-200 transition-colors"
             disabled={isLoading}
           >
-            Scan my CV
+            Scan my Resume
           </button>
           <button
-            onClick={() => setInput('Compare my CV to this job description: ')}
+            onClick={() => setInput('Compare my resume to this job description: ')}
             className="text-xs px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-full border border-green-200 transition-colors"
             disabled={isLoading}
           >

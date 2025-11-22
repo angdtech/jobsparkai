@@ -7,6 +7,7 @@ import { CVSession } from '@/lib/database'
 import { useDropzone } from 'react-dropzone'
 import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import UserProfile from '@/components/Auth/UserProfile'
 
 // Engaging facts and tips for upload progress
 const UPLOAD_FACTS = [
@@ -43,6 +44,7 @@ export default function Dashboard() {
   const [cvAnalysisData, setCvAnalysisData] = useState<{[key: string]: any}>({})
   const [loadingSessions, setLoadingSessions] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStep, setUploadStep] = useState(0)
   const [currentFactIndex, setCurrentFactIndex] = useState(0)
@@ -161,15 +163,19 @@ export default function Dashboard() {
       console.log('➡️ [DASHBOARD] Redirecting to /resume?session=' + sessionId)
       router.push(`/resume?session=${sessionId}`)
       
-      // Upload and parse in background with original working parser (don't await)
-      console.log('🚀 [DASHBOARD] Starting background upload to /api/cv/upload...')
-      fetch('/api/cv/upload', {
+      // Upload and parse in background with OPTIMIZED parallel parser (don't await)
+      console.log('🚀 [DASHBOARD] Starting background upload to /api/cv/upload-analyze-parallel...')
+      fetch('/api/cv/upload-analyze-parallel', {
         method: 'POST',
-        body: formData
+        headers: {
+          'x-user-email': user?.email || ''
+        },
+        body: formData,
+        keepalive: true
       }).then(() => {
         console.log('✅ [DASHBOARD] Background upload request sent successfully')
       }).catch(error => {
-        console.error('❌ [DASHBOARD] Background upload failed:', error)
+        console.error('❌ [DASHBOARD] Background upload failed (this is OK - processing continues):', error)
       })
       
       console.log('✅ [DASHBOARD] ========== DASHBOARD UPLOAD FLOW COMPLETE ==========')
@@ -252,7 +258,7 @@ export default function Dashboard() {
                 </button>
               )}
               <button
-                onClick={() => router.push('/profile')}
+                onClick={() => setShowProfileModal(true)}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 Profile
@@ -603,6 +609,11 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <UserProfile onClose={() => setShowProfileModal(false)} />
       )}
     </div>
   )
