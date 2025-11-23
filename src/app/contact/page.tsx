@@ -6,6 +6,15 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Mail, User, MessageSquare, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
+export const metadata = {
+  title: 'Contact Us - Get Help with Your Resume',
+  description: 'Need help with JobSpark AI? Contact our support team for assistance with resume building, account issues, or general inquiries. We\'re here to help you succeed.',
+  openGraph: {
+    title: 'Contact Us - JobSpark AI',
+    description: 'Get help with your resume and career tools. Our support team is here for you.',
+  },
+}
+
 export default function ContactPage() {
   const router = useRouter()
   const { user } = useAuth()

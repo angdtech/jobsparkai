@@ -1,0 +1,19 @@
+# robots.txt for JobSpark AI
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /cv/
+Disallow: /resume
+
+# Allow important public pages
+Allow: /
+Allow: /pricing
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms-of-service
+
+# Sitemap location
+Sitemap: https://jobsparkai.com/sitemap.xml
