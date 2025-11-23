@@ -158,6 +158,7 @@ export function ResumeTemplate2({
   const [hoveredLanguageDelete, setHoveredLanguageDelete] = useState<number | null>(null)
   const [hoveredExperienceDelete, setHoveredExperienceDelete] = useState<number | null>(null)
   const [hoveredContactDelete, setHoveredContactDelete] = useState<string | null>(null)
+  const [activeContactFields, setActiveContactFields] = useState<Set<string>>(new Set())
   const [showSummaryFeedback, setShowSummaryFeedback] = useState(true)
   const summaryTextareaRef = useRef<HTMLTextAreaElement>(null)
   const summaryChangeTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -231,6 +232,16 @@ export function ResumeTemplate2({
   }
 
   const currentData = isEditing ? editData : data
+
+  useEffect(() => {
+    const fields = new Set<string>()
+    if (currentData.personalInfo.phone && currentData.personalInfo.phone.trim()) fields.add('phone')
+    if (currentData.personalInfo.email && currentData.personalInfo.email.trim()) fields.add('email')
+    if (currentData.personalInfo.address && currentData.personalInfo.address.trim()) fields.add('address')
+    if (currentData.personalInfo.linkedin && currentData.personalInfo.linkedin.trim()) fields.add('linkedin')
+    if (currentData.personalInfo.website && currentData.personalInfo.website.trim()) fields.add('website')
+    setActiveContactFields(fields)
+  }, [currentData.personalInfo])
 
   // Auto-resize summary textarea on mount and content change
   useEffect(() => {
@@ -498,6 +509,7 @@ export function ResumeTemplate2({
                 />
               </h3>
             <div className="space-y-2">
+              {activeContactFields.has('address') && (
               <div className="flex items-center group"
                 onMouseEnter={() => setHoveredContactDelete('location')}
                 onMouseLeave={() => setHoveredContactDelete(null)}
@@ -526,6 +538,11 @@ export function ResumeTemplate2({
                       const newData = JSON.parse(JSON.stringify(currentData))
                       newData.personalInfo.address = ''
                       onDataChange(newData)
+                      setActiveContactFields(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete('address')
+                        return newSet
+                      })
                       setHoveredContactDelete(null)
                     }}
                     title="Delete location"
@@ -534,6 +551,8 @@ export function ResumeTemplate2({
                   </span>
                 )}
               </div>
+              )}
+              {activeContactFields.has('phone') && (
               <div className="flex items-center group"
                 onMouseEnter={() => setHoveredContactDelete('phone')}
                 onMouseLeave={() => setHoveredContactDelete(null)}
@@ -562,6 +581,11 @@ export function ResumeTemplate2({
                       const newData = JSON.parse(JSON.stringify(currentData))
                       newData.personalInfo.phone = ''
                       onDataChange(newData)
+                      setActiveContactFields(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete('phone')
+                        return newSet
+                      })
                       setHoveredContactDelete(null)
                     }}
                     title="Delete phone"
@@ -570,6 +594,8 @@ export function ResumeTemplate2({
                   </span>
                 )}
               </div>
+              )}
+              {activeContactFields.has('email') && (
               <div className="flex items-center group"
                 onMouseEnter={() => setHoveredContactDelete('email')}
                 onMouseLeave={() => setHoveredContactDelete(null)}
@@ -598,6 +624,11 @@ export function ResumeTemplate2({
                       const newData = JSON.parse(JSON.stringify(currentData))
                       newData.personalInfo.email = ''
                       onDataChange(newData)
+                      setActiveContactFields(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete('email')
+                        return newSet
+                      })
                       setHoveredContactDelete(null)
                     }}
                     title="Delete email"
@@ -606,9 +637,8 @@ export function ResumeTemplate2({
                   </span>
                 )}
               </div>
-              
-              
-              {/* LinkedIn URL */}
+              )}
+              {activeContactFields.has('linkedin') && (
               <div className="flex items-center group"
                 onMouseEnter={() => setHoveredContactDelete('linkedin')}
                 onMouseLeave={() => setHoveredContactDelete(null)}
@@ -637,6 +667,11 @@ export function ResumeTemplate2({
                       const newData = JSON.parse(JSON.stringify(currentData))
                       newData.personalInfo.linkedin = ''
                       onDataChange(newData)
+                      setActiveContactFields(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete('linkedin')
+                        return newSet
+                      })
                       setHoveredContactDelete(null)
                     }}
                     title="Delete LinkedIn"
@@ -645,8 +680,8 @@ export function ResumeTemplate2({
                   </span>
                 )}
               </div>
-              
-              {/* Website URL */}
+              )}
+              {activeContactFields.has('website') && (
               <div className="flex items-center group"
                 onMouseEnter={() => setHoveredContactDelete('website')}
                 onMouseLeave={() => setHoveredContactDelete(null)}
@@ -675,6 +710,11 @@ export function ResumeTemplate2({
                       const newData = JSON.parse(JSON.stringify(currentData))
                       newData.personalInfo.website = ''
                       onDataChange(newData)
+                      setActiveContactFields(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete('website')
+                        return newSet
+                      })
                       setHoveredContactDelete(null)
                     }}
                     title="Delete website"
@@ -683,6 +723,82 @@ export function ResumeTemplate2({
                   </span>
                 )}
               </div>
+              )}
+              
+              {(activeContactFields.size < 5) && (
+              <div className="relative mt-4">
+                <button 
+                  onClick={() => setHoveredContactDelete('addField')}
+                  className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
+                >
+                  + Add Contact Field ▼
+                </button>
+                {hoveredContactDelete === 'addField' && (
+                  <div 
+                    className="absolute left-0 mt-1 w-40 bg-slate-700 rounded-md shadow-lg border border-slate-600 z-10"
+                    onMouseLeave={() => setHoveredContactDelete(null)}
+                  >
+                    <div className="py-1">
+                      {!activeContactFields.has('phone') && (
+                        <button
+                          onClick={() => {
+                            setActiveContactFields(prev => new Set(prev).add('phone'))
+                            setHoveredContactDelete(null)
+                          }}
+                          className="block w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-600"
+                        >
+                          + Phone
+                        </button>
+                      )}
+                      {!activeContactFields.has('email') && (
+                        <button
+                          onClick={() => {
+                            setActiveContactFields(prev => new Set(prev).add('email'))
+                            setHoveredContactDelete(null)
+                          }}
+                          className="block w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-600"
+                        >
+                          + Email
+                        </button>
+                      )}
+                      {!activeContactFields.has('address') && (
+                        <button
+                          onClick={() => {
+                            setActiveContactFields(prev => new Set(prev).add('address'))
+                            setHoveredContactDelete(null)
+                          }}
+                          className="block w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-600"
+                        >
+                          + Address
+                        </button>
+                      )}
+                      {!activeContactFields.has('linkedin') && (
+                        <button
+                          onClick={() => {
+                            setActiveContactFields(prev => new Set(prev).add('linkedin'))
+                            setHoveredContactDelete(null)
+                          }}
+                          className="block w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-600"
+                        >
+                          + LinkedIn
+                        </button>
+                      )}
+                      {!activeContactFields.has('website') && (
+                        <button
+                          onClick={() => {
+                            setActiveContactFields(prev => new Set(prev).add('website'))
+                            setHoveredContactDelete(null)
+                          }}
+                          className="block w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-600"
+                        >
+                          + Website
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              )}
             </div>
           </div>
           )}

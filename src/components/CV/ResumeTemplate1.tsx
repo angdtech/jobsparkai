@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface ResumeData {
   personalInfo: {
@@ -55,6 +55,7 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(data)
   const [hoveredContactDelete, setHoveredContactDelete] = useState<string | null>(null)
+  const [activeContactFields, setActiveContactFields] = useState<Set<string>>(new Set())
 
   const handleSave = () => {
     onDataChange(editData)
@@ -98,6 +99,16 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
   }
 
   const currentData = isEditing ? editData : data
+
+  useEffect(() => {
+    const fields = new Set<string>()
+    if (currentData.personalInfo.phone && currentData.personalInfo.phone.trim()) fields.add('phone')
+    if (currentData.personalInfo.email && currentData.personalInfo.email.trim()) fields.add('email')
+    if (currentData.personalInfo.address && currentData.personalInfo.address.trim()) fields.add('address')
+    if (currentData.personalInfo.linkedin && currentData.personalInfo.linkedin.trim()) fields.add('linkedin')
+    if (currentData.personalInfo.website && currentData.personalInfo.website.trim()) fields.add('website')
+    setActiveContactFields(fields)
+  }, [currentData.personalInfo])
 
   return (
     <div className="relative">
@@ -305,7 +316,7 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
             {/* Contact Info */}
             <div className="border-t pt-4">
               <div className="space-y-2 text-xs">
-                {/* Phone */}
+                {activeContactFields.has('phone') && (
                 <div className="flex items-center group"
                   onMouseEnter={() => setHoveredContactDelete('phone')}
                   onMouseLeave={() => setHoveredContactDelete(null)}
@@ -322,15 +333,22 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
                   {hoveredContactDelete === 'phone' && (
                     <span
                       className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
-                      onClick={() => updateField('personalInfo.phone', '')}
+                      onClick={() => {
+                        updateField('personalInfo.phone', '')
+                        setActiveContactFields(prev => {
+                          const newSet = new Set(prev)
+                          newSet.delete('phone')
+                          return newSet
+                        })
+                      }}
                       title="Delete phone"
                     >
                       ×
                     </span>
                   )}
                 </div>
-
-                {/* Email */}
+                )}
+                {activeContactFields.has('email') && (
                 <div className="flex items-center group"
                   onMouseEnter={() => setHoveredContactDelete('email')}
                   onMouseLeave={() => setHoveredContactDelete(null)}
@@ -347,15 +365,22 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
                   {hoveredContactDelete === 'email' && (
                     <span
                       className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
-                      onClick={() => updateField('personalInfo.email', '')}
+                      onClick={() => {
+                        updateField('personalInfo.email', '')
+                        setActiveContactFields(prev => {
+                          const newSet = new Set(prev)
+                          newSet.delete('email')
+                          return newSet
+                        })
+                      }}
                       title="Delete email"
                     >
                       ×
                     </span>
                   )}
                 </div>
-
-                {/* Address */}
+                )}
+                {activeContactFields.has('address') && (
                 <div className="flex items-start group"
                   onMouseEnter={() => setHoveredContactDelete('address')}
                   onMouseLeave={() => setHoveredContactDelete(null)}
@@ -372,15 +397,22 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
                   {hoveredContactDelete === 'address' && (
                     <span
                       className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
-                      onClick={() => updateField('personalInfo.address', '')}
+                      onClick={() => {
+                        updateField('personalInfo.address', '')
+                        setActiveContactFields(prev => {
+                          const newSet = new Set(prev)
+                          newSet.delete('address')
+                          return newSet
+                        })
+                      }}
                       title="Delete address"
                     >
                       ×
                     </span>
                   )}
                 </div>
-
-                {/* LinkedIn */}
+                )}
+                {activeContactFields.has('linkedin') && (
                 <div className="flex items-center group"
                   onMouseEnter={() => setHoveredContactDelete('linkedin')}
                   onMouseLeave={() => setHoveredContactDelete(null)}
@@ -397,15 +429,22 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
                   {hoveredContactDelete === 'linkedin' && (
                     <span
                       className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
-                      onClick={() => updateField('personalInfo.linkedin', '')}
+                      onClick={() => {
+                        updateField('personalInfo.linkedin', '')
+                        setActiveContactFields(prev => {
+                          const newSet = new Set(prev)
+                          newSet.delete('linkedin')
+                          return newSet
+                        })
+                      }}
                       title="Delete LinkedIn"
                     >
                       ×
                     </span>
                   )}
                 </div>
-
-                {/* Website */}
+                )}
+                {activeContactFields.has('website') && (
                 <div className="flex items-center group"
                   onMouseEnter={() => setHoveredContactDelete('website')}
                   onMouseLeave={() => setHoveredContactDelete(null)}
@@ -422,13 +461,96 @@ export function ResumeTemplate1({ data, onDataChange, isEditable = false }: Resu
                   {hoveredContactDelete === 'website' && (
                     <span
                       className="ml-2 text-red-600 hover:text-red-800 cursor-pointer text-sm font-bold"
-                      onClick={() => updateField('personalInfo.website', '')}
+                      onClick={() => {
+                        updateField('personalInfo.website', '')
+                        setActiveContactFields(prev => {
+                          const newSet = new Set(prev)
+                          newSet.delete('website')
+                          return newSet
+                        })
+                      }}
                       title="Delete website"
                     >
                       ×
                     </span>
                   )}
                 </div>
+                )}
+                
+                {(activeContactFields.size < 5) && (
+                <div className="relative mt-4">
+                  <button 
+                    onClick={() => setHoveredContactDelete('addField')}
+                    className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
+                  >
+                    + Add Contact Field ▼
+                  </button>
+                  {hoveredContactDelete === 'addField' && (
+                    <div 
+                      className="absolute left-0 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                      onMouseLeave={() => setHoveredContactDelete(null)}
+                    >
+                      <div className="py-1">
+                        {!activeContactFields.has('phone') && (
+                          <button
+                            onClick={() => {
+                              setActiveContactFields(prev => new Set(prev).add('phone'))
+                              setHoveredContactDelete(null)
+                            }}
+                            className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                          >
+                            + Phone
+                          </button>
+                        )}
+                        {!activeContactFields.has('email') && (
+                          <button
+                            onClick={() => {
+                              setActiveContactFields(prev => new Set(prev).add('email'))
+                              setHoveredContactDelete(null)
+                            }}
+                            className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                          >
+                            + Email
+                          </button>
+                        )}
+                        {!activeContactFields.has('address') && (
+                          <button
+                            onClick={() => {
+                              setActiveContactFields(prev => new Set(prev).add('address'))
+                              setHoveredContactDelete(null)
+                            }}
+                            className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                          >
+                            + Address
+                          </button>
+                        )}
+                        {!activeContactFields.has('linkedin') && (
+                          <button
+                            onClick={() => {
+                              setActiveContactFields(prev => new Set(prev).add('linkedin'))
+                              setHoveredContactDelete(null)
+                            }}
+                            className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                          >
+                            + LinkedIn
+                          </button>
+                        )}
+                        {!activeContactFields.has('website') && (
+                          <button
+                            onClick={() => {
+                              setActiveContactFields(prev => new Set(prev).add('website'))
+                              setHoveredContactDelete(null)
+                            }}
+                            className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                          >
+                            + Website
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                )}
               </div>
             </div>
           </div>

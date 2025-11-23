@@ -469,46 +469,35 @@ function ResumePageContent() {
         throw selectError
       }
 
-      let result = null
-      let operationError = null
-      
       if (existingRecord) {
         // Record exists, update it
         console.log('🔄 Updating existing record:', existingRecord.id)
-        const { data: updateResult, error } = await supabase
+        const { error } = await supabase
           .from('cv_content')
           .update(contentData)
           .eq('id', existingRecord.id)
-          .select()
-        
-        result = updateResult
-        operationError = error
         
         if (error) {
           console.error('❌ Update failed:', error)
-          throw new Error(`Update failed: ${error.message || JSON.stringify(error)}`)
+          alert('Failed to save changes. Please try again.')
         } else {
-          console.log('✅ Update successful:', updateResult?.length, 'records updated')
+          console.log('✅ Update successful')
         }
       } else {
         // No record exists, insert new one
         console.log('➕ Creating new record')
-        const { data: insertResult, error: insertError } = await supabase
+        const { error: insertError } = await supabase
           .from('cv_content')
           .insert({
             ...contentData,
             created_at: new Date().toISOString()
           })
-          .select()
-        
-        result = insertResult
-        operationError = insertError
         
         if (insertError) {
           console.error('❌ Insert failed:', insertError)
-          throw new Error(`Insert failed: ${insertError.message || JSON.stringify(insertError)}`)
+          alert('Failed to save changes. Please try again.')
         } else {
-          console.log('✅ Insert successful:', insertResult?.length, 'records created')
+          console.log('✅ Insert successful')
         }
       }
 
@@ -516,9 +505,6 @@ function ResumePageContent() {
       console.error('❌ Error saving resume data:', error)
       console.error('Session ID:', sessionId)
       console.error('User ID:', user?.id)
-      
-      // Show user-friendly error message
-      alert('Failed to save changes. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -978,62 +964,6 @@ function ResumePageContent() {
                   >
                     {hidePhoto ? 'Show Photo' : 'Hide Photo'}
                   </button>
-                  
-                  {/* Hide individual contact fields */}
-                  <div className="relative group">
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-full text-sm font-medium">
-                      Hide Fields from PDF ▼
-                    </button>
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 hidden group-hover:block z-10">
-                      <div className="p-3 space-y-2">
-                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hiddenContactFields.phone || false}
-                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, phone: e.target.checked }))}
-                            className="mr-3"
-                          />
-                          Hide Phone
-                        </label>
-                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hiddenContactFields.email || false}
-                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, email: e.target.checked }))}
-                            className="mr-3"
-                          />
-                          Hide Email
-                        </label>
-                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hiddenContactFields.address || false}
-                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, address: e.target.checked }))}
-                            className="mr-3"
-                          />
-                          Hide Address
-                        </label>
-                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hiddenContactFields.linkedin || false}
-                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, linkedin: e.target.checked }))}
-                            className="mr-3"
-                          />
-                          Hide LinkedIn
-                        </label>
-                        <label className="flex items-center text-sm text-gray-700 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hiddenContactFields.website || false}
-                            onChange={(e) => setHiddenContactFields(prev => ({ ...prev, website: e.target.checked }))}
-                            className="mr-3"
-                          />
-                          Hide Website
-                        </label>
-                      </div>
-                    </div>
-                  </div>
                 </>
               )}
 
