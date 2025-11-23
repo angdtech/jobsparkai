@@ -5,15 +5,6 @@ import { Check } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
 
-export const metadata = {
-  title: 'Pricing - Affordable AI Resume Builder Plans',
-  description: 'Choose the perfect plan for your career journey. Free resume builder with AI-powered features. Premium plans start at just $9.99/month. No hidden fees.',
-  openGraph: {
-    title: 'Pricing - JobSpark AI',
-    description: 'Affordable AI-powered resume builder plans. Start free today.',
-  },
-}
-
 export default function PricingPage() {
   const router = useRouter()
   const { user } = useAuth()
