@@ -28,13 +28,13 @@ export default function CoachingOverview({
     const strengths = analysis.strengths?.length || 0
     
     if (score >= 85) {
-      return "Strong professional presentation with clear structure and impactful content. Your CV effectively communicates your value proposition."
+      return "Strong professional presentation with clear structure and impactful content. Your resume effectively communicates your value proposition."
     } else if (score >= 70) {
       return "Good foundation with room for improvement. The technical skills come through well, but some formatting and content tweaks will increase impact."
     } else if (score >= 55) {
       return "Solid experience is evident, but the layout and presentation could be optimized to better highlight your key achievements and make a stronger first impression."
     } else {
-      return "Strong technical background comes through, but the layout hides key achievements and the CV feels generic. Significant improvements needed for maximum impact."
+      return "Strong technical background comes through, but the layout hides key achievements and the resume feels generic. Significant improvements needed for maximum impact."
     }
   }
 
@@ -59,9 +59,9 @@ export default function CoachingOverview({
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
         <div className="flex items-center space-x-3 mb-2">
           <Target className="w-6 h-6" />
-          <h2 className="text-2xl font-bold">CV Analysis Complete</h2>
+          <h2 className="text-2xl font-bold">Resume Analysis Complete</h2>
         </div>
-        <p className="text-blue-100">Here's how your CV comes across at first glance</p>
+        <p className="text-blue-100">Here's how your resume comes across at first glance</p>
       </div>
 
       <div className="p-6">
@@ -139,7 +139,7 @@ export default function CoachingOverview({
             <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
               📋
             </div>
-            Your CV Summary
+            Your Resume Summary
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -224,7 +224,7 @@ export default function CoachingOverview({
                   <div>
                     <h4 className="font-semibold text-blue-800 mb-2">Improvement Potential</h4>
                     <p className="text-sm text-blue-700">
-                      Your CV has great potential! We'll help you identify and highlight your key strengths 
+                      Your resume has great potential! We'll help you identify and highlight your key strengths 
                       to make them more visible to recruiters.
                     </p>
                   </div>
@@ -241,10 +241,10 @@ export default function CoachingOverview({
               <Shield className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">Understanding CV Usage</h3>
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">Understanding Resume Usage</h3>
               <div className="space-y-3 text-sm text-blue-700">
                 <div>
-                  <div className="font-semibold">📧 This CV Version:</div>
+                  <div className="font-semibold">📧 This Resume Version:</div>
                   <p>Perfect for applying directly via email, recruitment agencies, or networking. Optimized for human readers with great visual appeal.</p>
                 </div>
                 <div>
@@ -300,8 +300,8 @@ export default function CoachingOverview({
             </div>
             <div className="text-center p-4 bg-white rounded-lg border border-gray-100">
               <div className="text-2xl mb-2">📄</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Generate CV</h4>
-              <p className="text-sm text-gray-600">Get both a beautiful CV and an ATS-optimized version</p>
+              <h4 className="font-semibold text-gray-800 mb-2">Generate Resume</h4>
+              <p className="text-sm text-gray-600">Get both a beautiful resume and an ATS-optimized version</p>
             </div>
           </div>
         </div>

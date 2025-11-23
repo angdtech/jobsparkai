@@ -131,11 +131,11 @@ function ResumePageContent() {
     },
     {
       title: "Quick fact:",
-      text: "Using action verbs like 'Led', 'Increased', or 'Developed' makes your CV 33% more likely to get noticed."
+      text: "Using action verbs like 'Led', 'Increased', or 'Developed' makes your resume 33% more likely to get noticed."
     },
     {
       title: "Expert advice:",
-      text: "Tailoring your CV to each job description can increase your interview chances by up to 50%."
+      text: "Tailoring your resume to each job description can increase your interview chances by up to 50%."
     }
   ]
 
@@ -203,13 +203,13 @@ function ResumePageContent() {
         .maybeSingle()
 
       if (!contentError && cvContent) {
-        console.log('✅ [RESUME PAGE] Loading existing CV content for session:', sessionId, {
+        console.log('✅ [RESUME PAGE] Loading existing resume content for session:', sessionId, {
           hasContent: !!cvContent,
           hasName: !!cvContent.full_name,
           timestamp: new Date().toISOString()
         })
         
-        // CRITICAL: CV already exists in database - DO NOT SHOW LOADING OVERLAY
+        // CRITICAL: Resume already exists in database - DO NOT SHOW LOADING OVERLAY
         // Clear the parsing flag and return immediately without any loading state
         // This prevents the loading overlay from showing on page refresh for existing CVs
         if (parsingInProgress) {
@@ -347,7 +347,7 @@ function ResumePageContent() {
         setHistory([formattedData])
         setHistoryIndex(0)
         
-        // IMPORTANT: CV data loaded successfully - ensure loading overlay is OFF
+        // IMPORTANT: Resume data loaded successfully - ensure loading overlay is OFF
         // DO NOT call setIsLoading(true) here under any circumstances
         // The parsing flag has already been cleared above
         return
@@ -367,13 +367,13 @@ function ResumePageContent() {
         return
       }
 
-      // CRITICAL: Only show loading overlay if CV doesn't exist AND parsing is in progress
+      // CRITICAL: Only show loading overlay if resume doesn't exist AND parsing is in progress
       // This should only happen during initial upload, never on page refresh for existing CVs
       if (parsingInProgress) {
-        console.log('⏳ [RESUME PAGE] Session exists but no CV content found - parsing in progress, showing loading overlay')
+        console.log('⏳ [RESUME PAGE] Session exists but no resume content found - parsing in progress, showing loading overlay')
         setIsLoading(true)
       } else {
-        console.log('❌ [RESUME PAGE] Session exists but no CV content found - parsing may have failed')
+        console.log('❌ [RESUME PAGE] Session exists but no resume content found - parsing may have failed')
         setIsLoading(false)
       }
 
@@ -527,7 +527,7 @@ function ResumePageContent() {
       return prevIndex + 1
     })
     
-    // Track CV edit interaction
+    // Track resume edit interaction
     trackUserInteraction({
       interactionType: 'cv_edit',
       metadata: {
@@ -615,7 +615,7 @@ function ResumePageContent() {
     saveLayoutPreference()
   }, [layoutMode, user, layoutModeInitialized])
 
-  // Download CV as PDF using server-side Puppeteer
+  // Download resume as PDF using server-side Puppeteer
   const downloadPDF = async () => {
     if (!resumeRef.current) return
     
@@ -723,7 +723,7 @@ function ResumePageContent() {
         },
         body: JSON.stringify({
           html,
-          name: resumeData?.personalInfo.name || 'CV'
+          name: resumeData?.personalInfo.name || 'Resume'
         }),
       })
       
@@ -736,7 +736,7 @@ function ResumePageContent() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${resumeData?.personalInfo.name || 'CV'}.pdf`
+      a.download = `${resumeData?.personalInfo.name || 'Resume'}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -775,7 +775,7 @@ function ResumePageContent() {
         
         if (data) {
           // Parsing complete! Reload data and stop polling
-          console.log('✅ [RESUME PAGE] Parsing complete! CV content found in database')
+          console.log('✅ [RESUME PAGE] Parsing complete! Resume content found in database')
           sessionStorage.removeItem('parsing_in_progress')
           clearInterval(pollInterval)
           setIsLoading(false)
@@ -921,7 +921,7 @@ function ResumePageContent() {
               </button>
             </div>
 
-            {/* Action buttons above CV */}
+            {/* Action buttons above resume */}
             <div className="flex items-center space-x-3 mb-6">
               {/* Layout Toggle */}
               <div className="flex items-center bg-gray-100 rounded-full p-1">
@@ -986,7 +986,7 @@ function ResumePageContent() {
               )}
             </div>
 
-            {/* CV */}
+            {/* Resume */}
             <div ref={resumeRef} className="bg-white shadow-lg rounded-lg overflow-hidden">
               {layoutMode === 'single-column' ? (
                 <ResumeSingleColumn

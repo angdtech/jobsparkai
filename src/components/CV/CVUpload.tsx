@@ -95,17 +95,17 @@ export default function CVUpload({ onFileUploaded, sessionId, userEmail }: CVUpl
           {uploading ? (
             <>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <p className="text-gray-600">Uploading and analyzing your CV...</p>
+              <p className="text-gray-600">Uploading and analyzing your resume...</p>
             </>
           ) : (
             <>
               <Upload className="h-12 w-12 text-gray-400" />
               <div>
                 <p className="text-lg font-medium text-gray-900 mb-2">
-                  {isDragActive ? 'Drop your CV here' : 'Upload your CV'}
+                  {isDragActive ? 'Drop your resume here' : 'Upload your resume'}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Drag & drop your CV file here, or click to browse
+                  Drag & drop your resume file here, or click to browse
                 </p>
                 <p className="text-xs text-gray-400 mt-2">
                   Supports PDF, DOC, DOCX, TXT files (max 10MB)

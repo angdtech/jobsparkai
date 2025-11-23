@@ -15,7 +15,7 @@ export default function CVAnalysis({ analysis, isLoading = false }: CVAnalysisPr
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center space-x-3 mb-6">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-          <h3 className="text-lg font-semibold text-gray-800">Analyzing your CV...</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Analyzing your resume...</h3>
         </div>
         <div className="space-y-4">
           <div className="animate-pulse bg-gray-200 h-24 rounded"></div>

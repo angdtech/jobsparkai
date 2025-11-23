@@ -23,7 +23,7 @@ export default function FirstTimeGuide({ isVisible, onDismiss, totalIssues }: Fi
     {
       title: "🎯 Issues Found!",
       description: `We found ${totalIssues} issues that could be costing you interviews. Let's fix them together!`,
-      instruction: "Look for red and yellow highlighted text on your CV",
+      instruction: "Look for red and yellow highlighted text on your resume",
       visual: "Red = Critical • Yellow = Improvement"
     },
     {
@@ -36,7 +36,7 @@ export default function FirstTimeGuide({ isVisible, onDismiss, totalIssues }: Fi
       title: "🚀 Apply or Edit",
       description: "Choose to apply our AI suggestion instantly, or edit manually for full control",
       instruction: "You can always generate more AI options if needed",
-      visual: "Your CV improves with each fix"
+      visual: "Your resume improves with each fix"
     }
   ]
 
