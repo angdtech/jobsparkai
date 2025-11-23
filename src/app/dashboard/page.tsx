@@ -13,7 +13,7 @@ import UserProfile from '@/components/Auth/UserProfile'
 const UPLOAD_FACTS = [
   {
     title: "Currently analyzing...",
-    text: "Extracting text from your CV and checking for ATS compatibility issues that could block interviews."
+    text: "Extracting text from your resume and checking for ATS compatibility issues that could block interviews."
   },
   {
     title: "Did you know?",
@@ -33,7 +33,7 @@ const UPLOAD_FACTS = [
   },
   {
     title: "Almost done!",
-    text: "Our AI is identifying specific issues and preparing personalized recommendations for your CV."
+    text: "Our AI is identifying specific issues and preparing personalized recommendations for your resume."
   }
 ]
 
@@ -131,7 +131,7 @@ export default function Dashboard() {
 
     try {
       // Create a session and process the file
-      console.log('🔑 [DASHBOARD] Creating CV session...')
+      console.log('🔑 [DASHBOARD] Creating resume session...')
       const { CVSessionManager } = await import('@/lib/database')
       const session = await CVSessionManager.createSession(user.id)
       if (!session) {
@@ -202,7 +202,7 @@ export default function Dashboard() {
   const deleteCV = async (sessionId: string) => {
     if (!user) return
     
-    const confirmed = window.confirm('Are you sure you want to delete this CV? This action cannot be undone.')
+    const confirmed = window.confirm('Are you sure you want to delete this resume? This action cannot be undone.')
     if (!confirmed) return
 
     try {
@@ -215,11 +215,11 @@ export default function Dashboard() {
       } else {
         const errorData = await response.json()
         console.error('Delete error:', errorData)
-        alert('Failed to delete CV. Please try again.')
+        alert('Failed to delete resume. Please try again.')
       }
     } catch (error) {
       console.error('Delete error:', error)
-      alert('Failed to delete CV. Please try again.')
+      alert('Failed to delete resume. Please try again.')
     }
   }
 
@@ -245,7 +245,7 @@ export default function Dashboard() {
         <header className="mb-12">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">CV Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Dashboard</h1>
               <p className="text-gray-600">Welcome back, {user.user_metadata?.first_name || user.email}</p>
             </div>
             <div className="flex items-center space-x-3">
@@ -254,7 +254,7 @@ export default function Dashboard() {
                   onClick={() => setShowUploadModal(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
-                  + Analyze New CV
+                  + Analyze New Resume
                 </button>
               )}
               <button
@@ -269,7 +269,7 @@ export default function Dashboard() {
 
         <main>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your CV Review Results</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Resume Review Results</h2>
             
             {loadingSessions ? (
               <div className="text-center py-8">
@@ -338,8 +338,8 @@ export default function Dashboard() {
                 ) : (
                   <>
                     <div className="mb-8">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Analyze Your CV</h3>
-                      <p className="text-gray-600">Upload your CV to discover issues that might be costing you interviews</p>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Analyze Your Resume</h3>
+                      <p className="text-gray-600">Upload your resume to discover issues that might be costing you interviews</p>
                     </div>
 
                     <div 
@@ -356,7 +356,7 @@ export default function Dashboard() {
                         </div>
                         
                         <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                          {isDragActive ? 'Drop your CV here!' : 'Drop Your CV Here'}
+                          {isDragActive ? 'Drop your resume here!' : 'Drop Your Resume Here'}
                         </h3>
                         
                         <p className="text-gray-600 mb-6">
@@ -404,7 +404,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-gray-900 mb-1 truncate">
-                                {session.file_name?.replace(/\.(pdf|docx|doc)$/i, '') || 'Untitled CV'}
+                                {session.file_name?.replace(/\.(pdf|docx|doc)$/i, '') || 'Untitled Resume'}
                               </h3>
                               <div className="flex items-center space-x-2 text-sm text-gray-500">
                                 <Calendar className="h-3 w-3" />
@@ -530,7 +530,7 @@ export default function Dashboard() {
                   
                   <div className="space-y-3 max-w-md mx-auto mb-8">
                     <p className="text-lg text-gray-700 font-medium">
-                      Parsing your CV with AI
+                      Parsing your resume with AI
                     </p>
                     <p className="text-sm text-gray-600">
                       Extracting your experience, skills, and education into an editable format
@@ -571,7 +571,7 @@ export default function Dashboard() {
               // Upload Interface
               <div className="p-8">
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Add Your CV</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Add Your Resume</h2>
                   <p className="text-gray-600">Upload your resume to get AI-powered review and improvements</p>
                 </div>
 
@@ -589,7 +589,7 @@ export default function Dashboard() {
                     </div>
                     
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                      {isDragActive ? 'Drop your CV here!' : 'Drop Your CV Here'}
+                      {isDragActive ? 'Drop your resume here!' : 'Drop Your Resume Here'}
                     </h3>
                     
                     <p className="text-gray-600 mb-6">
