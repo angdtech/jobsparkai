@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Landing/Header'
-import HeroSection from '@/components/Landing/HeroSection'
+import HeroSectionAB from '@/components/Landing/HeroSectionAB'
 import FeaturesSection from '@/components/Landing/FeaturesSection'
 import HowItWorksSection from '@/components/Landing/HowItWorksSection'
 import StatsSection from '@/components/Landing/StatsSection'
@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Header onLogin={handleLogin} onSignUp={handleSignUp} />
-      <HeroSection onGetStarted={handleGetStarted} />
+      <HeroSectionAB onGetStarted={handleGetStarted} />
       <FeaturesSection onGetStarted={handleGetStarted} />
       <HowItWorksSection />
       <StatsSection onGetStarted={handleGetStarted} />

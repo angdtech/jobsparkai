@@ -23,7 +23,7 @@
     "openai": "^5.20.1",
     "pdf-parse": "^1.1.4",
     "pdfjs-dist": "^5.4.394",
-    "posthog-js": "^1.290.0",
+    "posthog-js": "^1.297.3",
     "puppeteer-core": "^24.29.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
