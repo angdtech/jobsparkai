@@ -3,16 +3,29 @@
 import { useRouter } from 'next/navigation'
 import { Check } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import SignUpForm from '@/components/Auth/SignUpForm'
 
 export default function PricingPage() {
   const router = useRouter()
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
+  const [shouldAutoSubscribe, setShouldAutoSubscribe] = useState(false)
+
+  // Auto-trigger subscription after signup
+  useEffect(() => {
+    if (user && shouldAutoSubscribe) {
+      setShouldAutoSubscribe(false)
+      handleSubscribe()
+    }
+  }, [user, shouldAutoSubscribe])
 
   const handleSubscribe = async () => {
     if (!user) {
-      router.push('/')
+      // Show signup modal on same page
+      setShowSignUpModal(true)
+      setShouldAutoSubscribe(true)
       return
     }
 
@@ -58,10 +71,10 @@ export default function PricingPage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-6">
-            Get Fast, AI-Powered Resume Analysis
+            Choose Your Plan
           </h1>
           <p className="text-xl text-white/80">
-            Premium gives you unlimited access to our AI Resume Assistant
+            Start for free or upgrade to Premium for unlimited Resume Assistant access
           </p>
         </div>
 
@@ -114,7 +127,7 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span><strong>Unlimited AI Resume Assistant</strong> - chat as much as you need</span>
+                <span><strong>Unlimited Resume Assistant</strong> - chat as much as you need</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
@@ -122,7 +135,7 @@ export default function PricingPage() {
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>AI-powered improvements and suggestions</span>
+                <span>Smart improvements and suggestions</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
@@ -138,7 +151,7 @@ export default function PricingPage() {
               disabled={isLoading}
               className="w-full bg-white text-orange-600 hover:bg-gray-100 font-medium py-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Loading...' : 'Subscribe Now'}
+              {!user ? 'Sign Up to Subscribe' : isLoading ? 'Loading...' : 'Subscribe Now'}
             </button>
           </div>
         </div>
@@ -152,6 +165,28 @@ export default function PricingPage() {
           </button>
         </div>
       </div>
+
+      {/* Sign Up Modal */}
+      {showSignUpModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            <button
+              onClick={() => {
+                setShowSignUpModal(false)
+                setShouldAutoSubscribe(false)
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              ×
+            </button>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Get Started</h2>
+              <p className="text-gray-600">Create your account to continue to subscription</p>
+            </div>
+            <SignUpForm onSuccess={() => setShowSignUpModal(false)} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

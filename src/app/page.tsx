@@ -23,9 +23,28 @@ export default function Home() {
 
   useEffect(() => {
     if (user && !loading) {
-      router.push('/dashboard')
+      // Check if user should be redirected after login
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin')
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin')
+        router.push(redirectPath)
+      } else {
+        router.push('/dashboard')
+      }
     }
   }, [user, loading, router])
+
+  // Check on mount if user came from pricing wanting to subscribe
+  useEffect(() => {
+    if (!loading && !user) {
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin')
+      if (redirectPath && redirectPath.includes('/pricing')) {
+        // Clear the flag and auto-open signup modal
+        sessionStorage.removeItem('redirectAfterLogin')
+        setShowSignUpModal(true)
+      }
+    }
+  }, [loading, user])
 
   const handleGetStarted = () => {
     if (user) {
