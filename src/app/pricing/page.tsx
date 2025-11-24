@@ -58,7 +58,7 @@ export default function PricingPage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-6">
-            Get Fast, AI-Powered CV Analysis
+            Get Fast, AI-Powered Resume Analysis
           </h1>
           <p className="text-xl text-white/80">
             Premium gives you unlimited access to our AI Resume Assistant
@@ -75,15 +75,19 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">Upload and analyze your CV instantly</span>
+                <span className="text-gray-700">Upload your resume</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700"><strong>2 AI chat messages</strong> to trial the Resume Assistant</span>
+                <span className="text-gray-700">Edit and update your resume manually</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                <span className="text-gray-700">See instant CV improvements and ATS feedback</span>
+                <span className="text-gray-700">Access to professional templates</span>
+              </li>
+              <li className="flex items-start">
+                <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
+                <span className="text-gray-700">ATS-optimized template (single column)</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
@@ -114,7 +118,7 @@ export default function PricingPage() {
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span><strong>Fast CV analysis and updates</strong> with priority processing</span>
+                <span><strong>Fast resume analysis and updates</strong> with priority processing</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
@@ -122,7 +126,7 @@ export default function PricingPage() {
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />
-                <span>Compare your CV to job descriptions</span>
+                <span>Compare your resume to job descriptions</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-5 w-5 text-white mr-3 mt-0.5" />

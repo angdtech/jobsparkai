@@ -12,8 +12,8 @@ const steps = [
   },
   {
     icon: <Sparkles className="h-12 w-12" />,
-    title: "Update & Use AI Assistant",
-    description: "Make updates to your resume and use our AI assistant to optimize your content.",
+    title: "Update Your Resume",
+    description: "Update your resume manually with our editor or let our AI assistant help optimize your content for you.",
     color: "from-orange-500 to-red-500"
   },
   {

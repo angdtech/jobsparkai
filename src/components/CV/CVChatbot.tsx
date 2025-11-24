@@ -345,14 +345,14 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume, onSaveResume }:
       return
     }
 
-    // Check if user has access (subscription or free chats remaining)
-    if (!chatUsage?.hasAccess) {
+    // Check if user has subscription - no free messages allowed
+    if (!chatUsage?.hasSubscription) {
       setMessages(prev => [...prev, {
         role: 'user',
         content: input
       }, {
         role: 'assistant',
-        content: 'You\'ve used your 2 free trial messages. Subscribe for £5/month to get unlimited AI Resume Assistant access with fast analysis and updates!'
+        content: 'Subscribe for £5/month to get unlimited AI Resume Assistant access with fast analysis and updates! You can still manually edit your resume for free.'
       }])
       setInput('')
       return
@@ -512,6 +512,24 @@ export function CVChatbot({ resumeData, onClose, onUpdateResume, onSaveResume }:
           </button>
         </div>
       </div>
+
+      {/* Upgrade Banner for Non-Subscribers */}
+      {!chatUsage?.hasSubscription && !loadingUsage && (
+        <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-sm">Upgrade to Premium</p>
+              <p className="text-xs text-white/90">Get unlimited AI Resume Assistant access for £5/month</p>
+            </div>
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="bg-white text-orange-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Upgrade Now
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.map((message, index) => (

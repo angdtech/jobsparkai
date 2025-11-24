@@ -12,13 +12,13 @@ interface HeroSectionABProps {
 const VARIANTS = {
   control: {
     heading: 'Land Your Dream Job',
-    subheading: 'Professional resume optimization powered by AI to help you stand out',
+    subheading: 'Professional resume optimization to help you stand out and get more interviews',
     cta: 'Get Started'
   },
   variant_a1: {
     heading: 'Find Out Why You\'re Not Getting Interviews',
     subheading: 'Upload your resume and instantly see what is holding you back with clear suggestions you can fix today',
-    cta: 'Sign Up Free'
+    cta: 'Sign Up'
   },
   variant_a2: {
     heading: 'Find Out Why You\'re Not Getting Interviews',
@@ -31,24 +31,24 @@ const VARIANTS = {
     cta: 'Sign Up Now'
   },
   variant_b1: {
-    heading: 'Instant Resume Check Free',
+    heading: 'Instant Resume Check',
     subheading: 'Get a quick and simple breakdown of your resume strengths and weaknesses in under 60 seconds',
-    cta: 'Sign Up Free'
+    cta: 'Sign Up'
   },
   variant_b2: {
-    heading: 'Instant Resume Check Free',
+    heading: 'Instant Resume Check',
     subheading: 'Get a quick and simple breakdown of your resume strengths and weaknesses in under 60 seconds',
     cta: 'Get Started'
   },
   variant_b3: {
-    heading: 'Instant Resume Check Free',
+    heading: 'Instant Resume Check',
     subheading: 'Get a quick and simple breakdown of your resume strengths and weaknesses in under 60 seconds',
     cta: 'Sign Up Now'
   },
   variant_c1: {
     heading: 'Turn Your Resume into More Interviews',
     subheading: 'Get specific and actionable improvements that make your resume stand out to hiring managers',
-    cta: 'Sign Up Free'
+    cta: 'Sign Up'
   },
   variant_c2: {
     heading: 'Turn Your Resume into More Interviews',
@@ -133,22 +133,6 @@ function HeroSectionVariant({
       </div>
 
       <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-        {/* Trust Indicators */}
-        <div className="flex flex-col md:flex-row items-center justify-center md:space-x-6 space-y-2 md:space-y-0 mb-12 text-white/80">
-          <div className="flex items-center space-x-1">
-            <Users className="h-4 w-4" />
-            <span className="text-xs md:text-sm">Thousands of professionals</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-xs md:text-sm">AI-powered optimization</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <CheckCircle className="h-4 w-4 text-green-400" />
-            <span className="text-xs md:text-sm">Lightning-fast analysis</span>
-          </div>
-        </div>
-
         {/* Main Heading - A/B TESTED */}
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
           {heading}
@@ -167,13 +151,10 @@ function HeroSectionVariant({
           >
             {ctaText}
           </button>
-          <p className="text-white/60 text-sm mt-4">
-            ✓ Free trial • ✓ No payment needed • ✓ Cancel anytime
-          </p>
         </div>
 
-        {/* Quick Preview of Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-white/80 mb-16">
+        {/* Quick Preview of Benefits - Desktop Only */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-white/80 mb-16">
           <div className="text-center">
             <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-400" />
             <div className="font-semibold">Upload Resume</div>
