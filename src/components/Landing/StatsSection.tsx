@@ -94,7 +94,7 @@ export default function StatsSection({ onGetStarted }: StatsSectionProps) {
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Success Stories from{' '}
             <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              Real Users
+              Users
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
