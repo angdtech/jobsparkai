@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CVSession } from '@/lib/database'
 import { useDropzone } from 'react-dropzone'
-import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette } from 'lucide-react'
+import { Upload, X, FileText, Zap, AlertTriangle, Trash2, Calendar, FileCheck, Star, Target, ArrowRight, Palette, Crown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import UserProfile from '@/components/Auth/UserProfile'
 
@@ -48,6 +48,7 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStep, setUploadStep] = useState(0)
   const [currentFactIndex, setCurrentFactIndex] = useState(0)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -58,8 +59,23 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       fetchUserSessions()
+      fetchSubscriptionStatus()
     }
   }, [user])
+  
+  const fetchSubscriptionStatus = async () => {
+    if (!user) return
+    
+    const { data } = await supabase
+      .from('user_profiles')
+      .select('subscription_status')
+      .eq('id', user.id)
+      .single()
+    
+    if (data?.subscription_status) {
+      setSubscriptionStatus(data.subscription_status)
+    }
+  }
 
   // Cycle through upload facts while uploading
   useEffect(() => {
@@ -245,7 +261,15 @@ export default function Dashboard() {
         <header className="mb-12">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Dashboard</h1>
+              <div className="flex items-center space-x-3 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900">Resume Dashboard</h1>
+                {subscriptionStatus === 'active' && (
+                  <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <Crown className="h-4 w-4" />
+                    <span>Premium</span>
+                  </span>
+                )}
+              </div>
               <p className="text-gray-600">Welcome back, {user.user_metadata?.first_name || user.email}</p>
             </div>
             <div className="flex items-center space-x-3">
